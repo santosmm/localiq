@@ -728,6 +728,12 @@
       document.getElementById('analise-fonte').textContent  = d.analise_fonte;
       document.getElementById('paywall-titulo').textContent = 'Relatório completo de ' + d.freguesia;
 
+      /* Botão "Comparar" passa a freguesia actual como parâmetro */
+      var btnComparar = document.querySelector('.btn-comparar');
+      if (btnComparar) {
+        btnComparar.href = 'comparar.html?a=' + encodeURIComponent(d.freguesia);
+      }
+
       /* Círculo SVG — começa a 0% */
       var circulo = document.getElementById('circulo-progresso');
       circulo.style.strokeDasharray  = CIRC;

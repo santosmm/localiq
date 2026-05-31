@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ════════════════════════════════════════════════════════════
+       DADOS DE COMPARAÇÃO
+       Actualiza para mudar as freguesias de exemplo por defeito.
+       ════════════════════════════════════════════════════════════ -->
+  <script>
+    var DADOS = {
+      a: { nome: 'Cascais', score: 78 },
+      b: { nome: 'Sintra',  score: 65 },
+      indicadores_livres: [
+        { id: 'transportes', nome: 'Transportes Públicos',  scoreA: 82, scoreB: 71 },
+        { id: 'ar',          nome: 'Qualidade do Ar',       scoreA: 88, scoreB: 75 },
+        { id: 'demografia',  nome: 'Evolução Demográfica',  scoreA: 60, scoreB: 80 }
+      ],
+      indicadores_bloqueados: [
+        { id: 'ensino',       nome: 'Ensino e Escolas'   },
+        { id: 'saude',        nome: 'Saúde Primária SNS' },
+        { id: 'arrendamento', nome: 'Preço Arrendamento' }
+      ]
+    };
+  </script>
+
+  <title>Comparar freguesias | Melhor Zona</title>
+  <meta name="description" content="Compara a qualidade de vida entre duas freguesias portuguesas.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Reset e variáveis ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --azul:          #1B4F72;
+      --azul-medio:    #2E86C1;
+      --azul-claro:    #D6E8F5;
+      --azul-escuro:   #0d2137;
+      --branco:        #ffffff;
+      --cinza-fundo:   #f2f6fa;
+      --cinza-borda:   #dde3eb;
+      --cinza-texto:   #6b7a8d;
+      --verde:         #1e8449;
+      --verde-claro:   #d5f5e3;
+      --amarelo-fundo: #FFF9E6;
+      --amarelo-borda: #F9E79F;
+      --amarelo-texto: #7d6608;
+      --titulo:        'Playfair Display', Georgia, serif;
+      --corpo:         'Inter', system-ui, sans-serif;
+      --raio:          12px;
+      --sombra:        0 4px 20px rgba(13,33,55,0.09);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--corpo);
+      color: var(--azul-escuro);
+      background: var(--cinza-fundo);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--azul-escuro);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .nav-logo-icone {
+      width: 32px;
+      height: 32px;
+      background: var(--azul-medio);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-logo-icone svg { width: 18px; height: 18px; fill: var(--branco); }
+
+    .nav-logo-nome {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--branco);
+    }
+
+    .nav-logo-nome span { color: rgba(255,255,255,0.45); font-weight: 400; }
+
+    .btn-voltar {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 7px 14px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .btn-voltar:hover { background: rgba(255,255,255,0.1); color: var(--branco); }
+
+    /* ── Hero / Selector ── */
+    .hero-selector {
+      background-color: var(--azul);
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0px, transparent 18px,
+        rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 19px
+      );
+      padding: 48px 20px 40px;
+      text-align: center;
+    }
+
+    .hero-selector h1 {
+      font-family: var(--titulo);
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      color: var(--branco);
+      margin-bottom: 28px;
+      letter-spacing: -0.5px;
+    }
+
+    /* Form do selector */
+    .selector-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      max-width: 640px;
+      margin: 0 auto 20px;
+    }
+
+    .selector-inputs {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .selector-input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .selector-pin {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.95rem;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .selector-input-wrap input {
+      width: 100%;
+      padding: 13px 14px 13px 36px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: var(--corpo);
+      outline: none;
+      background: rgba(255,255,255,0.95);
+      color: var(--azul-escuro);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+      transition: box-shadow 0.2s;
+    }
+
+    .selector-input-wrap input:focus {
+      box-shadow: 0 2px 18px rgba(46,134,193,0.4);
+    }
+
+    .selector-input-wrap input::placeholder { color: var(--cinza-texto); }
+
+    .selector-vs {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+
+    .btn-comparar-submit {
+      background: var(--branco);
+      color: var(--azul);
+      border: none;
+      padding: 13px 28px;
+      border-radius: 10px;
+      font-family: var(--corpo);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+      transition: transform 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-comparar-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+    }
+
+    /* Pills de comparações populares */
+    .pills-populares {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .pill-label {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .pill-comparacao {
+      background: rgba(255,255,255,0.11);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.82);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-family: var(--corpo);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .pill-comparacao:hover {
+      background: rgba(255,255,255,0.22);
+      color: var(--branco);
+    }
+
+    /* ── Secção de comparação (oculta até ter parâmetros) ── */
+    .secao-comparacao {
+      display: none;
+      padding: 40px 0 8px;
+    }
+
+    /* Animação de entrada dos indicadores */
+    @keyframes entradaCard {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .animar .indicador-card:nth-child(1) { animation: entradaCard 0.4s 0.05s ease both; }
+    .animar .indicador-card:nth-child(2) { animation: entradaCard 0.4s 0.15s ease both; }
+    .animar .indicador-card:nth-child(3) { animation: entradaCard 0.4s 0.25s ease both; }
+
+    /* ── Veredicto ── */
+    .veredicto-card {
+      background: var(--azul);
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0px, transparent 18px,
+        rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 19px
+      );
+      border-radius: 16px;
+      padding: 30px 26px;
+      margin-bottom: 28px;
+      color: var(--branco);
+      text-align: center;
+    }
+
+    .veredicto-card h2 {
+      font-family: var(--titulo);
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    .perfis-botoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .btn-perfil {
+      background: rgba(255,255,255,0.1);
+      border: 1.5px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.78);
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-family: var(--corpo);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      line-height: 1.4;
+    }
+
+    .btn-perfil:hover {
+      background: rgba(255,255,255,0.16);
+      color: var(--branco);
+      border-color: rgba(255,255,255,0.35);
+    }
+
+    .btn-perfil.activo {
+      background: rgba(255,255,255,0.2);
+      border-color: var(--branco);
+      color: var(--branco);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
+    }
+
+    .veredicto-resultado {
+      background: rgba(0,0,0,0.18);
+      border-radius: 10px;
+      padding: 14px 18px;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .veredicto-texto {
+      font-size: 0.97rem;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.6;
+    }
+
+    .veredicto-destaque {
+      font-family: var(--titulo);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--branco);
+    }
+
+    /* ── Secção de indicadores ── */
+    .secao-label {
+      font-family: var(--titulo);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--azul-escuro);
+      margin-bottom: 12px;
+    }
+
+    .legenda-cores {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .legenda-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--azul-escuro);
+    }
+
+    .legenda-cor {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .cor-a { background: var(--azul); }
+    .cor-b { background: var(--azul-medio); }
+
+    /* Card de indicador */
+    .indicador-card {
+      background: var(--branco);
+      border: 1px solid var(--cinza-borda);
+      border-radius: var(--raio);
+      padding: 18px 20px;
+      margin-bottom: 10px;
+      box-shadow: var(--sombra);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .indicador-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .indicador-icone {
+      width: 34px;
+      height: 34px;
+      background: var(--azul-claro);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--azul);
+    }
+
+    .indicador-icone svg {
+      width: 17px;
+      height: 17px;
+      stroke: var(--azul);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .indicador-nome {
+      font-size: 0.9rem;
+      font-weight: 700;
+      flex: 1;
+      color: var(--azul-escuro);
+    }
+
+    .badge-vantagem {
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--verde-claro);
+      color: var(--verde);
+      padding: 3px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* Barras de progresso */
+    .barra-linha {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 7px;
+    }
+
+    .barra-linha:last-of-type { margin-bottom: 0; }
+
+    .barra-nome {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--cinza-texto);
+      width: 88px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .barra-fundo {
+      flex: 1;
+      height: 7px;
+      background: var(--cinza-borda);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .barra-fill {
+      height: 100%;
+      border-radius: 4px;
+      width: 0;
+      transition: width 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .barra-fill.cor-a { background: var(--azul); }
+    .barra-fill.cor-b { background: var(--azul-medio); }
+
+    .barra-score {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--azul-escuro);
+      width: 26px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Overlay dos indicadores bloqueados */
+    .indicador-overlay {
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      background: rgba(214,232,245,0.22);
+      border-radius: var(--raio);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .overlay-cadeado {
+      width: 38px;
+      height: 38px;
+      background: var(--azul);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      box-shadow: 0 3px 12px rgba(27,79,114,0.35);
+    }
+
+    .overlay-texto {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--azul);
+    }
+
+    /* ── Insight surpresa ── */
+    .insight-card {
+      background: var(--amarelo-fundo);
+      border: 1px solid var(--amarelo-borda);
+      border-radius: var(--raio);
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 13px;
+      margin: 20px 0;
+    }
+
+    .insight-icone {
+      width: 36px;
+      height: 36px;
+      background: #F9E79F;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .insight-label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: var(--amarelo-texto);
+      margin-bottom: 3px;
+    }
+
+    .insight-texto {
+      font-size: 0.88rem;
+      color: #5d4e00;
+      line-height: 1.65;
+    }
+
+    /* ── Paywall contextual ── */
+    .paywall {
+      background-color: var(--azul);
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0px, transparent 18px,
+        rgba(255,255,255,0.05) 18px, rgba(255,255,255,0.05) 19px
+      );
+      border-radius: 16px;
+      padding: 34px 26px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .paywall h3 {
+      font-family: var(--titulo);
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--branco);
+      margin-bottom: 10px;
+    }
+
+    .paywall-sub {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.92rem;
+      margin-bottom: 22px;
+      line-height: 1.65;
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .paywall-botoes {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @media (min-width: 480px) {
+      .paywall-botoes { flex-direction: row; justify-content: center; }
+    }
+
+    .btn-desbloquear {
+      background: var(--branco);
+      color: var(--azul);
+      border: none;
+      padding: 13px 24px;
+      border-radius: 10px;
+      font-family: var(--corpo);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-desbloquear:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    .btn-ver-relatorio {
+      background: transparent;
+      color: rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.28);
+      padding: 13px 18px;
+      border-radius: 10px;
+      font-family: var(--corpo);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .btn-ver-relatorio:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--branco);
+    }
+
+    /* ── Sugestões relacionadas ── */
+    .secao-sugestoes {
+      padding: 36px 0 48px;
+    }
+
+    .sugestoes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .sugestao-card {
+      background: var(--branco);
+      border: 1px solid var(--cinza-borda);
+      border-radius: var(--raio);
+      padding: 16px 18px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--azul-escuro);
+      font-weight: 600;
+      font-size: 0.9rem;
+      box-shadow: var(--sombra);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .sugestao-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(13,33,55,0.12);
+    }
+
+    .sugestao-seta { color: var(--azul-medio); }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--azul-escuro);
+      padding: 22px 0;
+      text-align: center;
+    }
+
+    footer p { font-size: 0.8rem; color: rgba(255,255,255,0.38); }
+    footer strong { color: rgba(255,255,255,0.62); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .selector-inputs { flex-direction: column; gap: 10px; }
+      .selector-vs { display: none; }
+      .btn-comparar-submit { width: 100%; }
+      .barra-nome { width: 72px; }
+      .badge-vantagem { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Nav ── -->
+  <nav>
+    <div class="container nav-inner">
+      <a href="/index.html" class="nav-logo">
+        <div class="nav-logo-icone">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+        </div>
+        <span class="nav-logo-nome">Melhor Zona<span>.pt</span></span>
+      </a>
+      <a href="/index.html" class="btn-voltar">← Nova pesquisa</a>
+    </div>
+  </nav>
+
+  <!-- ── Hero / Selector ── -->
+  <section class="hero-selector">
+    <div class="container">
+      <h1>Compara duas freguesias</h1>
+
+      <form class="selector-form" id="form-comparar">
+        <div class="selector-inputs">
+          <div class="selector-input-wrap">
+            <span class="selector-pin">📍</span>
+            <input type="text" id="input-a" placeholder="Freguesia A" autocomplete="off" required>
+          </div>
+          <span class="selector-vs">VS</span>
+          <div class="selector-input-wrap">
+            <span class="selector-pin">📍</span>
+            <input type="text" id="input-b" placeholder="Freguesia B" autocomplete="off" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-comparar-submit">Comparar →</button>
+      </form>
+
+      <div class="pills-populares">
+        <span class="pill-label">Populares:</span>
+        <button class="pill-comparacao" type="button" data-a="Lisboa" data-b="Porto">Lisboa vs Porto</button>
+        <button class="pill-comparacao" type="button" data-a="Cascais" data-b="Sintra">Cascais vs Sintra</button>
+        <button class="pill-comparacao" type="button" data-a="Miraflores" data-b="Oeiras">Miraflores vs Oeiras</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Secção de comparação (oculta até ter parâmetros) ── -->
+  <section class="secao-comparacao" id="secao-comparacao">
+    <div class="container">
+
+      <!-- Veredicto dinâmico -->
+      <div class="veredicto-card">
+        <h2>Qual é melhor para ti?</h2>
+        <div class="perfis-botoes">
+          <button class="btn-perfil" data-perfil="familia">👨‍👩‍👧 Família com filhos</button>
+          <button class="btn-perfil" data-perfil="profissional">💼 Jovem profissional</button>
+          <button class="btn-perfil" data-perfil="qualidade">🌿 Qualidade de vida</button>
+        </div>
+        <div class="veredicto-resultado" id="veredicto-resultado">
+          <p class="veredicto-texto">Selecciona um perfil para ver o veredicto.</p>
+        </div>
+      </div>
+
+      <!-- Indicadores livres -->
+      <div class="secao-label">Indicadores incluídos</div>
+      <div class="legenda-cores">
+        <div class="legenda-item">
+          <div class="legenda-cor cor-a"></div>
+          <span id="legenda-a">Freguesia A</span>
+        </div>
+        <div class="legenda-item">
+          <div class="legenda-cor cor-b"></div>
+          <span id="legenda-b">Freguesia B</span>
+        </div>
+      </div>
+      <div id="indicadores-livres"></div>
+
+      <!-- Insight surpresa -->
+      <div class="insight-card" id="insight-card" style="display:none">
+        <div class="insight-icone">💡</div>
+        <div>
+          <span class="insight-label">Descoberta</span>
+          <p class="insight-texto" id="insight-texto"></p>
+        </div>
+      </div>
+
+      <!-- Paywall contextual -->
+      <div class="paywall">
+        <h3>Vê a comparação completa</h3>
+        <p class="paywall-sub">Escolas, saúde e arrendamento — os 3 factores que mais influenciam a decisão de onde viver.</p>
+        <div class="paywall-botoes">
+          <button class="btn-desbloquear">Desbloquear por 4,99€</button>
+          <a href="#" class="btn-ver-relatorio" id="btn-ver-relatorio">Ver relatório individual →</a>
+        </div>
+      </div>
+
+      <!-- Indicadores bloqueados -->
+      <div id="indicadores-bloqueados"></div>
+
+    </div>
+  </section>
+
+  <!-- ── Sugestões relacionadas ── -->
+  <section class="secao-sugestoes">
+    <div class="container">
+      <div class="secao-label">Comparações populares</div>
+      <div class="sugestoes-grid">
+        <a href="comparar.html?a=Lisboa&b=Porto" class="sugestao-card">
+          <span>Lisboa vs Porto</span><span class="sugestao-seta">→</span>
+        </a>
+        <a href="comparar.html?a=Cascais&b=Sintra" class="sugestao-card">
+          <span>Cascais vs Sintra</span><span class="sugestao-seta">→</span>
+        </a>
+        <a href="comparar.html?a=Miraflores&b=Oeiras" class="sugestao-card">
+          <span>Miraflores vs Oeiras</span><span class="sugestao-seta">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="container">
+      <p>Dados públicos · <strong>INE</strong> · <strong>ACSS</strong> · <strong>IPMA</strong> · <strong>DGEEC</strong> · Actualizado 2024 · <strong>Feito em Portugal 🇵🇹</strong></p>
+    </div>
+  </footer>
+
+  <script>
+    /* SVGs inline — sem dependência de CDN */
+    var ICONES_SVG = {
+      transportes:  '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 11h18M8 5V3M16 5V3"/><circle cx="8" cy="17" r="1" fill="#1B4F72" stroke="none"/><circle cx="16" cy="17" r="1" fill="#1B4F72" stroke="none"/></svg>',
+      ar:           '<svg viewBox="0 0 24 24"><path d="M5 8h8a3 3 0 0 1 0 6H5M3 16h6a2 2 0 0 0 0-4H7"/></svg>',
+      demografia:   '<svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>',
+      ensino:       '<svg viewBox="0 0 24 24"><path d="M22 9l-10-4l-10 4l10 4l10-4v6"/><path d="M6 10.6v5.4a6 3 0 0 0 12 0v-5.4"/></svg>',
+      saude:        '<svg viewBox="0 0 24 24"><path d="M6 4h-1a2 2 0 0 0-2 2v3.5h0a5.5 5.5 0 0 0 11 0v-3.5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 1 0 12 0v-3"/><path d="M11 3v2"/><path d="M6 3v2"/><circle cx="20" cy="10" r="2" stroke-width="1.8"/></svg>',
+      arrendamento: '<svg viewBox="0 0 24 24"><path d="M5 12l-2 0l9-9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg>'
+    };
+
+    /* Pesos por perfil para o veredicto */
+    var PERFIS = {
+      familia:      { transportes: 0.35, ar: 0.35, demografia: 0.30 },
+      profissional: { transportes: 0.60, ar: 0.25, demografia: 0.15 },
+      qualidade:    { transportes: 0.20, ar: 0.55, demografia: 0.25 }
+    };
+
+    /* Descrições dos indicadores para texto do veredicto */
+    var DESCRICOES = {
+      transportes: 'transportes públicos',
+      ar:          'qualidade do ar',
+      demografia:  'crescimento demográfico'
+    };
+
+    /* Capitaliza nome respeitando conectivos portugueses */
+    var CONECTIVOS = { 'e': 1, 'de': 1, 'da': 1, 'do': 1, 'das': 1, 'dos': 1, 'a': 1, 'o': 1 };
+
+    function capitalizar(nome) {
+      return nome.toLowerCase().split(' ').map(function(p, i) {
+        return (i > 0 && CONECTIVOS[p]) ? p : p.charAt(0).toUpperCase() + p.slice(1);
+      }).join(' ');
+    }
+
+    /* Lê os parâmetros ?a= e ?b= do URL */
+    function lerParams() {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        var a = p.get('a'), b = p.get('b');
+        if (!a || !b) return null;
+        return { a: capitalizar(decodeURIComponent(a)), b: capitalizar(decodeURIComponent(b)) };
+      } catch (e) { return null; }
+    }
+
+    /* Calcula o veredicto ponderado para um perfil */
+    function calcularVeredicto(perfilId) {
+      var pesos = PERFIS[perfilId];
+      if (!pesos) return null;
+      var totalA = 0, totalB = 0;
+      DADOS.indicadores_livres.forEach(function(ind) {
+        var p = pesos[ind.id] || 0;
+        totalA += p * ind.scoreA;
+        totalB += p * ind.scoreB;
+      });
+
+      var vencedor = totalA >= totalB ? DADOS.a.nome : DADOS.b.nome;
+
+      /* Indicador que mais contribuiu para a vitória */
+      var melhorInd = null, melhorContrib = -Infinity;
+      DADOS.indicadores_livres.forEach(function(ind) {
+        var p = pesos[ind.id] || 0;
+        var contrib = p * ((totalA >= totalB) ? (ind.scoreA - ind.scoreB) : (ind.scoreB - ind.scoreA));
+        if (contrib > melhorContrib) { melhorContrib = contrib; melhorInd = ind; }
+      });
+
+      return { vencedor: vencedor, razao: melhorInd ? DESCRICOES[melhorInd.id] : '' };
+    }
+
+    /* Gera texto do insight com a descoberta mais surpreendente */
+    function gerarInsight(nomeA, nomeB) {
+      var inds = DADOS.indicadores_livres;
+      var melhorA = null, melhorB = null;
+
+      inds.forEach(function(ind) {
+        var d = ind.scoreA - ind.scoreB;
+        if (!melhorA || d > melhorA.d) melhorA = { ind: ind, d: d };
+        if (!melhorB || -d > melhorB.d) melhorB = { ind: ind, d: -d };
+      });
+
+      if (!melhorA || !melhorB || melhorA.d <= 0 || melhorB.d <= 0) return null;
+      if (melhorA.ind.id === melhorB.ind.id) return null;
+
+      var pctA = Math.round(Math.abs(melhorA.d) / melhorA.ind.scoreB * 100);
+      var pctB = Math.round(Math.abs(melhorB.d) / melhorB.ind.scoreA * 100);
+
+      return nomeA + ' tem ' + DESCRICOES[melhorA.ind.id] + ' ' + pctA + '% melhor'
+           + ', mas ' + nomeB + ' destaca-se no ' + DESCRICOES[melhorB.ind.id]
+           + ' (+' + pctB + '%).';
+    }
+
+    /* Gera HTML de um indicador livre */
+    function htmlIndicadorLivre(ind, nomeA, nomeB) {
+      var vencedor = ind.scoreA >= ind.scoreB ? nomeA : nomeB;
+      return '<div class="indicador-card">' +
+        '<div class="indicador-header">' +
+          '<div class="indicador-icone">' + (ICONES_SVG[ind.id] || '') + '</div>' +
+          '<span class="indicador-nome">' + ind.nome + '</span>' +
+          '<span class="badge-vantagem">Vantagem: ' + vencedor + '</span>' +
+        '</div>' +
+        '<div class="barra-linha">' +
+          '<span class="barra-nome">' + nomeA + '</span>' +
+          '<div class="barra-fundo"><div class="barra-fill cor-a" data-score="' + ind.scoreA + '"></div></div>' +
+          '<span class="barra-score">' + ind.scoreA + '</span>' +
+        '</div>' +
+        '<div class="barra-linha">' +
+          '<span class="barra-nome">' + nomeB + '</span>' +
+          '<div class="barra-fundo"><div class="barra-fill cor-b" data-score="' + ind.scoreB + '"></div></div>' +
+          '<span class="barra-score">' + ind.scoreB + '</span>' +
+        '</div>' +
+      '</div>';
+    }
+
+    /* Gera HTML de um indicador bloqueado */
+    function htmlIndicadorBloqueado(ind, nomeA, nomeB) {
+      return '<div class="indicador-card">' +
+        '<div class="indicador-header">' +
+          '<div class="indicador-icone">' + (ICONES_SVG[ind.id] || '') + '</div>' +
+          '<span class="indicador-nome">' + ind.nome + '</span>' +
+        '</div>' +
+        '<div class="barra-linha">' +
+          '<span class="barra-nome">' + nomeA + '</span>' +
+          '<div class="barra-fundo"><div class="barra-fill cor-a" style="width:62%"></div></div>' +
+          '<span class="barra-score">—</span>' +
+        '</div>' +
+        '<div class="barra-linha">' +
+          '<span class="barra-nome">' + nomeB + '</span>' +
+          '<div class="barra-fundo"><div class="barra-fill cor-b" style="width:54%"></div></div>' +
+          '<span class="barra-score">—</span>' +
+        '</div>' +
+        '<div class="indicador-overlay">' +
+          '<div class="overlay-cadeado">🔒</div>' +
+          '<span class="overlay-texto">Relatório completo</span>' +
+        '</div>' +
+      '</div>';
+    }
+
+    /* Actualiza o veredicto e o botão activo */
+    function mostrarVeredicto(perfilId) {
+      var resultado = calcularVeredicto(perfilId);
+      if (!resultado) return;
+
+      document.getElementById('veredicto-resultado').innerHTML =
+        '<p class="veredicto-texto">' +
+          '<span class="veredicto-destaque">' + resultado.vencedor + '</span> ' +
+          'é a melhor escolha — destaca-se nos ' + resultado.razao + '.' +
+        '</p>';
+
+      document.querySelectorAll('.btn-perfil').forEach(function(btn) {
+        btn.classList.toggle('activo', btn.getAttribute('data-perfil') === perfilId);
+      });
+    }
+
+    /* Renderiza toda a secção de comparação */
+    function renderizarComparacao(nomeA, nomeB) {
+      DADOS.a.nome = nomeA;
+      DADOS.b.nome = nomeB;
+
+      document.title = nomeA + ' vs ' + nomeB + ' | Melhor Zona';
+      document.getElementById('legenda-a').textContent = nomeA;
+      document.getElementById('legenda-b').textContent = nomeB;
+
+      /* Indicadores livres */
+      var containerLivres = document.getElementById('indicadores-livres');
+      containerLivres.innerHTML = DADOS.indicadores_livres.map(function(ind) {
+        return htmlIndicadorLivre(ind, nomeA, nomeB);
+      }).join('');
+
+      /* Indicadores bloqueados */
+      document.getElementById('indicadores-bloqueados').innerHTML =
+        DADOS.indicadores_bloqueados.map(function(ind) {
+          return htmlIndicadorBloqueado(ind, nomeA, nomeB);
+        }).join('');
+
+      /* Insight */
+      var textoInsight = gerarInsight(nomeA, nomeB);
+      if (textoInsight) {
+        document.getElementById('insight-texto').textContent = textoInsight;
+        document.getElementById('insight-card').style.display = 'flex';
+      }
+
+      /* Botão "Ver relatório individual" aponta para freguesia A */
+      document.getElementById('btn-ver-relatorio').href =
+        'relatorio.html?freguesia=' + encodeURIComponent(nomeA);
+
+      /* Mostra a secção */
+      document.getElementById('secao-comparacao').style.display = 'block';
+
+      /* Anima barras e cards */
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          containerLivres.querySelectorAll('.barra-fill[data-score]').forEach(function(b) {
+            b.style.width = b.getAttribute('data-score') + '%';
+          });
+          containerLivres.classList.add('animar');
+          mostrarVeredicto('familia');
+        });
+      });
+    }
+
+    /* ── Event listeners ── */
+
+    document.getElementById('form-comparar').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var a = document.getElementById('input-a').value.trim();
+      var b = document.getElementById('input-b').value.trim();
+      if (!a || !b) return;
+      window.location.href = 'comparar.html?a=' + encodeURIComponent(a) + '&b=' + encodeURIComponent(b);
+    });
+
+    document.querySelectorAll('.pill-comparacao').forEach(function(pill) {
+      pill.addEventListener('click', function() {
+        window.location.href = 'comparar.html?a=' + encodeURIComponent(this.getAttribute('data-a'))
+                             + '&b=' + encodeURIComponent(this.getAttribute('data-b'));
+      });
+    });
+
+    document.querySelectorAll('.btn-perfil').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        mostrarVeredicto(this.getAttribute('data-perfil'));
+      });
+    });
+
+    /* ── Inicialização ── */
+    var params = lerParams();
+    if (params) {
+      document.getElementById('input-a').value = params.a;
+      document.getElementById('input-b').value = params.b;
+      renderizarComparacao(params.a, params.b);
+      /* Scroll suave até à comparação */
+      setTimeout(function() {
+        document.getElementById('secao-comparacao').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    }
+  </script>
+
+</body>
+</html>
