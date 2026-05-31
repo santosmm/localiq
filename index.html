@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Compara a qualidade de vida entre freguesias portuguesas. Transportes, escolas, saúde — tudo num só lugar.">
+  <title>Localiq — Compara onde viver em Portugal</title>
+  <style>
+    /* ── Reset e base ── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --azul-escuro: #0d2137;
+      --azul-medio: #1a4a7a;
+      --azul-claro: #2d7dd2;
+      --azul-acento: #3a9bd5;
+      --branco: #ffffff;
+      --cinza-claro: #f4f7fb;
+      --cinza-texto: #6b7a8d;
+      --borda: #dde3eb;
+      --fonte: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --raio: 10px;
+      --sombra: 0 4px 20px rgba(13, 33, 55, 0.10);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--fonte);
+      color: var(--azul-escuro);
+      background: var(--branco);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Utilitários ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--azul-escuro);
+      padding: 18px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icone {
+      width: 36px;
+      height: 36px;
+      background: var(--azul-claro);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Ícone de pin SVG inline */
+    .logo-icone svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--branco);
+    }
+
+    .logo-nome {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--branco);
+      letter-spacing: -0.5px;
+    }
+
+    .logo-tagline {
+      font-size: 0.75rem;
+      color: var(--azul-acento);
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+
+    .logo-texto {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    nav a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-left: 28px;
+      transition: color 0.2s;
+    }
+
+    nav a:hover { color: var(--branco); }
+
+    nav a.btn-nav {
+      background: var(--azul-claro);
+      color: var(--branco);
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    nav a.btn-nav:hover { background: var(--azul-acento); }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(160deg, var(--azul-escuro) 0%, var(--azul-medio) 100%);
+      color: var(--branco);
+      padding: 100px 0 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Padrão de pontos decorativo */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    .hero-conteudo { position: relative; z-index: 1; }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(58, 155, 213, 0.20);
+      color: var(--azul-acento);
+      border: 1px solid rgba(58, 155, 213, 0.35);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 22px;
+      max-width: 780px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero h1 span { color: var(--azul-acento); }
+
+    .hero-subtitulo {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: rgba(255,255,255,0.78);
+      max-width: 580px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    /* Formulário hero */
+    .form-espera {
+      display: flex;
+      gap: 10px;
+      max-width: 480px;
+      margin: 0 auto 16px;
+      justify-content: center;
+    }
+
+    .form-espera input[type="email"] {
+      flex: 1;
+      padding: 14px 18px;
+      border: none;
+      border-radius: var(--raio);
+      font-size: 1rem;
+      font-family: var(--fonte);
+      outline: none;
+      background: rgba(255,255,255,0.95);
+      color: var(--azul-escuro);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      transition: box-shadow 0.2s;
+    }
+
+    .form-espera input[type="email"]:focus {
+      box-shadow: 0 2px 20px rgba(58, 155, 213, 0.4);
+    }
+
+    .form-espera input[type="email"]::placeholder { color: var(--cinza-texto); }
+
+    .btn-primario {
+      background: var(--azul-claro);
+      color: var(--branco);
+      border: none;
+      padding: 14px 24px;
+      border-radius: var(--raio);
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: var(--fonte);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 4px 16px rgba(45, 125, 210, 0.40);
+    }
+
+    .btn-primario:hover { background: var(--azul-acento); transform: translateY(-1px); }
+    .btn-primario:active { transform: translateY(0); }
+
+    .hero-nota {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      margin-top: 60px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .stat { text-align: center; }
+
+    .stat-numero {
+      display: block;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--branco);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.55);
+      margin-top: 4px;
+    }
+
+    /* ── Problema ── */
+    .problema {
+      background: var(--cinza-claro);
+      padding: 80px 0;
+    }
+
+    .secao-titulo {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .secao-titulo h2 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+
+    .secao-titulo p {
+      color: var(--cinza-texto);
+      font-size: 1.05rem;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .problema-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .problema-card {
+      background: var(--branco);
+      border: 1px solid var(--borda);
+      border-radius: var(--raio);
+      padding: 28px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      box-shadow: var(--sombra);
+    }
+
+    .problema-icone {
+      font-size: 1.8rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .problema-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .problema-card p {
+      font-size: 0.9rem;
+      color: var(--cinza-texto);
+      line-height: 1.6;
+    }
+
+    /* ── Benefícios ── */
+    .beneficios {
+      padding: 80px 0;
+      background: var(--branco);
+    }
+
+    .beneficios-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+      margin-top: 48px;
+    }
+
+    .beneficio-card {
+      border: 1px solid var(--borda);
+      border-radius: 14px;
+      padding: 36px 30px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .beneficio-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      border-radius: 14px 14px 0 0;
+    }
+
+    .beneficio-card:nth-child(1)::before { background: #2d7dd2; }
+    .beneficio-card:nth-child(2)::before { background: #27ae60; }
+    .beneficio-card:nth-child(3)::before { background: #e74c3c; }
+
+    .beneficio-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 36px rgba(13, 33, 55, 0.12);
+    }
+
+    .beneficio-emoji {
+      font-size: 2.6rem;
+      margin-bottom: 18px;
+      display: block;
+    }
+
+    .beneficio-card h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.3px;
+    }
+
+    .beneficio-card p {
+      color: var(--cinza-texto);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .beneficio-lista {
+      list-style: none;
+    }
+
+    .beneficio-lista li {
+      font-size: 0.88rem;
+      color: var(--azul-escuro);
+      padding: 5px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .beneficio-lista li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--azul-claro);
+      font-weight: 700;
+    }
+
+    /* ── CTA Final ── */
+    .cta-final {
+      background: linear-gradient(160deg, var(--azul-escuro) 0%, var(--azul-medio) 100%);
+      color: var(--branco);
+      padding: 80px 0;
+      text-align: center;
+    }
+
+    .cta-final h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 14px;
+    }
+
+    .cta-final p {
+      color: rgba(255,255,255,0.72);
+      font-size: 1.1rem;
+      margin-bottom: 36px;
+    }
+
+    /* Mensagem de sucesso */
+    .mensagem-sucesso {
+      display: none;
+      background: rgba(39, 174, 96, 0.15);
+      border: 1px solid rgba(39, 174, 96, 0.35);
+      color: #2ecc71;
+      padding: 14px 24px;
+      border-radius: var(--raio);
+      font-size: 0.95rem;
+      font-weight: 500;
+      max-width: 480px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--azul-escuro);
+      color: rgba(255,255,255,0.45);
+      padding: 32px 0;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    footer strong { color: rgba(255,255,255,0.75); }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .hero { padding: 70px 0 60px; }
+
+      .form-espera {
+        flex-direction: column;
+        padding: 0 8px;
+      }
+
+      .form-espera input[type="email"],
+      .btn-primario { width: 100%; text-align: center; }
+
+      .hero-stats {
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+
+      nav { display: none; }
+
+      .problema-card { flex-direction: column; gap: 10px; }
+    }
+
+    @media (max-width: 480px) {
+      .stat-numero { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="container header-inner">
+      <a href="/" class="logo">
+        <div class="logo-icone">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+          </svg>
+        </div>
+        <div class="logo-texto">
+          <span class="logo-nome">Localiq</span>
+          <span class="logo-tagline">Portugal</span>
+        </div>
+      </a>
+      <nav>
+        <a href="#beneficios">Como funciona</a>
+        <a href="#lista-espera" class="btn-nav">Entrar na lista</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="container hero-conteudo">
+      <div class="hero-badge">Brevemente disponível</div>
+      <h1>Antes de assinar o contrato,<br><span>sabe mesmo onde vai viver?</span></h1>
+      <p class="hero-subtitulo">
+        Compara qualquer duas freguesias de Portugal. Transportes, escolas, saúde — tudo num relatório.
+      </p>
+
+      <form class="form-espera" id="form-hero" novalidate>
+        <input
+          type="email"
+          id="email-hero"
+          placeholder="email@exemplo.pt"
+          autocomplete="email"
+          required
+        >
+        <button type="submit" class="btn-primario">Entrar na lista gratuita</button>
+      </form>
+      <div class="mensagem-sucesso" id="sucesso-hero">
+        Ótimo! Vamos avisar-te quando abrirmos. 🎉
+      </div>
+      <p class="hero-nota">Sem spam. Podes cancelar quando quiseres.</p>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-numero">3091</span>
+          <span class="stat-label">freguesias em Portugal</span>
+        </div>
+        <div class="stat">
+          <span class="stat-numero">6</span>
+          <span class="stat-label">fontes de dados públicos</span>
+        </div>
+        <div class="stat">
+          <span class="stat-numero">100%</span>
+          <span class="stat-label">dados verificados</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Problema ── -->
+  <section class="problema">
+    <div class="container">
+      <div class="secao-titulo">
+        <h2>O que a maioria das famílias não sabe antes de mudar de casa</h2>
+        <p>Os portais imobiliários mostram-te o preço e as fotos. Mas não te dizem o que realmente importa.</p>
+      </div>
+      <div class="problema-grid">
+        <div class="problema-card">
+          <span class="problema-icone">🏥</span>
+          <div>
+            <h3>Há médico de família naquela zona?</h3>
+            <p>Algumas freguesias têm cobertura abaixo dos 40%. Só descobres depois de te inscrever no centro de saúde.</p>
+          </div>
+        </div>
+        <div class="problema-card">
+          <span class="problema-icone">🚌</span>
+          <div>
+            <h3>Consegues ir trabalhar sem carro?</h3>
+            <p>A frequência de autocarros e metro varia enormemente entre freguesias vizinhas. Não basta olhar para o mapa.</p>
+          </div>
+        </div>
+        <div class="problema-card">
+          <span class="problema-icone">🎓</span>
+          <div>
+            <h3>A escola do bairro é boa?</h3>
+            <p>As taxas de sucesso escolar por agrupamento são públicas, mas dispersas. Ninguém as cruza por freguesia.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Benefícios ── -->
+  <section class="beneficios" id="beneficios">
+    <div class="container">
+      <div class="secao-titulo">
+        <h2>Tudo o que precisas de saber, num só relatório</h2>
+        <p>Compara qualquer duas freguesias lado a lado com dados do INE, ACSS, DGEEC e mais.</p>
+      </div>
+      <div class="beneficios-grid">
+
+        <!-- Transportes -->
+        <div class="beneficio-card">
+          <span class="beneficio-emoji">🚇</span>
+          <h3>Transportes Públicos</h3>
+          <p>Frequência de serviço, cobertura pedonal e acessibilidade real — não apenas se existe uma paragem no mapa.</p>
+          <ul class="beneficio-lista">
+            <li>Linhas de metro, comboio e autocarro</li>
+            <li>Tempo médio de espera por hora</li>
+            <li>Cobertura a pé até paragem (GTFS)</li>
+          </ul>
+        </div>
+
+        <!-- Escolas -->
+        <div class="beneficio-card">
+          <span class="beneficio-emoji">🏫</span>
+          <h3>Ensino e Escolas</h3>
+          <p>Taxa de sucesso escolar por agrupamento, distância das escolas e oferta de ensino secundário na área.</p>
+          <ul class="beneficio-lista">
+            <li>Taxa de conclusão por agrupamento (DGEEC)</li>
+            <li>Escola mais próxima por nível de ensino</li>
+            <li>Oferta de ensino profissional</li>
+          </ul>
+        </div>
+
+        <!-- Saúde -->
+        <div class="beneficio-card">
+          <span class="beneficio-emoji">⚕️</span>
+          <h3>Saúde e Bem-estar</h3>
+          <p>Cobertura de médico de família, qualidade do ar e distância ao hospital mais próximo com urgência aberta.</p>
+          <ul class="beneficio-lista">
+            <li>% de utentes com médico de família (ACSS)</li>
+            <li>Índice de qualidade do ar (QualAr/APA)</li>
+            <li>Acesso a urgência hospitalar</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA Final ── -->
+  <section class="cta-final" id="lista-espera">
+    <div class="container">
+      <h2>Sê dos primeiros a comparar</h2>
+      <p>Já tens uma mudança em vista? Entra na lista — os primeiros 500 inscritos têm acesso gratuito para sempre.</p>
+
+      <form class="form-espera" id="form-cta" novalidate style="margin-bottom: 12px;">
+        <input
+          type="email"
+          id="email-cta"
+          placeholder="email@exemplo.pt"
+          autocomplete="email"
+          required
+        >
+        <button type="submit" class="btn-primario">Quero ser dos primeiros</button>
+      </form>
+      <div class="mensagem-sucesso" id="sucesso-cta">
+        Perfeito! Estás na lista. Vamos avisar-te em breve. 🎉
+      </div>
+      <p class="hero-nota">Sem spam. Cancelas quando quiseres.</p>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 <strong>Localiq</strong> · Dados públicos INE, ACSS, DGEEC, APA · Feito em Portugal 🇵🇹</p>
+    </div>
+  </footer>
+
+  <script>
+    // Regista email na lista de espera
+    function registarEmail(email, formularioId, mensagemId) {
+      // Validação básica antes de enviar
+      if (!email || !email.includes('@')) return false;
+
+      var btn = document.querySelector('#' + formularioId + ' button');
+      btn.disabled = true;
+      btn.textContent = 'A guardar...';
+
+      // TODO: substituir pela chamada real ao Cloudflare Worker
+      // fetch('/api/lista-espera', { method: 'POST', body: JSON.stringify({ email }) })
+      setTimeout(function () {
+        document.getElementById(formularioId).style.display = 'none';
+        document.getElementById(mensagemId).style.display = 'block';
+
+        // Guarda localmente para não pedir de novo
+        localStorage.setItem('localiq_email', email);
+      }, 800);
+
+      return true;
+    }
+
+    // Oculta formulário se o utilizador já se inscreveu
+    function verificarInscricaoAnterior() {
+      if (localStorage.getItem('localiq_email')) {
+        ['form-hero', 'form-cta'].forEach(function (id) {
+          var form = document.getElementById(id);
+          if (form) form.style.display = 'none';
+        });
+        ['sucesso-hero', 'sucesso-cta'].forEach(function (id) {
+          var msg = document.getElementById(id);
+          if (msg) {
+            msg.style.display = 'block';
+            msg.textContent = 'Já estás na lista. Avisamos-te em breve! 🎉';
+          }
+        });
+      }
+    }
+
+    // Submissão do formulário hero
+    document.getElementById('form-hero').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = document.getElementById('email-hero').value.trim();
+      registarEmail(email, 'form-hero', 'sucesso-hero');
+    });
+
+    // Submissão do formulário CTA final
+    document.getElementById('form-cta').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = document.getElementById('email-cta').value.trim();
+      registarEmail(email, 'form-cta', 'sucesso-cta');
+    });
+
+    // Corre ao carregar a página
+    verificarInscricaoAnterior();
+  </script>
+
+</body>
+</html>
