@@ -683,16 +683,33 @@
       '</div>';
     }
 
-    /* Preenche a página com os dados de DADOS */
+    /* Lê o parâmetro ?freguesia= do URL e sobrepõe os dados de exemplo */
+    function lerParametroUrl() {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        return params.get('freguesia') || null;
+      } catch (e) { return null; }
+    }
+
+    /* Preenche a página com os dados de DADOS (ou parâmetro URL) */
     function renderizar() {
       var d = DADOS;
+
+      var nomeUrl = lerParametroUrl();
+      if (nomeUrl) {
+        d.freguesia = decodeURIComponent(nomeUrl);
+        d.concelho  = d.freguesia;
+        d.regiao    = 'Portugal';
+      }
 
       document.title = 'Relatório — ' + d.freguesia + ' | Melhor Zona';
 
       /* Hero */
       document.getElementById('hero-score').textContent    = d.score_total;
       document.getElementById('hero-freguesia').textContent = d.freguesia;
-      document.getElementById('hero-localizacao').textContent = 'Freguesia de ' + d.concelho + ' · ' + d.regiao;
+      document.getElementById('hero-localizacao').textContent = d.concelho !== d.freguesia
+        ? 'Freguesia de ' + d.concelho + ' · ' + d.regiao
+        : d.regiao;
       document.getElementById('hero-badge').textContent    = d.badge;
       document.getElementById('analise-texto').textContent  = d.analise;
       document.getElementById('analise-fonte').textContent  = d.analise_fonte;

@@ -426,6 +426,69 @@
       margin-bottom: 36px;
     }
 
+    /* ── Barra de pesquisa de freguesia ── */
+    .form-pesquisa {
+      display: flex;
+      gap: 10px;
+      max-width: 580px;
+      margin: 0 auto 14px;
+      justify-content: center;
+    }
+
+    .form-pesquisa input[type="text"] {
+      flex: 1;
+      padding: 14px 18px;
+      border: none;
+      border-radius: var(--raio);
+      font-size: 1rem;
+      font-family: var(--fonte);
+      outline: none;
+      background: rgba(255,255,255,0.95);
+      color: var(--azul-escuro);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      transition: box-shadow 0.2s;
+      min-width: 0;
+    }
+
+    .form-pesquisa input[type="text"]:focus {
+      box-shadow: 0 2px 20px rgba(58,155,213,0.4);
+    }
+
+    .form-pesquisa input[type="text"]::placeholder { color: var(--cinza-texto); }
+
+    /* Pills de pesquisas populares */
+    .pesquisas-populares {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .populares-label {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .pill-pesquisa {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.85);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-family: var(--fonte);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      line-height: 1.4;
+    }
+
+    .pill-pesquisa:hover {
+      background: rgba(255,255,255,0.22);
+      color: var(--branco);
+    }
+
     /* Mensagem de sucesso */
     .mensagem-sucesso {
       display: none;
@@ -456,12 +519,14 @@
     @media (max-width: 640px) {
       .hero { padding: 70px 0 60px; }
 
-      .form-espera {
+      .form-espera,
+      .form-pesquisa {
         flex-direction: column;
         padding: 0 8px;
       }
 
       .form-espera input[type="email"],
+      .form-pesquisa input[type="text"],
       .btn-primario { width: 100%; text-align: center; }
 
       .hero-stats {
@@ -511,20 +576,24 @@
         Compara qualquer duas freguesias de Portugal. Transportes, escolas, saúde — tudo num relatório.
       </p>
 
-      <form class="form-espera" id="form-hero" novalidate>
+      <form class="form-pesquisa" id="form-pesquisa">
         <input
-          type="email"
-          id="email-hero"
-          placeholder="email@exemplo.pt"
-          autocomplete="email"
+          type="text"
+          id="input-freguesia"
+          placeholder="Pesquisa uma freguesia... ex: Cascais, Miraflores, Belém"
+          autocomplete="off"
           required
         >
-        <button type="submit" class="btn-primario">Entrar na lista gratuita</button>
+        <button type="submit" class="btn-primario">Ver relatório →</button>
       </form>
-      <div class="mensagem-sucesso" id="sucesso-hero">
-        Ótimo! Vamos avisar-te quando abrirmos. 🎉
+      <div class="pesquisas-populares">
+        <span class="populares-label">Pesquisas populares:</span>
+        <button class="pill-pesquisa" type="button">Cascais</button>
+        <button class="pill-pesquisa" type="button">Miraflores</button>
+        <button class="pill-pesquisa" type="button">Belém</button>
+        <button class="pill-pesquisa" type="button">Porto</button>
+        <button class="pill-pesquisa" type="button">Braga</button>
       </div>
-      <p class="hero-nota">Sem spam. Podes cancelar quando quiseres.</p>
 
       <div class="hero-stats">
         <div class="stat">
@@ -700,28 +769,38 @@
         });
     }
 
-    // Oculta formulários se o utilizador já se inscreveu
-    function verificarInscricaoAnterior() {
-      if (localStorage.getItem('melhorzona_email')) {
-        ['form-hero', 'form-cta'].forEach(function (id) {
-          var form = document.getElementById(id);
-          if (form) form.style.display = 'none';
-        });
-        ['sucesso-hero', 'sucesso-cta'].forEach(function (id) {
-          var msg = document.getElementById(id);
-          if (msg) {
-            msg.style.display = 'block';
-            msg.textContent = 'Já estás na lista. Avisamos-te em breve! 🎉';
-          }
-        });
-      }
+    // Pesquisa de freguesia — redireciona para o relatório
+    function pesquisarFreguesia(nome) {
+      var valor = nome.trim();
+      if (!valor) return;
+      window.location.href = 'relatorio.html?freguesia=' + encodeURIComponent(valor);
     }
 
-    // Submissão do formulário hero
-    document.getElementById('form-hero').addEventListener('submit', function (e) {
+    // Submissão da barra de pesquisa
+    document.getElementById('form-pesquisa').addEventListener('submit', function (e) {
       e.preventDefault();
-      registarEmail(document.getElementById('email-hero').value.trim(), 'form-hero', 'sucesso-hero');
+      pesquisarFreguesia(document.getElementById('input-freguesia').value);
     });
+
+    // Pills de pesquisas populares
+    document.querySelectorAll('.pill-pesquisa').forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        pesquisarFreguesia(this.textContent.trim());
+      });
+    });
+
+    // Oculta formulário CTA se o utilizador já se inscreveu
+    function verificarInscricaoAnterior() {
+      if (localStorage.getItem('melhorzona_email')) {
+        var form = document.getElementById('form-cta');
+        if (form) form.style.display = 'none';
+        var msg = document.getElementById('sucesso-cta');
+        if (msg) {
+          msg.style.display = 'block';
+          msg.textContent = 'Já estás na lista. Avisamos-te em breve! 🎉';
+        }
+      }
+    }
 
     // Submissão do formulário CTA final
     document.getElementById('form-cta').addEventListener('submit', function (e) {
