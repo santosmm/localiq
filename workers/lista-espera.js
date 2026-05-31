@@ -3,6 +3,7 @@ const AIRTABLE_TABLE_ID = 'tblB9N9UdJDgIHE7B';
 const AIRTABLE_API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`;
 
 const ORIGENS_PERMITIDAS = [
+  'https://melhorzona.netlify.app',
   'https://melhorzona.pt',
   'https://www.melhorzona.pt',
 ];
