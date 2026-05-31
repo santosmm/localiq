@@ -279,17 +279,13 @@
     .animar .indicador-card:nth-child(2) { animation: entradaCard 0.4s 0.15s ease both; }
     .animar .indicador-card:nth-child(3) { animation: entradaCard 0.4s 0.25s ease both; }
 
-    /* ── Veredicto ── */
+    /* ── Veredicto (dentro do hero azul, sem fundo próprio) ── */
     .veredicto-card {
-      background: var(--azul);
-      background-image: repeating-linear-gradient(
-        -45deg,
-        transparent 0px, transparent 18px,
-        rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 19px
-      );
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 16px;
-      padding: 30px 26px;
-      margin-bottom: 28px;
+      padding: 28px 24px;
+      margin-top: 28px;
       color: var(--branco);
       text-align: center;
     }
@@ -336,27 +332,60 @@
       box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
     }
 
-    .veredicto-resultado {
+    #veredicto-resultado {
       background: rgba(0,0,0,0.18);
-      border-radius: 10px;
-      padding: 14px 18px;
-      min-height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border-radius: 12px;
+      padding: 18px 16px;
     }
 
-    .veredicto-texto {
-      font-size: 0.97rem;
-      color: rgba(255,255,255,0.88);
-      line-height: 1.6;
-    }
-
-    .veredicto-destaque {
+    /* Nome da freguesia vencedora — grande, Playfair */
+    .veredicto-vencedor {
       font-family: var(--titulo);
-      font-size: 1.15rem;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
       font-weight: 800;
       color: var(--branco);
+      line-height: 1.1;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .veredicto-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.9);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .veredicto-razao {
+      font-size: 0.92rem;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.65;
+      margin-bottom: 14px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .veredicto-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .veredicto-pill {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.82);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 500;
     }
 
     /* ── Secção de indicadores ── */
@@ -749,25 +778,23 @@
         <button class="pill-comparacao" type="button" data-a="Cascais" data-b="Sintra">Cascais vs Sintra</button>
         <button class="pill-comparacao" type="button" data-a="Miraflores" data-b="Oeiras">Miraflores vs Oeiras</button>
       </div>
-    </div>
-  </section>
 
-  <!-- ── Secção de comparação (oculta até ter parâmetros) ── -->
-  <section class="secao-comparacao" id="secao-comparacao">
-    <div class="container">
-
-      <!-- Veredicto dinâmico -->
-      <div class="veredicto-card">
+      <!-- Veredicto (oculto por defeito, aparece no hero quando há parâmetros) -->
+      <div class="veredicto-card" id="veredicto-card" style="display:none">
         <h2>Qual é melhor para ti?</h2>
         <div class="perfis-botoes">
           <button class="btn-perfil" data-perfil="familia">👨‍👩‍👧 Família com filhos</button>
           <button class="btn-perfil" data-perfil="profissional">💼 Jovem profissional</button>
           <button class="btn-perfil" data-perfil="qualidade">🌿 Qualidade de vida</button>
         </div>
-        <div class="veredicto-resultado" id="veredicto-resultado">
-          <p class="veredicto-texto">Selecciona um perfil para ver o veredicto.</p>
-        </div>
+        <div id="veredicto-resultado"></div>
       </div>
+    </div>
+  </section>
+
+  <!-- ── Secção de comparação (oculta até ter parâmetros) ── -->
+  <section class="secao-comparacao" id="secao-comparacao">
+    <div class="container">
 
       <!-- Indicadores livres -->
       <div class="secao-label">Indicadores incluídos</div>
@@ -792,6 +819,9 @@
         </div>
       </div>
 
+      <!-- Indicadores bloqueados -->
+      <div id="indicadores-bloqueados"></div>
+
       <!-- Paywall contextual -->
       <div class="paywall">
         <h3>Vê a comparação completa</h3>
@@ -801,9 +831,6 @@
           <a href="#" class="btn-ver-relatorio" id="btn-ver-relatorio">Ver relatório individual →</a>
         </div>
       </div>
-
-      <!-- Indicadores bloqueados -->
-      <div id="indicadores-bloqueados"></div>
 
     </div>
   </section>
@@ -844,18 +871,23 @@
       arrendamento: '<svg viewBox="0 0 24 24"><path d="M5 12l-2 0l9-9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg>'
     };
 
-    /* Pesos por perfil para o veredicto */
+    /* Perfis — pesos para calcular vencedor, razão e factores em destaque */
     var PERFIS = {
-      familia:      { transportes: 0.35, ar: 0.35, demografia: 0.30 },
-      profissional: { transportes: 0.60, ar: 0.25, demografia: 0.15 },
-      qualidade:    { transportes: 0.20, ar: 0.55, demografia: 0.25 }
-    };
-
-    /* Descrições dos indicadores para texto do veredicto */
-    var DESCRICOES = {
-      transportes: 'transportes públicos',
-      ar:          'qualidade do ar',
-      demografia:  'crescimento demográfico'
+      familia: {
+        pesos:    { transportes: 0.40, ar: 0.20, demografia: 0.40 },
+        razao:    'Melhores escolas e transportes para o dia-a-dia com crianças',
+        factores: ['Ensino', 'Transportes', 'Saúde Primária']
+      },
+      profissional: {
+        pesos:    { transportes: 0.60, ar: 0.40, demografia: 0.00 },
+        razao:    'Melhor mobilidade e ambiente urbano para quem trabalha na cidade',
+        factores: ['Transportes', 'Qualidade do Ar', 'Arrendamento']
+      },
+      qualidade: {
+        pesos:    { transportes: 0.10, ar: 0.50, demografia: 0.40 },
+        razao:    'Ambiente mais saudável e comunidade em crescimento',
+        factores: ['Qualidade do Ar', 'Saúde', 'Espaços Verdes']
+      }
     };
 
     /* Capitaliza nome respeitando conectivos portugueses */
@@ -877,28 +909,17 @@
       } catch (e) { return null; }
     }
 
-    /* Calcula o veredicto ponderado para um perfil */
-    function calcularVeredicto(perfilId) {
-      var pesos = PERFIS[perfilId];
-      if (!pesos) return null;
+    /* Calcula qual freguesia vence para um perfil com base nos pesos */
+    function calcularVencedor(perfilId) {
+      var perfil = PERFIS[perfilId];
+      if (!perfil) return null;
       var totalA = 0, totalB = 0;
       DADOS.indicadores_livres.forEach(function(ind) {
-        var p = pesos[ind.id] || 0;
+        var p = perfil.pesos[ind.id] || 0;
         totalA += p * ind.scoreA;
         totalB += p * ind.scoreB;
       });
-
-      var vencedor = totalA >= totalB ? DADOS.a.nome : DADOS.b.nome;
-
-      /* Indicador que mais contribuiu para a vitória */
-      var melhorInd = null, melhorContrib = -Infinity;
-      DADOS.indicadores_livres.forEach(function(ind) {
-        var p = pesos[ind.id] || 0;
-        var contrib = p * ((totalA >= totalB) ? (ind.scoreA - ind.scoreB) : (ind.scoreB - ind.scoreA));
-        if (contrib > melhorContrib) { melhorContrib = contrib; melhorInd = ind; }
-      });
-
-      return { vencedor: vencedor, razao: melhorInd ? DESCRICOES[melhorInd.id] : '' };
+      return totalA >= totalB ? DADOS.a.nome : DADOS.b.nome;
     }
 
     /* Gera texto do insight com a descoberta mais surpreendente */
@@ -969,16 +990,22 @@
       '</div>';
     }
 
-    /* Actualiza o veredicto e o botão activo */
+    /* Mostra o veredicto: nome grande, badge, razão e pills de factores */
     function mostrarVeredicto(perfilId) {
-      var resultado = calcularVeredicto(perfilId);
-      if (!resultado) return;
+      var perfil = PERFIS[perfilId];
+      if (!perfil) return;
+      var vencedor = calcularVencedor(perfilId);
+      if (!vencedor) return;
+
+      var pillsHtml = perfil.factores.map(function(f) {
+        return '<span class="veredicto-pill">' + f + '</span>';
+      }).join('');
 
       document.getElementById('veredicto-resultado').innerHTML =
-        '<p class="veredicto-texto">' +
-          '<span class="veredicto-destaque">' + resultado.vencedor + '</span> ' +
-          'é a melhor escolha — destaca-se nos ' + resultado.razao + '.' +
-        '</p>';
+        '<div class="veredicto-vencedor">' + vencedor + '</div>' +
+        '<div class="veredicto-badge">é a melhor escolha</div>' +
+        '<p class="veredicto-razao">' + perfil.razao + '</p>' +
+        '<div class="veredicto-pills">' + pillsHtml + '</div>';
 
       document.querySelectorAll('.btn-perfil').forEach(function(btn) {
         btn.classList.toggle('activo', btn.getAttribute('data-perfil') === perfilId);
@@ -1017,8 +1044,9 @@
       document.getElementById('btn-ver-relatorio').href =
         'relatorio.html?freguesia=' + encodeURIComponent(nomeA);
 
-      /* Mostra a secção */
+      /* Mostra secção de comparação e veredicto dentro do hero */
       document.getElementById('secao-comparacao').style.display = 'block';
+      document.getElementById('veredicto-card').style.display = 'block';
 
       /* Anima barras e cards */
       requestAnimationFrame(function() {
