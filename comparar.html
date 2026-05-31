@@ -939,8 +939,8 @@
       var pctA = Math.round(Math.abs(melhorA.d) / melhorA.ind.scoreB * 100);
       var pctB = Math.round(Math.abs(melhorB.d) / melhorB.ind.scoreA * 100);
 
-      return nomeA + ' tem ' + DESCRICOES[melhorA.ind.id] + ' ' + pctA + '% melhor'
-           + ', mas ' + nomeB + ' destaca-se no ' + DESCRICOES[melhorB.ind.id]
+      return nomeA + ' tem melhor ' + melhorA.ind.nome.toLowerCase() + ' (+' + pctA + '%)'
+           + ', mas ' + nomeB + ' destaca-se em ' + melhorB.ind.nome.toLowerCase()
            + ' (+' + pctB + '%).';
     }
 
