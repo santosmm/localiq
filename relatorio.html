@@ -691,15 +691,28 @@
       } catch (e) { return null; }
     }
 
+    /* Capitaliza cada palavra excepto conectivos portugueses no meio da frase */
+    var CONECTIVOS = { 'e': true, 'de': true, 'da': true, 'do': true,
+                       'das': true, 'dos': true, 'a': true, 'o': true };
+
+    function capitalizarFreguesia(nome) {
+      return nome.toLowerCase().split(' ').map(function (palavra, i) {
+        if (i > 0 && CONECTIVOS[palavra]) return palavra;
+        return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+      }).join(' ');
+    }
+
     /* Preenche a página com os dados de DADOS (ou parâmetro URL) */
     function renderizar() {
       var d = DADOS;
 
       var nomeUrl = lerParametroUrl();
       if (nomeUrl) {
-        d.freguesia = decodeURIComponent(nomeUrl);
+        d.freguesia = capitalizarFreguesia(decodeURIComponent(nomeUrl));
         d.concelho  = d.freguesia;
         d.regiao    = 'Portugal';
+        /* Substitui o nome de exemplo no texto de análise pelo nome real */
+        d.analise = d.analise.replace('Cascais e Estoril', d.freguesia);
       }
 
       document.title = 'Relatório — ' + d.freguesia + ' | Melhor Zona';
