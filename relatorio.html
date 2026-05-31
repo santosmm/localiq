@@ -23,9 +23,9 @@
         { nome: 'Evolução Demográfica',  icone: '📈', score: 60, valor: '+2,1% população 2011–2021',       badge: 'Médio' }
       ],
       indicadores_bloqueados: [
-        { nome: 'Ensino e Escolas',     icone: '🏫', score: 71 },
-        { nome: 'Saúde Primária SNS',   icone: '⚕️', score: 65 },
-        { nome: 'Arrendamento',         icone: '🏠', score: 45 }
+        { nome: 'Ensino e Escolas',     icone: 'ti-school',      score: 71 },
+        { nome: 'Saúde Primária SNS',   icone: 'ti-stethoscope', score: 65 },
+        { nome: 'Arrendamento',         icone: 'ti-home',        score: 45 }
       ]
     };
   </script>
@@ -33,10 +33,11 @@
   <title>Relatório | Melhor Zona</title>
   <meta name="description" content="Relatório de qualidade de vida por freguesia — transportes, escolas, saúde e mais.">
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts + Tabler Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 
   <style>
     /* ── Reset e variáveis ── */
@@ -145,14 +146,29 @@
       background-image: repeating-linear-gradient(
         -45deg,
         transparent 0px, transparent 18px,
-        rgba(255,255,255,0.06) 18px, rgba(255,255,255,0.06) 19px
+        rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 19px
       );
-      padding: 52px 20px 40px;
-      text-align: center;
+      padding: 52px 32px 44px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      text-align: center;
       gap: 14px;
+    }
+
+    /* Layout lado a lado no desktop */
+    @media (min-width: 640px) {
+      .hero-principal {
+        flex-direction: row;
+        text-align: left;
+        align-items: center;
+        gap: 36px;
+        max-width: 900px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .hero-info { flex: 1; }
     }
 
     /* Círculo SVG score */
@@ -336,6 +352,13 @@
       justify-content: center;
       font-size: 1.35rem;
       margin-bottom: 14px;
+    }
+
+    /* Ícones Tabler dentro dos cards */
+    .card-icone i {
+      font-size: 1.4rem;
+      color: var(--azul);
+      line-height: 1;
     }
 
     .card-nome {
@@ -551,9 +574,11 @@
       </div>
     </div>
 
-    <h1 class="hero-freguesia" id="hero-freguesia">—</h1>
-    <p class="hero-localizacao" id="hero-localizacao">—</p>
-    <div class="hero-badge" id="hero-badge">—</div>
+    <div class="hero-info">
+      <h1 class="hero-freguesia" id="hero-freguesia">—</h1>
+      <p class="hero-localizacao" id="hero-localizacao">—</p>
+      <div class="hero-badge" id="hero-badge">—</div>
+    </div>
   </div>
 
   <!-- Secção cinza de análise -->
@@ -632,7 +657,7 @@
     /* Gera HTML de um card bloqueado com overlay */
     function htmlCardBloqueado(ind) {
       return '<div class="card">' +
-        '<div class="card-icone">' + ind.icone + '</div>' +
+        '<div class="card-icone"><i class="ti ' + ind.icone + '"></i></div>' +
         '<div class="card-nome">' + ind.nome + '</div>' +
         '<div class="card-score">' + ind.score + '<span> / 100</span></div>' +
         '<div class="barra-fundo"><div class="barra-progresso" style="width:' + ind.score + '%"></div></div>' +
