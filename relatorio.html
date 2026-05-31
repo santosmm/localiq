@@ -33,11 +33,10 @@
   <title>Relatório | Melhor Zona</title>
   <meta name="description" content="Relatório de qualidade de vida por freguesia — transportes, escolas, saúde e mais.">
 
-  <!-- Google Fonts + Tabler Icons -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 
   <style>
     /* ── Reset e variáveis ── */
@@ -352,13 +351,19 @@
       justify-content: center;
       font-size: 1.35rem;
       margin-bottom: 14px;
+      color: var(--azul);
     }
 
-    /* Ícones Tabler dentro dos cards */
-    .card-icone i {
-      font-size: 1.4rem;
-      color: var(--azul);
-      line-height: 1;
+    /* SVGs inline nos cards bloqueados */
+    .card-icone svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--azul);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
     }
 
     .card-nome {
@@ -654,10 +659,18 @@
       '</div>';
     }
 
+    /* SVGs inline para os cards bloqueados — sem dependência de CDN */
+    var ICONES_SVG = {
+      'ti-school': '<svg viewBox="0 0 24 24"><path d="M22 9l-10 -4l-10 4l10 4l10 -4v6"/><path d="M6 10.6v5.4a6 3 0 0 0 12 0v-5.4"/></svg>',
+      'ti-stethoscope': '<svg viewBox="0 0 24 24"><path d="M6 4h-1a2 2 0 0 0 -2 2v3.5h0a5.5 5.5 0 0 0 11 0v-3.5a2 2 0 0 0 -2 -2h-1"/><path d="M8 15a6 6 0 1 0 12 0v-3"/><path d="M11 3v2"/><path d="M6 3v2"/><circle cx="20" cy="10" r="2" stroke-width="1.8"/></svg>',
+      'ti-home': '<svg viewBox="0 0 24 24"><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></svg>'
+    };
+
     /* Gera HTML de um card bloqueado com overlay */
     function htmlCardBloqueado(ind) {
+      var svgIcone = ICONES_SVG[ind.icone] || '';
       return '<div class="card">' +
-        '<div class="card-icone"><i class="ti ' + ind.icone + '"></i></div>' +
+        '<div class="card-icone">' + svgIcone + '</div>' +
         '<div class="card-nome">' + ind.nome + '</div>' +
         '<div class="card-score">' + ind.score + '<span> / 100</span></div>' +
         '<div class="barra-fundo"><div class="barra-progresso" style="width:' + ind.score + '%"></div></div>' +
