@@ -57,9 +57,9 @@ para imobiliárias.
 5. Clica "Desbloquear por 4,99€" → [A LIGAR] Stripe
 
 ## Próximos passos (Sprint 1 em curso)
-- [ ] Ligar barra de pesquisa da home ao relatorio.html
-- [ ] Ler parâmetro ?freguesia= no URL do relatório
-- [ ] Pills de freguesias populares na home
+- [x] Ligar barra de pesquisa da home ao relatorio.html
+- [x] Ler parâmetro ?freguesia= no URL do relatório
+- [x] Pills de freguesias populares na home
 - [ ] Construir comparar.html (comparação entre 2 freguesias)
 - [ ] Integrar Stripe para pagamento de 4,99€
 - [ ] Carregar dados reais do INE/IPMA no Airtable
