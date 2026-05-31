@@ -651,31 +651,53 @@
   </footer>
 
   <script>
-    // Regista email na lista de espera
+    var WORKER_URL = '/api/lista-espera';
+
+    // Envia o email para o Worker e trata a resposta
     function registarEmail(email, formularioId, mensagemId) {
-      // Validação básica antes de enviar
-      if (!email || !email.includes('@')) return false;
+      if (!email || !email.includes('@')) return;
 
       var btn = document.querySelector('#' + formularioId + ' button');
+      var msgEl = document.getElementById(mensagemId);
       btn.disabled = true;
       btn.textContent = 'A guardar...';
 
-      // TODO: substituir pela chamada real ao Cloudflare Worker
-      // fetch('/api/lista-espera', { method: 'POST', body: JSON.stringify({ email }) })
-      setTimeout(function () {
-        document.getElementById(formularioId).style.display = 'none';
-        document.getElementById(mensagemId).style.display = 'block';
-
-        // Guarda localmente para não pedir de novo
-        localStorage.setItem('localiq_email', email);
-      }, 800);
-
-      return true;
+      fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email }),
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (dados) {
+          if (dados.success) {
+            document.getElementById(formularioId).style.display = 'none';
+            msgEl.textContent = 'Ótimo! Vamos avisar-te quando abrirmos. 🎉';
+            msgEl.style.display = 'block';
+            localStorage.setItem('melhorzona_email', email);
+          } else {
+            btn.disabled = false;
+            btn.textContent = 'Tentar novamente';
+            msgEl.textContent = dados.error || 'Ocorreu um erro. Tenta novamente.';
+            msgEl.style.background = 'rgba(231, 76, 60, 0.15)';
+            msgEl.style.borderColor = 'rgba(231, 76, 60, 0.35)';
+            msgEl.style.color = '#e74c3c';
+            msgEl.style.display = 'block';
+          }
+        })
+        .catch(function () {
+          btn.disabled = false;
+          btn.textContent = 'Tentar novamente';
+          msgEl.textContent = 'Sem ligação. Verifica a tua internet e tenta novamente.';
+          msgEl.style.background = 'rgba(231, 76, 60, 0.15)';
+          msgEl.style.borderColor = 'rgba(231, 76, 60, 0.35)';
+          msgEl.style.color = '#e74c3c';
+          msgEl.style.display = 'block';
+        });
     }
 
-    // Oculta formulário se o utilizador já se inscreveu
+    // Oculta formulários se o utilizador já se inscreveu
     function verificarInscricaoAnterior() {
-      if (localStorage.getItem('localiq_email')) {
+      if (localStorage.getItem('melhorzona_email')) {
         ['form-hero', 'form-cta'].forEach(function (id) {
           var form = document.getElementById(id);
           if (form) form.style.display = 'none';
@@ -693,15 +715,13 @@
     // Submissão do formulário hero
     document.getElementById('form-hero').addEventListener('submit', function (e) {
       e.preventDefault();
-      var email = document.getElementById('email-hero').value.trim();
-      registarEmail(email, 'form-hero', 'sucesso-hero');
+      registarEmail(document.getElementById('email-hero').value.trim(), 'form-hero', 'sucesso-hero');
     });
 
     // Submissão do formulário CTA final
     document.getElementById('form-cta').addEventListener('submit', function (e) {
       e.preventDefault();
-      var email = document.getElementById('email-cta').value.trim();
-      registarEmail(email, 'form-cta', 'sucesso-cta');
+      registarEmail(document.getElementById('email-cta').value.trim(), 'form-cta', 'sucesso-cta');
     });
 
     // Corre ao carregar a página
