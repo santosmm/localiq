@@ -885,6 +885,8 @@
     </div>
   </footer>
 
+  <script src="/data/freguesias.js"></script>
+  <script src="/assets/js/autocomplete.js"></script>
   <script>
     /* SVGs inline — sem dependência de CDN */
     var ICONES_SVG = {
@@ -1107,6 +1109,10 @@
         mostrarVeredicto(this.getAttribute('data-perfil'));
       });
     });
+
+    /* ── Autocomplete nos dois inputs de freguesia ── */
+    iniciarAutocomplete(document.getElementById('input-a'));
+    iniciarAutocomplete(document.getElementById('input-b'));
 
     /* ── Inicialização ── */
     var params = lerParams();

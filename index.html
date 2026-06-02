@@ -458,8 +458,15 @@
       justify-content: center;
     }
 
-    .form-pesquisa input[type="text"] {
+    /* Wrapper do input de pesquisa (âncora do dropdown de autocomplete) */
+    .form-pesquisa .ac-wrap {
       flex: 1;
+      position: relative;
+      min-width: 0;
+    }
+
+    .form-pesquisa input[type="text"] {
+      width: 100%;
       padding: 14px 18px;
       border: none;
       border-radius: var(--raio);
@@ -470,7 +477,6 @@
       color: var(--azul-escuro);
       box-shadow: 0 2px 12px rgba(0,0,0,0.15);
       transition: box-shadow 0.2s;
-      min-width: 0;
     }
 
     .form-pesquisa input[type="text"]:focus {
@@ -625,13 +631,15 @@
       </p>
 
       <form class="form-pesquisa" id="form-pesquisa">
-        <input
-          type="text"
-          id="input-freguesia"
-          placeholder="Pesquisa uma freguesia... ex: Cascais, Miraflores, Belém"
-          autocomplete="off"
-          required
-        >
+        <div class="ac-wrap">
+          <input
+            type="text"
+            id="input-freguesia"
+            placeholder="Pesquisa uma freguesia... ex: Cascais, Miraflores, Belém"
+            autocomplete="off"
+            required
+          >
+        </div>
         <button type="submit" class="btn-primario">Ver relatório →</button>
       </form>
       <div class="pesquisas-populares">
@@ -779,6 +787,8 @@
     </div>
   </footer>
 
+  <script src="/data/freguesias.js"></script>
+  <script src="/assets/js/autocomplete.js"></script>
   <script>
     var WORKER_URL = 'https://melhorzona-lista-espera.matheusmottas.workers.dev';
 
@@ -865,6 +875,13 @@
 
     // Corre ao carregar a página
     verificarInscricaoAnterior();
+
+    // Autocomplete no campo de pesquisa de freguesia
+    iniciarAutocomplete(document.getElementById('input-freguesia'), {
+      aoSelecionar: function (f) {
+        pesquisarFreguesia(f.nome);
+      }
+    });
   </script>
 
 </body>
