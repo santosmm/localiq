@@ -9,6 +9,12 @@
   <meta property="og:description" content="Compara transportes, escolas e saúde entre qualquer duas freguesias de Portugal.">
   <meta property="og:url" content="https://melhorzona.netlify.app">
   <meta property="og:type" content="website">
+  <meta name="theme-color" content="#1B4F72">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Melhor Zona">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/assets/images/icon-192.png">
   <title>Melhor Zona — Compara onde viver em Portugal</title>
   <style>
     /* ── Reset e base ── */
@@ -307,9 +313,26 @@
     }
 
     .problema-icone {
-      font-size: 1.8rem;
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      background: #D6E8F5;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
-      line-height: 1;
+      color: #1B4F72;
+    }
+
+    .problema-icone svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .problema-card h3 {
@@ -517,17 +540,43 @@
 
     /* ── Responsive ── */
     @media (max-width: 640px) {
-      .hero { padding: 70px 0 60px; }
+      .hero { padding: 48px 0 40px; }
+
+      /* Espaçamento reduzido entre secções */
+      .problema { padding: 44px 0; }
+      .beneficios { padding: 44px 0; }
+      .cta-final { padding: 44px 0; }
 
       .form-espera,
       .form-pesquisa {
         flex-direction: column;
         padding: 0 8px;
+        gap: 12px;
       }
+
+      /* iOS: font-size mínimo 16px para evitar zoom automático */
+      .form-espera input[type="email"],
+      .form-pesquisa input[type="text"] { font-size: 1rem; }
 
       .form-espera input[type="email"],
       .form-pesquisa input[type="text"],
       .btn-primario { width: 100%; text-align: center; }
+
+      /* Touch targets mínimo 44px */
+      .btn-primario { min-height: 44px; }
+      .pill-pesquisa { min-height: 44px; padding: 10px 16px; flex-shrink: 0; }
+
+      /* Pills numa linha com scroll horizontal */
+      .pesquisas-populares {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .pesquisas-populares::-webkit-scrollbar { display: none; }
+      .populares-label { flex-shrink: 0; white-space: nowrap; }
 
       .hero-stats {
         gap: 28px;
@@ -570,7 +619,6 @@
   <!-- ── Hero ── -->
   <section class="hero">
     <div class="container hero-conteudo">
-      <div class="hero-badge">Brevemente disponível</div>
       <h1>Antes de assinar o contrato,<br><span>sabe mesmo onde vai viver?</span></h1>
       <p class="hero-subtitulo">
         Compara qualquer duas freguesias de Portugal. Transportes, escolas, saúde — tudo num relatório.
@@ -617,26 +665,32 @@
   <section class="problema">
     <div class="container">
       <div class="secao-titulo">
-        <h2>O que a maioria das famílias não sabe antes de mudar de casa</h2>
+        <h2>O que os portais não te dizem</h2>
         <p>Os portais imobiliários mostram-te o preço e as fotos. Mas não te dizem o que realmente importa.</p>
       </div>
       <div class="problema-grid">
         <div class="problema-card">
-          <span class="problema-icone">🏥</span>
+          <span class="problema-icone">
+            <svg viewBox="0 0 24 24"><path d="M6 4h-1a2 2 0 0 0-2 2v3.5h0a5.5 5.5 0 0 0 11 0v-3.5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 1 0 12 0v-3"/><path d="M11 3v2"/><path d="M6 3v2"/><circle cx="20" cy="10" r="2"/></svg>
+          </span>
           <div>
             <h3>Há médico de família naquela zona?</h3>
             <p>Algumas freguesias têm cobertura abaixo dos 40%. Só descobres depois de te inscrever no centro de saúde.</p>
           </div>
         </div>
         <div class="problema-card">
-          <span class="problema-icone">🚌</span>
+          <span class="problema-icone">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 11h18M8 5V3M16 5V3"/><circle cx="8" cy="17" r="1.2" fill="currentColor" stroke="none"/><circle cx="16" cy="17" r="1.2" fill="currentColor" stroke="none"/></svg>
+          </span>
           <div>
             <h3>Consegues ir trabalhar sem carro?</h3>
             <p>A frequência de autocarros e metro varia enormemente entre freguesias vizinhas. Não basta olhar para o mapa.</p>
           </div>
         </div>
         <div class="problema-card">
-          <span class="problema-icone">🎓</span>
+          <span class="problema-icone">
+            <svg viewBox="0 0 24 24"><path d="M22 9l-10-4l-10 4l10 4l10-4v6"/><path d="M6 10.6v5.4a6 3 0 0 0 12 0v-5.4"/></svg>
+          </span>
           <div>
             <h3>A escola do bairro é boa?</h3>
             <p>As taxas de sucesso escolar por agrupamento são públicas, mas dispersas. Ninguém as cruza por freguesia.</p>

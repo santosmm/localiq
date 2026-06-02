@@ -27,6 +27,12 @@
 
   <title>Comparar freguesias | Melhor Zona</title>
   <meta name="description" content="Compara a qualidade de vida entre duas freguesias portuguesas.">
+  <meta name="theme-color" content="#1B4F72">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Melhor Zona">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/assets/images/icon-192.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -731,9 +737,28 @@
     @media (max-width: 600px) {
       .selector-inputs { flex-direction: column; gap: 10px; }
       .selector-vs { display: none; }
-      .btn-comparar-submit { width: 100%; }
+      .btn-comparar-submit { width: 100%; min-height: 44px; }
       .barra-nome { width: 72px; }
       .badge-vantagem { display: none; }
+
+      /* iOS: 16px mínimo para evitar zoom automático */
+      .selector-input-wrap input { font-size: 1rem; }
+
+      /* Touch targets mínimo 44px */
+      .btn-perfil { min-height: 44px; }
+      .pill-comparacao { min-height: 44px; padding: 10px 16px; flex-shrink: 0; }
+
+      /* Pills numa linha com scroll horizontal */
+      .pills-populares {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .pills-populares::-webkit-scrollbar { display: none; }
+      .pill-label { flex-shrink: 0; white-space: nowrap; }
     }
   </style>
 </head>
