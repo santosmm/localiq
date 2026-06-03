@@ -17,7 +17,9 @@
     '.ac-item:last-child{border-bottom:none;}' +
     '.ac-item:hover,.ac-item-activo{background:#D6E8F5;}' +
     '.ac-nome{font-weight:600;color:#0d2137;font-size:0.9rem;}' +
-    '.ac-municipio{font-size:0.78rem;color:#6b7a8d;white-space:nowrap;margin-left:8px;overflow:hidden;text-overflow:ellipsis;max-width:45%;}';
+    '.ac-nome strong{font-weight:800;color:#1B4F72;}' +
+    '.ac-municipio{font-size:0.78rem;color:#6b7a8d;white-space:nowrap;margin-left:8px;overflow:hidden;text-overflow:ellipsis;max-width:45%;}' +
+    '.ac-municipio strong{font-weight:700;color:#1B4F72;}';
   document.head.appendChild(estilo);
 
   /* ── Utilitários ── */
@@ -29,14 +31,57 @@
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
+  /* Envolve em <strong> as partes de `original` que coincidem com os tokens.
+     Usa as posições do texto normalizado (mesmo comprimento que o original
+     para caracteres portugueses), preservando maiúsculas e acentos no output. */
+  function destacar(original, tokens) {
+    if (!tokens.length) return escHtml(original);
+    var norm = normalizar(original);
+    /* recolhe todos os intervalos [inicio, fim) */
+    var ranges = [];
+    tokens.forEach(function (t) {
+      var pos = 0;
+      while (pos < norm.length) {
+        var idx = norm.indexOf(t, pos);
+        if (idx === -1) break;
+        ranges.push([idx, idx + t.length]);
+        pos = idx + 1;
+      }
+    });
+    if (!ranges.length) return escHtml(original);
+    /* ordena e funde intervalos sobrepostos */
+    ranges.sort(function (a, b) { return a[0] - b[0]; });
+    var merged = [ranges[0].slice()];
+    for (var i = 1; i < ranges.length; i++) {
+      var last = merged[merged.length - 1];
+      if (ranges[i][0] < last[1]) {
+        last[1] = Math.max(last[1], ranges[i][1]);
+      } else {
+        merged.push(ranges[i].slice());
+      }
+    }
+    /* reconstrói o HTML intercalando <strong> */
+    var html = '';
+    var cursor = 0;
+    merged.forEach(function (r) {
+      html += escHtml(original.slice(cursor, r[0]));
+      html += '<strong>' + escHtml(original.slice(r[0], r[1])) + '</strong>';
+      cursor = r[1];
+    });
+    html += escHtml(original.slice(cursor));
+    return html;
+  }
+
+  /* Devolve { itens, tokens } para que renderizar possa destacar os matches */
   function filtrar(query) {
-    if (!window.FREGUESIAS || !FREGUESIAS.length) return [];
+    if (!window.FREGUESIAS || !FREGUESIAS.length) return { itens: [], tokens: [] };
     var tokens = normalizar(query.trim()).split(/\s+/).filter(function (t) { return t.length >= 2; });
-    if (!tokens.length) return [];
-    return FREGUESIAS.filter(function (f) {
+    if (!tokens.length) return { itens: [], tokens: [] };
+    var itens = FREGUESIAS.filter(function (f) {
       var texto = normalizar(f.nome) + ' ' + normalizar(f.municipio);
       return tokens.every(function (t) { return texto.indexOf(t) !== -1; });
     }).slice(0, 8);
+    return { itens: itens, tokens: tokens };
   }
 
   /* ── Função principal ── */
@@ -45,7 +90,6 @@
     opcoes = opcoes || {};
 
     var wrapper = inputEl.parentElement;
-    /* garante que o wrapper é o âncora de posicionamento */
     if (getComputedStyle(wrapper).position === 'static') {
       wrapper.style.position = 'relative';
     }
@@ -59,13 +103,13 @@
     var resultados = [];
     var idxActivo = -1;
 
-    function renderizar(lista) {
+    function renderizar(lista, tokens) {
       resultados = lista;
       idxActivo = -1;
       dropdown.innerHTML = lista.map(function (f, i) {
         return '<div class="ac-item" role="option" data-idx="' + i + '">' +
-          '<span class="ac-nome">' + escHtml(f.nome) + '</span>' +
-          '<span class="ac-municipio">' + escHtml(f.municipio) + '</span>' +
+          '<span class="ac-nome">' + destacar(f.nome, tokens) + '</span>' +
+          '<span class="ac-municipio">' + destacar(f.municipio, tokens) + '</span>' +
           '</div>';
       }).join('');
       dropdown.style.display = 'block';
@@ -106,8 +150,8 @@
 
     /* ── Eventos ── */
     inputEl.addEventListener('input', function () {
-      var lista = filtrar(this.value);
-      if (lista.length) renderizar(lista);
+      var r = filtrar(this.value);
+      if (r.itens.length) renderizar(r.itens, r.tokens);
       else fechar();
     });
 
