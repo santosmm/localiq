@@ -31,11 +31,11 @@
 
   function filtrar(query) {
     if (!window.FREGUESIAS || !FREGUESIAS.length) return [];
-    var q = normalizar(query.trim());
-    if (q.length < 2) return [];
+    var tokens = normalizar(query.trim()).split(/\s+/).filter(function (t) { return t.length >= 2; });
+    if (!tokens.length) return [];
     return FREGUESIAS.filter(function (f) {
-      return normalizar(f.nome).indexOf(q) !== -1 ||
-             normalizar(f.municipio).indexOf(q) !== -1;
+      var texto = normalizar(f.nome) + ' ' + normalizar(f.municipio);
+      return tokens.every(function (t) { return texto.indexOf(t) !== -1; });
     }).slice(0, 8);
   }
 
