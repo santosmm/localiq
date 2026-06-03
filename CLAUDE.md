@@ -40,14 +40,21 @@ para imobiliárias.
 - assets/js/ — scripts
 - assets/images/ — imagens
 - workers/lista-espera.js — Cloudflare Worker para formulário
-- workers/wrangler.toml — configuração Cloudflare
-- data/ — scripts de processamento dados INE (vazio)
+- workers/wrangler.toml — config wrangler lista-espera
+- workers/dados-freguesia.js — Cloudflare Worker para dados de freguesia
+- workers/dados-freguesia.toml — config wrangler dados-freguesia
+- data/ — scripts de processamento dados INE
+  - importar-ine.py — lê CSV do INE e importa para Airtable (usa AIRTABLE_TOKEN)
+  - teste_censos2021.csv — 10 freguesias de teste (Lisboa, Porto, Cascais)
 
 ## Airtable
 - Base: Melhor Zona (appzKGnGUD6pafKKn)
 - Tabela: Lista de Espera (tblB9N9UdJDgIHE7B)
-- Campos: Email, Data, Fonte, Notas
-- Já tem inscritos reais — não apagar registos sem confirmar
+  - Campos: Email, Data, Fonte, Notas
+  - Já tem inscritos reais — não apagar registos sem confirmar
+- Tabela: Freguesias (tbl2mvTKYsrb1h6fc)
+  - Campos: Nome, Município, Codigo_INE, Score_Geral, Transportes_Score, Saude_Score, Educacao_Score, Seguranca_Score, Populacao
+  - Scores com 1 casa decimal (0–10); Populacao inteiro
 
 ## Fluxo actual do utilizador
 1. Chega à landing page (index.html)
@@ -60,9 +67,11 @@ para imobiliárias.
 - [x] Ligar barra de pesquisa da home ao relatorio.html
 - [x] Ler parâmetro ?freguesia= no URL do relatório
 - [x] Pills de freguesias populares na home
-- [ ] Construir comparar.html (comparação entre 2 freguesias)
+- [x] Construir comparar.html (comparação entre 2 freguesias — veredicto dinâmico, 3 perfis, insight surpresa, paywall contextual)
 - [ ] Integrar Stripe para pagamento de 4,99€
-- [ ] Carregar dados reais do INE/IPMA no Airtable
+- [x] Carregar dados reais do INE/IPMA no Airtable (10 freguesias de teste via data/importar-ine.py)
+- [x] Worker dados-freguesia.js — GET ?freguesia= → consulta Airtable → JSON (https://melhorzona-dados-freguesia.matheusmottas.workers.dev)
+- [x] relatorio.html liga ao Worker; fallback para dados de exemplo com badge amarelo
 
 ## Modelo de negócio
 - B2C: 1 relatório gratuito/mês, relatório completo 4,99€
