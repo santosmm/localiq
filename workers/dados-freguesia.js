@@ -5,6 +5,9 @@ const ORIGENS_PERMITIDAS = [
   'https://melhorzona.netlify.app',
   'https://melhorzona.pt',
   'https://www.melhorzona.pt',
+  'http://localhost:8745',
+  'http://localhost:8080',
+  'http://127.0.0.1:8745',
 ];
 
 function cabecalhosCors(origin) {
