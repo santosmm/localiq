@@ -17,7 +17,7 @@
     '.ac-item:last-child{border-bottom:none;}' +
     '.ac-item:hover,.ac-item-activo{background:#D6E8F5;}' +
     '.ac-nome{font-weight:600;color:#0d2137;font-size:0.9rem;}' +
-    '.ac-municipio{font-size:0.78rem;color:#6b7a8d;white-space:nowrap;margin-left:8px;}';
+    '.ac-municipio{font-size:0.78rem;color:#6b7a8d;white-space:nowrap;margin-left:8px;overflow:hidden;text-overflow:ellipsis;max-width:45%;}';
   document.head.appendChild(estilo);
 
   /* ── Utilitários ── */
