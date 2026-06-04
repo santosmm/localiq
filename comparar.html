@@ -888,32 +888,34 @@
   <script src="/data/freguesias.js"></script>
   <script src="/assets/js/autocomplete.js"></script>
   <script>
+    var WORKER_URL = 'https://melhorzona-dados-freguesia.matheusmottas.workers.dev';
+
     /* SVGs inline — sem dependência de CDN */
     var ICONES_SVG = {
       transportes:  '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 11h18M8 5V3M16 5V3"/><circle cx="8" cy="17" r="1" fill="#1B4F72" stroke="none"/><circle cx="16" cy="17" r="1" fill="#1B4F72" stroke="none"/></svg>',
-      ar:           '<svg viewBox="0 0 24 24"><path d="M5 8h8a3 3 0 0 1 0 6H5M3 16h6a2 2 0 0 0 0-4H7"/></svg>',
-      demografia:   '<svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>',
-      ensino:       '<svg viewBox="0 0 24 24"><path d="M22 9l-10-4l-10 4l10 4l10-4v6"/><path d="M6 10.6v5.4a6 3 0 0 0 12 0v-5.4"/></svg>',
       saude:        '<svg viewBox="0 0 24 24"><path d="M6 4h-1a2 2 0 0 0-2 2v3.5h0a5.5 5.5 0 0 0 11 0v-3.5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 1 0 12 0v-3"/><path d="M11 3v2"/><path d="M6 3v2"/><circle cx="20" cy="10" r="2" stroke-width="1.8"/></svg>',
-      arrendamento: '<svg viewBox="0 0 24 24"><path d="M5 12l-2 0l9-9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg>'
+      seguranca:    '<svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 9.5-8 11-4.5-1.5-8-6-8-11V7l8-4z"/></svg>',
+      arrendamento: '<svg viewBox="0 0 24 24"><path d="M5 12l-2 0l9-9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/></svg>',
+      ensino:       '<svg viewBox="0 0 24 24"><path d="M22 9l-10-4l-10 4l10 4l10-4v6"/><path d="M6 10.6v5.4a6 3 0 0 0 12 0v-5.4"/></svg>',
+      qualidade:    '<svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>'
     };
 
-    /* Perfis — pesos para calcular vencedor, razão e factores em destaque */
+    /* Perfis — pesos sobre os indicadores reais disponíveis */
     var PERFIS = {
       familia: {
-        pesos:    { transportes: 0.40, ar: 0.20, demografia: 0.40 },
-        razao:    'Melhores escolas e transportes para o dia-a-dia com crianças',
-        factores: ['Ensino', 'Transportes', 'Saúde Primária']
+        pesos:    { transportes: 0.25, saude: 0.30, seguranca: 0.20, arrendamento: 0.25 },
+        razao:    'Melhores condições de saúde, segurança e acessibilidade para o dia-a-dia com crianças',
+        factores: ['Saúde', 'Segurança', 'Transportes']
       },
       profissional: {
-        pesos:    { transportes: 0.60, ar: 0.40, demografia: 0.00 },
-        razao:    'Melhor mobilidade e ambiente urbano para quem trabalha na cidade',
-        factores: ['Transportes', 'Qualidade do Ar', 'Arrendamento']
+        pesos:    { transportes: 0.40, saude: 0.20, seguranca: 0.10, arrendamento: 0.30 },
+        razao:    'Melhor mobilidade e mercado de arrendamento para quem trabalha na cidade',
+        factores: ['Transportes', 'Arrendamento', 'Segurança']
       },
       qualidade: {
-        pesos:    { transportes: 0.10, ar: 0.50, demografia: 0.40 },
-        razao:    'Ambiente mais saudável e comunidade em crescimento',
-        factores: ['Qualidade do Ar', 'Saúde', 'Espaços Verdes']
+        pesos:    { transportes: 0.15, saude: 0.45, seguranca: 0.30, arrendamento: 0.10 },
+        razao:    'Ambiente mais saudável e maior segurança para uma melhor qualidade de vida',
+        factores: ['Saúde', 'Segurança', 'Transportes']
       }
     };
 
@@ -934,6 +936,63 @@
         if (!a || !b) return null;
         return { a: capitalizar(decodeURIComponent(a)), b: capitalizar(decodeURIComponent(b)) };
       } catch (e) { return null; }
+    }
+
+    /* Busca dados reais de uma freguesia no Worker */
+    async function buscarDadosFreguesia(nome) {
+      try {
+        var r = await fetch(WORKER_URL + '?freguesia=' + encodeURIComponent(nome));
+        var j = await r.json();
+        return (j.encontrado && j.dados) ? j.dados : null;
+      } catch(e) { return null; }
+    }
+
+    /* Constrói indicadores livres a partir dos dados reais (ou fallback) */
+    function construirIndicadoresLivres(dadosA, dadosB) {
+      function score(d, campo, fallback) {
+        return d && d[campo] != null ? Math.round(d[campo] * 10) : fallback;
+      }
+
+      var tA  = score(dadosA, 'transportes_score', 82);
+      var tB  = score(dadosB, 'transportes_score', 71);
+      var sA  = score(dadosA, 'saude_score', 75);
+      var sB  = score(dadosB, 'saude_score', 68);
+      var sgA = score(dadosA, 'seguranca_score', 70);
+      var sgB = score(dadosB, 'seguranca_score', 65);
+
+      var rendaA = dadosA ? dadosA.rendas_mediana : null;
+      var rendaB = dadosB ? dadosB.rendas_mediana : null;
+      var arA    = rendaA != null ? Math.max(0, Math.round(100 - rendaA * 3)) : 50;
+      var arB    = rendaB != null ? Math.max(0, Math.round(100 - rendaB * 3)) : 50;
+
+      var arDetalhe;
+      if (rendaA != null && rendaB != null) {
+        arDetalhe = '€' + rendaA.toFixed(2).replace('.', ',') + ' vs €' + rendaB.toFixed(2).replace('.', ',') + '/m² · INE 2024';
+      } else if (rendaA != null) {
+        arDetalhe = '€' + rendaA.toFixed(2).replace('.', ',') + '/m² · INE 2024';
+      } else if (rendaB != null) {
+        arDetalhe = '€' + rendaB.toFixed(2).replace('.', ',') + '/m² · INE 2024';
+      } else {
+        arDetalhe = 'Dados de exemplo';
+      }
+
+      return [
+        { id: 'transportes',  nome: 'Transportes Públicos',      scoreA: tA,  scoreB: tB  },
+        { id: 'saude',        nome: 'Saúde Primária SNS',        scoreA: sA,  scoreB: sB  },
+        { id: 'seguranca',    nome: 'Segurança',                 scoreA: sgA, scoreB: sgB },
+        { id: 'arrendamento', nome: 'Mercado de Arrendamento',   scoreA: arA, scoreB: arB, detalhe: arDetalhe },
+      ];
+    }
+
+    /* Constrói indicadores bloqueados */
+    function construirIndicadoresBloqueados(dadosA, dadosB) {
+      function score(d, campo, fallback) {
+        return d && d[campo] != null ? Math.round(d[campo] * 10) : fallback;
+      }
+      return [
+        { id: 'ensino',    nome: 'Ensino e Escolas',  scoreA: score(dadosA, 'educacao_score', 71), scoreB: score(dadosB, 'educacao_score', 65) },
+        { id: 'qualidade', nome: 'Qualidade de Vida', scoreA: score(dadosA, 'score_geral', 70),    scoreB: score(dadosB, 'score_geral', 65)    },
+      ];
     }
 
     /* Calcula qual freguesia vence para um perfil com base nos pesos */
@@ -963,15 +1022,15 @@
       if (!melhorA || !melhorB || melhorA.d <= 0 || melhorB.d <= 0) return null;
       if (melhorA.ind.id === melhorB.ind.id) return null;
 
-      var pctA = Math.round(Math.abs(melhorA.d) / melhorA.ind.scoreB * 100);
-      var pctB = Math.round(Math.abs(melhorB.d) / melhorB.ind.scoreA * 100);
+      var pctA = Math.round(Math.abs(melhorA.d) / Math.max(1, melhorA.ind.scoreB) * 100);
+      var pctB = Math.round(Math.abs(melhorB.d) / Math.max(1, melhorB.ind.scoreA) * 100);
 
       return nomeA + ' tem melhor ' + melhorA.ind.nome.toLowerCase() + ' (+' + pctA + '%)'
            + ', mas ' + nomeB + ' destaca-se em ' + melhorB.ind.nome.toLowerCase()
            + ' (+' + pctB + '%).';
     }
 
-    /* Gera HTML de um indicador livre */
+    /* Gera HTML de um indicador livre (com linha de detalhe opcional) */
     function htmlIndicadorLivre(ind, nomeA, nomeB) {
       var vencedor = ind.scoreA >= ind.scoreB ? nomeA : nomeB;
       return '<div class="indicador-card">' +
@@ -990,6 +1049,7 @@
           '<div class="barra-fundo"><div class="barra-fill cor-b" data-score="' + ind.scoreB + '"></div></div>' +
           '<span class="barra-score">' + ind.scoreB + '</span>' +
         '</div>' +
+        (ind.detalhe ? '<p style="margin-top:8px;font-size:0.76rem;color:var(--cinza-texto);">' + ind.detalhe + '</p>' : '') +
       '</div>';
     }
 
@@ -1114,17 +1174,31 @@
     iniciarAutocomplete(document.getElementById('input-a'));
     iniciarAutocomplete(document.getElementById('input-b'));
 
-    /* ── Inicialização ── */
-    var params = lerParams();
-    if (params) {
+    /* ── Inicialização assíncrona: busca dados reais e renderiza ── */
+    async function init() {
+      var params = lerParams();
+      if (!params) return;
+
       document.getElementById('input-a').value = params.a;
       document.getElementById('input-b').value = params.b;
+
+      var resultados = await Promise.all([
+        buscarDadosFreguesia(params.a),
+        buscarDadosFreguesia(params.b)
+      ]);
+      var dadosA = resultados[0], dadosB = resultados[1];
+
+      DADOS.indicadores_livres     = construirIndicadoresLivres(dadosA, dadosB);
+      DADOS.indicadores_bloqueados = construirIndicadoresBloqueados(dadosA, dadosB);
+
       renderizarComparacao(params.a, params.b);
-      /* Scroll suave até à comparação */
+
       setTimeout(function() {
         document.getElementById('secao-comparacao').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 120);
     }
+
+    init();
   </script>
 
 </body>
