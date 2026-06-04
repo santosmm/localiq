@@ -1,11 +1,10 @@
 codigo_ine,nome,municipio,populacao,transportes_score,saude_score,educacao_score,seguranca_score
-110601,Arroios,Lisboa,22753,8.5,7.8,8.2,6.9
-110605,Avenidas Novas,Lisboa,18421,9.1,8.3,8.7,7.4
-110614,Misericórdia,Lisboa,12304,8.8,7.5,8.0,6.5
-110617,Parque das Nações,Lisboa,21876,8.2,8.6,9.0,8.5
-110619,Santa Maria Maior,Lisboa,9843,8.9,7.2,7.8,5.8
-131201,Bonfim,Porto,24512,7.8,7.5,7.9,6.8
-131204,Cedofeita,Porto,19034,8.1,7.9,8.3,7.1
-131210,Paranhos,Porto,41230,7.2,8.1,8.8,7.5
-060802,Cascais,Cascais,35621,7.5,8.0,8.4,8.1
-060814,Estoril,Cascais,12087,7.3,7.6,7.8,7.9
+110656,Arroios,Lisboa,33302,8.5,7.8,8.2,6.9
+110657,Avenidas Novas,Lisboa,23261,9.1,8.3,8.7,7.4
+110661,Misericórdia,Lisboa,9658,8.8,7.5,8.0,6.5
+110662,Parque das Nações,Lisboa,22382,8.2,8.6,9.0,8.5
+110665,Santa Maria Maior,Lisboa,10051,8.9,7.2,7.8,5.8
+131202,Bonfim,Porto,22978,7.8,7.5,7.9,6.8
+131217,Cedofeita,Porto,37430,8.1,7.9,8.3,7.1
+131210,Paranhos,Porto,45883,7.2,8.1,8.8,7.5
+110508,Cascais e Estoril,Cascais,64192,7.4,7.8,8.1,8.0
