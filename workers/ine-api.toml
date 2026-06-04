@@ -1,0 +1,3 @@
+name = "melhorzona-ine-api"
+main = "ine-api.js"
+compatibility_date = "2025-05-31"

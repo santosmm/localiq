@@ -43,6 +43,8 @@ para imobiliárias.
 - workers/wrangler.toml — config wrangler lista-espera
 - workers/dados-freguesia.js — Cloudflare Worker para dados de freguesia
 - workers/dados-freguesia.toml — config wrangler dados-freguesia
+- workers/ine-api.js — Cloudflare Worker de integração com a API INE
+- workers/ine-api.toml — config wrangler ine-api
 - data/ — scripts de processamento dados INE
   - importar-ine.py — lê CSV do INE e importa para Airtable (usa AIRTABLE_TOKEN)
   - teste_censos2021.csv — 10 freguesias de teste (Lisboa, Porto, Cascais)
