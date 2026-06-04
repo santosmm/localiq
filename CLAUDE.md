@@ -47,7 +47,7 @@ para imobiliárias.
 - workers/ine-api.toml — config wrangler ine-api
 - data/ — scripts de processamento dados INE
   - importar-ine.py — lê CSV do INE e importa para Airtable (usa AIRTABLE_TOKEN)
-  - teste_censos2021.csv — 10 freguesias de teste (Lisboa, Porto, Cascais)
+  - teste_censos2021.csv — 9 freguesias de teste (Lisboa, Porto, Cascais) com geocods DICOFRE reais
 
 ## Airtable
 - Base: Melhor Zona (appzKGnGUD6pafKKn)
@@ -57,6 +57,16 @@ para imobiliárias.
 - Tabela: Freguesias (tbl2mvTKYsrb1h6fc)
   - Campos: Nome, Município, Codigo_INE, Score_Geral, Transportes_Score, Saude_Score, Educacao_Score, Seguranca_Score, Populacao
   - Scores com 1 casa decimal (0–10); Populacao inteiro
+  - Geocods DICOFRE reais (INE Censos 2021); 9 registos de teste:
+    - Arroios (110656, Lisboa, 33302 hab.)
+    - Avenidas Novas (110657, Lisboa, 23261 hab.)
+    - Misericórdia (110661, Lisboa, 9658 hab.)
+    - Parque das Nações (110662, Lisboa, 22382 hab.)
+    - Santa Maria Maior (110665, Lisboa, 10051 hab.)
+    - Bonfim (131202, Porto, 22978 hab.)
+    - Cedofeita (131217, Porto, 37430 hab.)
+    - Paranhos (131210, Porto, 45883 hab.)
+    - Cascais e Estoril (110508, Cascais, 64192 hab.)
 
 ## Fluxo actual do utilizador
 1. Chega à landing page (index.html)
