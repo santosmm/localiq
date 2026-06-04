@@ -16,6 +16,7 @@ import csv
 import json
 import os
 import sys
+import time
 import argparse
 import urllib.request
 import urllib.error
@@ -112,10 +113,17 @@ def inserir_registos(table_id, registos):
             with urllib.request.urlopen(req) as resp:
                 resultado  = json.loads(resp.read())
                 inseridos += len(resultado.get("records", []))
-                print(f"  Lote {i // 10 + 1}: {len(resultado.get('records', []))} registos inseridos.")
+                n = i // 10 + 1
+                total_lotes = (len(registos) + 9) // 10
+                print(f"  Lote {n}/{total_lotes}: {len(resultado.get('records', []))} inseridos.")
         except urllib.error.HTTPError as e:
             erro = e.read().decode("utf-8")
             print(f"  Erro no lote {i // 10 + 1}: {e.code} — {erro}", file=sys.stderr)
+            if e.code == 429:
+                print("  Rate limit atingido — a aguardar 30s...", file=sys.stderr)
+                time.sleep(30)
+
+        time.sleep(0.22)  # 4-5 req/s — limite Airtable
 
     return inseridos
 
