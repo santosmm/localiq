@@ -737,6 +737,27 @@
                          : total >= 50 ? 'Zona em crescimento'
                          : 'Zona com desafios';
 
+      /* Card de arrendamento: dados reais INE 2024 ou exemplo com aviso */
+      var cardRendas;
+      if (r.rendas_mediana != null) {
+        var scoreRendas = Math.max(0, Math.round(100 - r.rendas_mediana * 3));
+        cardRendas = {
+          nome:  'Mercado de Arrendamento',
+          icone: '🏠',
+          score: scoreRendas,
+          valor: 'Renda mediana: €' + r.rendas_mediana.toFixed(2).replace('.', ',') + '/m² · INE 2024',
+          badge: badgeTexto(scoreRendas),
+        };
+      } else {
+        cardRendas = {
+          nome:  'Mercado de Arrendamento',
+          icone: '🏠',
+          score: 50,
+          valor: '12,50€/m² (dado de exemplo)',
+          badge: 'Dados de exemplo',
+        };
+      }
+
       return {
         freguesia:   r.nome,
         concelho:    r.municipio,
@@ -750,15 +771,15 @@
                + 'Educação: ' + r.educacao_score + '/10 · '
                + 'Segurança: ' + r.seguranca_score + '/10.'
                + (pop ? ' População residente: ' + pop + '.' : ''),
-        analise_fonte: 'INE Censos 2021 · Base Melhor Zona · Actualizado 2024',
+        analise_fonte: 'INE Censos 2021 · INE Rendas 2024 · Base Melhor Zona',
         indicadores_livres: [
           { nome: 'Transportes Públicos', icone: '🚇', score: t,  valor: 'Score baseado em acessibilidade e rede', badge: badgeTexto(t)  },
           { nome: 'Saúde Primária SNS',   icone: '🏥', score: s,  valor: 'Score baseado em cobertura SNS',         badge: badgeTexto(s)  },
           { nome: 'Segurança',            icone: '🛡️', score: sg, valor: 'Score baseado em indicadores locais',    badge: badgeTexto(sg) },
+          cardRendas,
         ],
         indicadores_bloqueados: [
           { nome: 'Ensino e Escolas',  icone: 'ti-school',      score: e    },
-          { nome: 'Arrendamento',      icone: 'ti-home',        score: Math.round((t + s + sg) / 3) },
           { nome: 'Qualidade de Vida', icone: 'ti-stethoscope', score: total },
         ],
       };

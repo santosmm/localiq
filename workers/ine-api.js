@@ -1,18 +1,24 @@
 /**
  * Worker: INE API → Airtable
  *
- * Endpoint principal:
+ * Endpoints:
  *   GET /sync?freguesia=NOME   — sincroniza uma freguesia com dados reais do INE
  *   GET /healthcheck           — devolve status do Worker
  *
- * Indicadores usados (todos Censos 2021, nível de freguesia, geocod DICOFRE 6 dígitos):
- *   0014584 — População residente por sexo
- *   0014620 — Edifícios
- *   0014626 — Alojamentos familiares clássicos de residência habitual
- *   0012227 — Valor mediano das vendas de alojamentos (€/m²) — proxy mercado imobiliário
- *   0012749 — Rendimento mediano bruto por sujeito passivo (€) — proxy nível económico
+ * Indicadores INE usados:
+ *   0014584 — Pop. residente (Censos 2021, freguesia, DICOFRE 6 dígitos)
+ *   0014620 — Edifícios (Censos 2021, freguesia)
+ *   0014626 — Alojamentos familiares clássicos (Censos 2021, freguesia)
+ *   0012227 — Valor mediano de vendas €/m² (trimestral, município)
+ *   0012749 — Rendimento mediano IRS (anual, município)
+ *   0012600 — Rendas medianas de novos contratos €/m² (anual, município, dados 2024)
  *
- * Scores que o INE NÃO fornece ao nível de freguesia (precisam de outras fontes):
+ * Correspondência de geocódigos (para indicadores de nível município):
+ *   DICOFRE 6 dígitos (ex: 110656 = Arroios/Lisboa)
+ *   → primeiros 4 dígitos = código município (ex: 1106 = Lisboa)
+ *   A API INE usa este mesmo formato de 4 dígitos a lvl@5
+ *
+ * Scores que o INE não fornece a nível de freguesia (precisam de outras fontes):
  *   Transportes → IMT / GTFS
  *   Saúde → ACSS (SNS)
  *   Educação → DGEEC
@@ -23,11 +29,15 @@ const AIRTABLE_BASE_ID  = 'appzKGnGUD6pafKKn';
 const AIRTABLE_TABLE_ID = 'tbl2mvTKYsrb1h6fc';
 const INE_BASE          = 'https://www.ine.pt/ine/json_indicador/pindica.jsp';
 
-const IND_POPULACAO    = '0014584'; // pop. residente por sexo (HM = total)
-const IND_EDIFICIOS    = '0014620'; // edifícios — proxy urbanização
-const IND_ALOJAMENTOS  = '0014626'; // alojamentos de residência habitual
-const IND_VENDAS_M2    = '0012227'; // valor mediano vendas €/m² (trimestral)
-const IND_RENDIMENTO   = '0012749'; // rendimento mediano IRS por s.p. (anual)
+// Indicadores a nível de freguesia (DICOFRE 6 dígitos) — Censos 2021
+const IND_POPULACAO   = '0014584';
+const IND_EDIFICIOS   = '0014620';
+const IND_ALOJAMENTOS = '0014626';
+
+// Indicadores a nível de município (DICOFRE 4 dígitos = primeiros 4 de Codigo_INE)
+const IND_VENDAS_M2   = '0012227'; // valor mediano de vendas €/m² (trimestral)
+const IND_RENDIMENTO  = '0012749'; // rendimento mediano IRS por sujeito passivo (anual)
+const IND_RENDAS      = '0012600'; // rendas medianas novos contratos €/m² (anual, 2024)
 
 const ORIGENS_PERMITIDAS = [
   'https://melhorzona.netlify.app',
@@ -59,11 +69,17 @@ function json(dados, status, cors) {
 /* ─── API INE ─────────────────────────────────────────────────────────────── */
 
 /**
- * Chama a API INE e devolve o array de registos do primeiro período disponível.
- * Devolve [] em caso de erro.
+ * Chama a API INE e devolve o array de registos do período pedido (ou o mais recente).
+ *
+ * @param {string}      varcd  — código do indicador (7 dígitos)
+ * @param {string|null} dim1   — período (ex: 'S7A2024', 'S3A202311'); null = mais recente
+ * @param {string|null} dim2   — nível geográfico (ex: 'lvl@5' = município); null = todos
  */
-async function fetchIndicador(varcd) {
-  const url = `${INE_BASE}?op=2&varcd=${varcd}&lang=PT`;
+async function fetchIndicador(varcd, dim1 = null, dim2 = null) {
+  let url = `${INE_BASE}?op=2&varcd=${varcd}&lang=PT`;
+  if (dim1) url += `&Dim1=${dim1}`;
+  if (dim2) url += `&Dim2=${dim2}`;
+
   try {
     const resp = await fetch(url, {
       headers: { 'User-Agent': 'MelhorZona/1.0 (melhorzona.pt)' },
@@ -71,12 +87,23 @@ async function fetchIndicador(varcd) {
     if (!resp.ok) return [];
     const lista = await resp.json();
     const item  = Array.isArray(lista) ? lista[0] : lista;
+    if (item?.Sucesso === false) return []; // erro explícito da API INE
     const dados = item?.Dados || {};
-    const anos  = Object.keys(dados);
+    const anos  = Object.keys(dados).sort().reverse();
     return anos.length ? dados[anos[0]] : [];
   } catch {
     return [];
   }
+}
+
+/**
+ * Extrai o código de município a partir de um geocod DICOFRE de 6 dígitos.
+ * Ex: '110656' → '1106'  (Lisboa)
+ *     '131202' → '1312'  (Porto)
+ *     '110508' → '1105'  (Cascais)
+ */
+function codigoMunicipio(geocodFreguesia) {
+  return String(geocodFreguesia || '').padStart(6, '0').slice(0, 4);
 }
 
 /**
@@ -146,39 +173,72 @@ function encontrarFreguesia(registos, nome, municipio) {
 }
 
 /**
- * Extrai o total de edifícios para um geocod específico (dim_3='T' ou primeiro dim).
+ * Extrai o total de um indicador para um geocod específico (nível freguesia).
+ * Tenta primeiro dim_3='T', depois soma sub-dimensões.
  */
 function extrairTotal(registos, geocod) {
   const total = registos.find(r => r.geocod === geocod && (r.dim_3 === 'T' || !r.dim_3));
   if (total) return parseInt(total.valor, 10) || null;
-  // Fallback: somar todos os registos com este geocod
   const todos = registos.filter(r => r.geocod === geocod);
   if (!todos.length) return null;
   return todos.reduce((s, r) => s + (parseInt(r.valor, 10) || 0), 0);
 }
 
 /**
- * Extrai o valor mediano de vendas €/m² para um geocod.
- * O indicador 0012227 usa geocods diferentes (ex: "11A131202" para Bonfim no Porto).
- * Tenta correspondência parcial com o geodsg.
+ * Extrai um valor numérico para nível MUNICÍPIO a partir de indicadores lvl@5.
+ *
+ * A correspondência faz-se em três passos:
+ *   1. Geocod directo:  codigoMunicipio(geocodFreguesia) — ex: '1106' para Lisboa
+ *   2. Geocod sem zero: útil se a API omitir zeros à esquerda
+ *   3. Nome:            correspondência exacta ou parcial com geodsg
+ *
+ * @param {Array}  registos        — registos da API INE (lvl@5)
+ * @param {string} geocodFreguesia — DICOFRE 6 dígitos da freguesia
+ * @param {string} nomeMunicipio   — nome do município (fallback de nome)
  */
-function extrairVendasM2(registos, geocod, geodsg) {
-  const nomeBusca = normalizarNome(geodsg);
-  // Tentar match directo pelo geocod
-  let reg = registos.find(r => r.geocod === geocod);
-  if (!reg) {
-    // Tentar pelo nome
-    reg = registos.find(r => normalizarNome(r.geodsg || '').includes(nomeBusca));
+function extrairValorMunicipio(registos, geocodFreguesia, nomeMunicipio) {
+  if (!registos?.length) return null;
+
+  const codMuni    = codigoMunicipio(geocodFreguesia); // ex: '1106' para Lisboa
+  const codMuniInt = String(parseInt(codMuni, 10));
+  const nomeBusca  = normalizarNome(nomeMunicipio || '');
+
+  // Prioridade: registos de total (dim_3='T') para evitar sub-categorias
+  const candidatos = registos.filter(r =>
+    r.dim_3 === 'T' || r.dim_3 === 'Total' || r.dim_3 == null
+  );
+  const pool = candidatos.length ? candidatos : registos;
+
+  // 1) NUTS 2024: últimos 4 dígitos do geocod = DICOFRE município (ex: '1A01106' → '1106')
+  let reg = pool.find(r => (r.geocod || '').endsWith(codMuni) && (r.geocod || '').length > 4);
+  // 2) Geocod directo de 4 dígitos (indicadores mais antigos)
+  if (!reg) reg = pool.find(r => r.geocod === codMuni);
+  // 3) Sem zero à esquerda
+  if (!reg) reg = pool.find(r => r.geocod === codMuniInt);
+  // 4) Nome exacto
+  if (!reg && nomeBusca) reg = pool.find(r => normalizarNome(r.geodsg || '') === nomeBusca);
+  // 5) Nome parcial
+  if (!reg && nomeBusca) {
+    reg = pool.find(r => {
+      const n = normalizarNome(r.geodsg || '');
+      return n.includes(nomeBusca) || nomeBusca.includes(n);
+    });
   }
-  return reg ? (parseFloat(reg.valor) || null) : null;
+
+  if (!reg) return null;
+  const raw = reg.valor;
+  if (raw == null || String(raw).trim() === 'x') return null;
+  return parseFloat(String(raw).replace(',', '.')) || null;
 }
 
-/**
- * Extrai rendimento mediano para um geocod.
- */
+/** Alias para retro-compatibilidade com o código de extracção de vendas. */
+function extrairVendasM2(registos, geocod, geodsg) {
+  return extrairValorMunicipio(registos, geocod, geodsg);
+}
+
+/** Alias para retro-compatibilidade com o código de extracção de rendimento. */
 function extrairRendimento(registos, geocod) {
-  const reg = registos.find(r => r.geocod === geocod);
-  return reg ? (parseFloat(reg.valor) || null) : null;
+  return extrairValorMunicipio(registos, geocod, null);
 }
 
 /* ─── Cálculo de scores ───────────────────────────────────────────────────── */
@@ -314,13 +374,16 @@ async function handleSync(nome, token, municipio) {
     avisos:      [],
   };
 
-  /* 1. Carregar dados INE em paralelo */
-  const [regsPop, regsEdif, regsAloj, regsVendas, regsRend] = await Promise.all([
+  /* 1. Carregar dados INE em paralelo
+   *    Indicadores de freguesia: sem Dim2 (pesquisa por nome depois)
+   *    Indicadores de município: Dim2=lvl@5 + último período conhecido */
+  const [regsPop, regsEdif, regsAloj, regsVendas, regsRend, regsRendas] = await Promise.all([
     fetchIndicador(IND_POPULACAO),
     fetchIndicador(IND_EDIFICIOS),
     fetchIndicador(IND_ALOJAMENTOS),
     fetchIndicador(IND_VENDAS_M2),
     fetchIndicador(IND_RENDIMENTO),
+    fetchIndicador(IND_RENDAS, 'S7A2024', 'lvl@5'),
   ]);
 
   /* 2. Encontrar a freguesia por nome (+ município opcional para desambiguar) */
@@ -334,23 +397,29 @@ async function handleSync(nome, token, municipio) {
   resultado.populacao = info.populacao;
   resultado.ine_dados.populacao = info.populacao;
 
-  /* 3. Extrair restantes dados INE com o geocod real */
-  const edificios   = extrairTotal(regsEdif,  info.geocod);
-  const alojamentos = extrairTotal(regsAloj,  info.geocod);
-  const vendasM2    = extrairVendasM2(regsVendas, info.geocod, info.geodsg);
-  const rendimento  = extrairRendimento(regsRend, info.geocod);
+  /* 3. Extrair restantes dados INE com o geocod real
+   *    Indicadores de freguesia usam geocod directo (DICOFRE 6 dígitos)
+   *    Indicadores de município usam os primeiros 4 dígitos do geocod */
+  const edificios    = extrairTotal(regsEdif,  info.geocod);
+  const alojamentos  = extrairTotal(regsAloj,  info.geocod);
+  const vendasM2     = extrairVendasM2(regsVendas, info.geocod, resultado.municipio || '');
+  const rendimento   = extrairRendimento(regsRend, info.geocod);
+  const rendasMediana = extrairValorMunicipio(regsRendas, info.geocod, resultado.municipio || '');
 
   resultado.ine_dados = {
-    populacao:    info.populacao,
+    populacao:          info.populacao,
     edificios,
     alojamentos,
-    vendas_m2:   vendasM2,
+    vendas_m2:          vendasM2,
     rendimento_mediano: rendimento,
+    rendas_mediana_m2:  rendasMediana,
+    geocod_municipio:   codigoMunicipio(info.geocod),
   };
 
-  if (!edificios)   resultado.avisos.push('Edifícios não disponíveis para este geocod');
-  if (!vendasM2)    resultado.avisos.push('Valor mediano de vendas não disponível para esta freguesia');
-  if (!rendimento)  resultado.avisos.push('Rendimento mediano não disponível para esta freguesia');
+  if (!edificios)      resultado.avisos.push('Edifícios não disponíveis para este geocod');
+  if (!vendasM2)       resultado.avisos.push('Valor mediano de vendas não disponível para esta freguesia');
+  if (!rendimento)     resultado.avisos.push('Rendimento mediano não disponível para esta freguesia');
+  if (!rendasMediana)  resultado.avisos.push('Rendas medianas não disponíveis para este município (cobertura INE parcial)');
 
   /* 4. Calcular scores com os dados disponíveis */
   const { scores, densidadeScore, mercadoScore, economicoScore } =
@@ -364,11 +433,17 @@ async function handleSync(nome, token, municipio) {
     Populacao:  info.populacao,
   };
 
-  // Só actualiza scores se tiver dados reais para calculá-los
-  // Nota: Transportes, Saúde, Educação e Segurança precisam de fontes externas (IMT, ACSS, DGEEC, DGAI)
-  // Enquanto não estão disponíveis, não sobrescreve os valores existentes
+  // Dados de mercado a nível de município
+  if (rendasMediana !== null) {
+    fields.Rendas_Mediana     = parseFloat(rendasMediana.toFixed(2));
+  }
+  if (vendasM2 !== null) {
+    fields.Preco_Avaliacao_m2 = parseFloat(vendasM2.toFixed(0));
+  }
+
+  // Score_Geral: só actualiza se tiver proxies suficientes
+  // (Transportes, Saúde, Educação e Segurança requerem IMT/ACSS/DGEEC/DGAI — não disponíveis aqui)
   if (mercadoScore !== null && economicoScore !== null) {
-    // Score_Geral derivado das melhores proxies disponíveis
     fields.Score_Geral = parseFloat(((mercadoScore + economicoScore + (densidadeScore || 5.0)) / 3).toFixed(1));
     resultado.scores_calculados.Score_Geral_calculado = fields.Score_Geral;
   }
@@ -416,9 +491,13 @@ export default {
     /* GET /healthcheck */
     if (pathname === '/healthcheck' || pathname === '/health') {
       return json({
-        status:       'ok',
-        worker:       'ine-api',
-        indicadores:  [IND_POPULACAO, IND_EDIFICIOS, IND_ALOJAMENTOS, IND_VENDAS_M2, IND_RENDIMENTO],
+        status:  'ok',
+        worker:  'ine-api',
+        indicadores: {
+          freguesia: { populacao: IND_POPULACAO, edificios: IND_EDIFICIOS, alojamentos: IND_ALOJAMENTOS },
+          municipio:  { vendas_m2: IND_VENDAS_M2, rendimento: IND_RENDIMENTO, rendas: IND_RENDAS },
+        },
+        geocodigos: 'DICOFRE 6 dígitos (freguesia) e 4 dígitos (município)',
         airtable_base: AIRTABLE_BASE_ID,
         airtable_tab:  AIRTABLE_TABLE_ID,
       }, 200, cors);

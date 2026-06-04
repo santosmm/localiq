@@ -57,6 +57,7 @@ async function consultarFreguesia(nome, token) {
     saude_score:        f.Saude_Score        || null,
     educacao_score:     f.Educacao_Score     || null,
     seguranca_score:    f.Seguranca_Score    || null,
+    rendas_mediana:     f.Rendas_Mediana     || null,
   };
 }
 
