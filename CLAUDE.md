@@ -62,7 +62,8 @@ para imobiliárias.
 - workers/ine-api.js — Cloudflare Worker de integração com a API INE
 - workers/ine-api.toml — config wrangler ine-api
 - data/schema-supabase.sql — schema PostgreSQL da tabela freguesias
-- data/migrar-supabase.py — script de migração Airtable → Supabase (upsert por codigo_ine)
+- data/migrar-supabase.py — script de migração Airtable → Supabase (upsert por codigo_ine); calcula score_geral a partir de populacao se Airtable não tiver o campo
+- data/recalcular-scores.py — script standalone para recalcular score_geral no Supabase (só precisa SUPABASE_URL + SUPABASE_KEY); faz batch por valor de score para evitar SSL throttle
 - data/importar-ine.py — lê CSV do INE e importa para Airtable (usa AIRTABLE_TOKEN)
 - data/teste_censos2021.csv — 9 freguesias de teste (Lisboa, Porto, Cascais) com geocods DICOFRE reais
 
@@ -86,8 +87,10 @@ para imobiliárias.
   - Caso "Porto": ainda cai na desambiguação de freguesias que começam por "Porto" (pré-existente)
 - Municípios usam `ilike.{municipio}` (exacto) — vêm de desambiguação, não de input livre
 - **score_geral preenchido** para todas as 3259 freguesias (proxy temporário: `LEAST(ROUND((populacao/50000)*10,1),10)`)
-  - Recalcular se scores reais forem importados: SQL `UPDATE freguesias SET score_geral = LEAST(ROUND((populacao::float/50000)*10,1),10)`
+  - `migrar-supabase.py` calcula score automaticamente — re-migrar nunca apaga os scores
+  - Recalcular manualmente se necessário: `SUPABASE_URL=... SUPABASE_KEY=... python3 data/recalcular-scores.py`
   - relatorio.html converte score (0–10) para 0–100 com `Math.round(score*10)` antes de exibir
+  - **ATENÇÃO**: ao re-migrar do Airtable, o score é recalculado inline no migrar-supabase.py; não há regressão
 
 ## Airtable (emails — mantém-se)
 - Base: Melhor Zona (appzKGnGUD6pafKKn)
@@ -111,22 +114,25 @@ para imobiliárias.
 - `b8ab73f` feat: pesquisa por município quando freguesia não é encontrada (/municipio?nome=)
 - `9b4083a` docs: score_geral calculado para 3259 freguesias
 - `2bf853f` feat: tabs hero (Ver relatório / Comparar), nav imobiliárias, pills correctas
+- `512af91` feat: reestruturar recolha de emails e adicionar alertas de freguesia
+- `8a9329f` feat: desambiguação de freguesias homónimas no relatório
+- `49dac95` feat: suporte a ?municipio= no worker para desambiguar freguesias homónimas
+- `cb5674b` docs: resultado final enricher INE e estado das rendas
+- `2d3fc3f` fix: recalcular score_geral após migração Airtable→Supabase
 
-### Estado actual
-- **Supabase**: 3259 freguesias com `populacao`, `score_geral` (proxy pop.) e `rendas_mediana` real INE 2024 em 2608/3259 (651 sem cobertura INE — interior e ilhas)
-- **Enricher INE** (`data/enricher-ine.py`): correu e sincronizou via `migrar-supabase.py` — terminou com erro SSL aos ~1244 registos mas os dados de rendas são por município, pelo que a cobertura real foi 2608 freguesias
-- **Worker dados-freguesia**: lê do Supabase; pesquisa por nome parcial e por município
-- **relatorio.html**: mostra score_geral, badge dinâmico, card de alerta, paywall
+### Estado final do Sprint 1
+- **Supabase**: 3259/3259 freguesias com `score_geral` ✓ e `rendas_mediana` real INE 2024 em 2608/3259
+  - 651 sem cobertura INE (interior e ilhas) — valor nulo, sem impacto no score
+- **Worker dados-freguesia**: lê do Supabase; pesquisa parcial por nome, por município, desambiguação com ?municipio=
+- **relatorio.html**: mostra score_geral (0–10 → 0–100), badge dinâmico, rendas reais, card de alerta, paywall
 - **index.html**: tabs Ver relatório / Comparar, pills reais, "Para imobiliárias" no nav
-- **Enricher INE** (`data/enricher-ine.py`): a correr em background (PID 44589 em 2026-06-05)
-  - Para re-enriquecer (retomar os 651 sem cobertura): `export AIRTABLE_TOKEN=... && python3 data/enricher-ine.py`
-  - Após enricher: `python3 data/migrar-supabase.py` para sincronizar no Supabase
+- **migrar-supabase.py**: calcula score_geral inline — re-migrar nunca causa regressão
 
 ### Pendente para próxima sessão
-- [x] Enricher INE terminou — 2608/3259 freguesias com rendas reais sincronizadas no Supabase
 - [ ] Configurar `BREVO_API_KEY` no Worker lista-espera (emails de confirmação)
 - [ ] Integrar Stripe para pagamento 4,99€
 - [ ] Criar página dedicada "Para imobiliárias" (actualmente âncora #beneficios)
+- [ ] Re-enriquecer 651 freguesias sem rendas (interior/ilhas): `python3 data/enricher-ine.py && python3 data/migrar-supabase.py`
 
 ## Próximos passos (Sprint 1 em curso)
 - [x] Ligar barra de pesquisa da home ao relatorio.html
@@ -162,5 +168,6 @@ para imobiliárias.
 - Deploy site: git push origin main
 - Worker deploy: cd workers && wrangler deploy --config <nome>.toml
 - Adicionar secret: cd workers && wrangler secret put NOME --config <nome>.toml
-- Re-migrar Supabase: python3 data/migrar-supabase.py (com env vars definidas)
+- Re-migrar Supabase: `export AIRTABLE_TOKEN=... SUPABASE_URL=... SUPABASE_KEY=... && python3 data/migrar-supabase.py`
+- Recalcular scores: `SUPABASE_URL=... SUPABASE_KEY=... python3 data/recalcular-scores.py`
 - Testar localmente: abrir index.html no browser
