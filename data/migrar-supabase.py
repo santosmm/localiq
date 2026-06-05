@@ -15,8 +15,9 @@ import json
 import os
 import sys
 import time
-import urllib.request
 import urllib.error
+import urllib.parse
+import urllib.request
 
 # ─── Configuração ─────────────────────────────────────────────────────────────
 
@@ -87,6 +88,13 @@ def _decimal(val):
         return None
 
 
+def _calcular_score_populacao(pop):
+    """Proxy de score_geral baseado em população (0–10, 1 casa decimal)."""
+    if pop is None or pop <= 0:
+        return None
+    return min(round((pop / 50000) * 10, 1), 10.0)
+
+
 def mapear_registo(fields):
     # Inicializa todas as colunas a None — PostgREST exige chaves idênticas em todos os registos do lote
     registo = {col: None for col in TODAS_COLUNAS}
@@ -100,6 +108,9 @@ def mapear_registo(fields):
             registo[coluna_sb] = _decimal(val)
         else:
             registo[coluna_sb] = str(val).strip()
+    # Garante score_geral mesmo quando Airtable não tem o campo preenchido
+    if registo["score_geral"] is None and registo["populacao"] is not None:
+        registo["score_geral"] = _calcular_score_populacao(registo["populacao"])
     return registo
 
 
@@ -141,6 +152,53 @@ def _post_supabase(url, headers, payload):
     req   = urllib.request.Request(url, data=corpo, headers=headers, method="POST")
     with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read())
+
+
+def recalcular_scores(supabase_url, supabase_key):
+    """Recalcula score_geral a partir da população para todos os registos sem score."""
+    headers_get = {
+        "apikey":        supabase_key,
+        "Authorization": f"Bearer {supabase_key}",
+        "Accept":        "application/json",
+    }
+    # Busca todos os registos com populacao preenchida mas score nulo
+    url_get = (f"{supabase_url}/rest/v1/freguesias"
+               f"?select=codigo_ine,populacao"
+               f"&score_geral=is.null"
+               f"&populacao=not.is.null"
+               f"&limit=5000")
+    req = urllib.request.Request(url_get, headers=headers_get)
+    with urllib.request.urlopen(req) as resp:
+        sem_score = json.loads(resp.read())
+
+    if not sem_score:
+        return 0
+
+    headers_patch = {
+        "apikey":        supabase_key,
+        "Authorization": f"Bearer {supabase_key}",
+        "Content-Type":  "application/json",
+        "Prefer":        "return=minimal",
+    }
+    atualizados = 0
+    for r in sem_score:
+        score = _calcular_score_populacao(r["populacao"])
+        if score is None:
+            continue
+        codigo = r["codigo_ine"]
+        url_patch = (f"{supabase_url}/rest/v1/freguesias"
+                     f"?codigo_ine=eq.{urllib.parse.quote(str(codigo))}")
+        corpo = json.dumps({"score_geral": score}).encode("utf-8")
+        req_p = urllib.request.Request(url_patch, data=corpo,
+                                       headers=headers_patch, method="PATCH")
+        try:
+            with urllib.request.urlopen(req_p):
+                pass
+            atualizados += 1
+        except urllib.error.HTTPError:
+            pass
+
+    return atualizados
 
 
 def importar_supabase(registos):
@@ -207,6 +265,10 @@ def main():
     print("2. A importar no Supabase...")
     total = importar_supabase(registos)
     print(f"\nConcluído: {total}/{len(registos)} registos no Supabase.")
+
+    print("3. A recalcular score_geral para registos sem score...")
+    atualizados = recalcular_scores(SUPABASE_URL, SUPABASE_KEY)
+    print(f"   {atualizados} scores recalculados.")
 
 
 if __name__ == "__main__":
