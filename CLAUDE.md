@@ -79,7 +79,11 @@ para imobiliárias.
 - RLS activo: leitura pública, escrita só com service_role
 - Secrets no Worker dados-freguesia: SUPABASE_URL, SUPABASE_KEY
 - Re-migrar: `export AIRTABLE_TOKEN=... SUPABASE_URL=... SUPABASE_KEY=... && python3 data/migrar-supabase.py`
-- Pesquisa usa `ilike.{nome}*` (começa por) — "Cascais" encontra "Cascais e Estoril"
+- Pesquisa por freguesia: `GET ?freguesia=Cascais` — usa `ilike.{nome}*` (começa por); "Cascais" encontra "Cascais e Estoril"
+- Pesquisa por município: `GET /municipio?nome=Lisboa` — devolve top 10 freguesias do município por `score_geral DESC`
+  - Usado pelo relatorio.html como fallback quando `encontrado: false` (ex: user pesquisa "Lisboa")
+  - Mostra "Quiseste dizer uma destas freguesias de Lisboa?" com scores clicáveis
+  - Caso "Porto": ainda cai na desambiguação de freguesias que começam por "Porto" (pré-existente)
 - Municípios usam `ilike.{municipio}` (exacto) — vêm de desambiguação, não de input livre
 - **score_geral preenchido** para todas as 3259 freguesias (proxy temporário: `LEAST(ROUND((populacao/50000)*10,1),10)`)
   - Recalcular se scores reais forem importados: SQL `UPDATE freguesias SET score_geral = LEAST(ROUND((populacao::float/50000)*10,1),10)`
