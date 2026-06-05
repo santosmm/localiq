@@ -103,6 +103,29 @@ para imobiliárias.
 4. Vê card de alerta → pode subscrever actualizações por email
 5. Clica "Desbloquear por 4,99€" → [A LIGAR] Stripe
 
+## Sessão 2026-06-05 — Sprint 1 (concluído)
+
+### Commits desta sessão
+- `3426ae4` feat: migrar base de dados do Airtable para Supabase
+- `f09e9e4` fix: pesquisa por nome parcial no worker (ilike.{nome}*)
+- `b8ab73f` feat: pesquisa por município quando freguesia não é encontrada (/municipio?nome=)
+- `9b4083a` docs: score_geral calculado para 3259 freguesias
+- `2bf853f` feat: tabs hero (Ver relatório / Comparar), nav imobiliárias, pills correctas
+
+### Estado actual
+- **Supabase**: 3259 freguesias com `populacao`, `rendas_mediana` (parcial) e `score_geral` (proxy pop.)
+- **Worker dados-freguesia**: lê do Supabase; pesquisa por nome parcial e por município
+- **relatorio.html**: mostra score_geral, badge dinâmico, card de alerta, paywall
+- **index.html**: tabs Ver relatório / Comparar, pills reais, "Para imobiliárias" no nav
+- **Enricher INE** (`data/enricher-ine.py`): a correr em background (PID 44589 em 2026-06-05)
+  - Quando terminar: `python3 data/migrar-supabase.py` para sincronizar rendas reais no Supabase
+
+### Pendente para próxima sessão
+- [ ] Confirmar que enricher INE terminou e sincronizar Supabase
+- [ ] Configurar `BREVO_API_KEY` no Worker lista-espera (emails de confirmação)
+- [ ] Integrar Stripe para pagamento 4,99€
+- [ ] Criar página dedicada "Para imobiliárias" (actualmente âncora #beneficios)
+
 ## Próximos passos (Sprint 1 em curso)
 - [x] Ligar barra de pesquisa da home ao relatorio.html
 - [x] Ler parâmetro ?freguesia= no URL do relatório
