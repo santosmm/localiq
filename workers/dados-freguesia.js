@@ -49,6 +49,26 @@ function mapearRegisto(r) {
   };
 }
 
+async function consultarMunicipio(nome, supabaseUrl, supabaseKey) {
+  const url = `${supabaseUrl}/rest/v1/freguesias`
+            + `?select=nome,municipio,score_geral,populacao`
+            + `&municipio=ilike.${encodeURIComponent(nome)}*`
+            + `&order=score_geral.desc.nullslast`
+            + `&limit=10`;
+
+  const resposta = await fetch(url, {
+    headers: {
+      'apikey':        supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+    },
+  });
+
+  if (!resposta.ok) throw new Error(`Supabase ${resposta.status}`);
+
+  const registos = await resposta.json();
+  return registos;
+}
+
 async function consultarFreguesia(nome, municipio, supabaseUrl, supabaseKey) {
   let url = `${supabaseUrl}/rest/v1/freguesias?select=*&nome=ilike.${encodeURIComponent(nome)}*&limit=5`;
   if (municipio) {
@@ -94,8 +114,24 @@ export default {
     }
 
     const url       = new URL(request.url);
+    const pathname  = url.pathname;
     const freguesia = url.searchParams.get('freguesia');
     const municipio = url.searchParams.get('municipio');
+
+    /* Endpoint /municipio?nome=Lisboa — top 10 freguesias do município */
+    if (pathname === '/municipio') {
+      const nome = url.searchParams.get('nome');
+      if (!nome || nome.trim().length < 2) {
+        return respostaJson({ erro: 'Parâmetro ?nome= obrigatório' }, 400, cors);
+      }
+      try {
+        const freguesias = await consultarMunicipio(nome.trim(), env.SUPABASE_URL, env.SUPABASE_KEY);
+        if (!freguesias.length) return respostaJson({ encontrado: false }, 200, cors);
+        return respostaJson({ encontrado: true, municipio: nome.trim(), freguesias }, 200, cors);
+      } catch (erro) {
+        return respostaJson({ erro: 'Erro ao consultar município' }, 500, cors);
+      }
+    }
 
     if (!freguesia || freguesia.trim().length < 2) {
       return respostaJson({ erro: 'Parâmetro ?freguesia= obrigatório' }, 400, cors);

@@ -671,6 +671,15 @@
       color: var(--cinza-texto);
     }
 
+    .btn-municipio-score {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--azul-medio);
+      background: var(--azul-claro);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
     /* ── Footer ── */
     footer {
       background: var(--azul-escuro);
@@ -1024,6 +1033,36 @@
       document.querySelector('footer').insertAdjacentHTML('beforebegin', html);
     }
 
+    function mostrarSugestoesMunicipio(termoPesquisa, municipio, freguesias) {
+      document.querySelector('.hero-principal').style.display = 'none';
+      document.querySelector('.hero-analise').style.display   = 'none';
+      document.querySelectorAll('.secao').forEach(function (s) { s.style.display = 'none'; });
+      document.querySelector('.paywall').style.display        = 'none';
+
+      var html = '<div class="selector-municipio">' +
+        '<h2>' + termoPesquisa + '</h2>' +
+        '<p>Quiseste dizer uma destas freguesias de <strong>' + municipio + '</strong>?</p>' +
+        '<div class="opcoes-municipio">';
+
+      freguesias.forEach(function (f) {
+        var scoreHtml = f.score_geral != null
+          ? '<span class="btn-municipio-score">' + Math.round(f.score_geral * 10) + '/100</span>'
+          : '';
+        var url = 'relatorio.html?freguesia=' + encodeURIComponent(f.nome)
+                + '&municipio='              + encodeURIComponent(f.municipio);
+        html += '<a href="' + url + '" class="btn-municipio">' +
+          '<span>' + f.nome + '</span>' +
+          '<span style="display:flex;align-items:center;gap:8px">' +
+            scoreHtml +
+            '<span class="btn-municipio-municipio">' + f.municipio + ' →</span>' +
+          '</span>' +
+        '</a>';
+      });
+
+      html += '</div></div>';
+      document.querySelector('footer').insertAdjacentHTML('beforebegin', html);
+    }
+
     /* Inicialização: tenta buscar dados reais, usa exemplo como fallback */
     async function init() {
       var params = lerParametrosUrl();
@@ -1052,6 +1091,17 @@
         } else if (json.multiplos && json.opcoes) {
           mostrarSelectorMunicipio(nomeFinal, json.opcoes);
         } else {
+          /* Tenta pesquisa por município antes de usar fallback */
+          try {
+            var munUrl  = WORKER_URL + '/municipio?nome=' + encodeURIComponent(nomeUrl);
+            var munResp = await fetch(munUrl);
+            var munJson = await munResp.json();
+            if (munJson.encontrado && munJson.freguesias && munJson.freguesias.length) {
+              mostrarSugestoesMunicipio(nomeFinal, munJson.municipio, munJson.freguesias);
+              return;
+            }
+          } catch (_) { /* silencioso — cai no fallback */ }
+
           DADOS.freguesia  = nomeFinal;
           DADOS.concelho   = nomeFinal;
           DADOS.analise    = DADOS.analise.replace('Cascais e Estoril', nomeFinal);
