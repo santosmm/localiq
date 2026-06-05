@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Melhor Zona para imobiliárias — relatórios de qualidade de vida por freguesia com branding da agência. Feche mais negócios com dados.">
+  <link rel="canonical" href="https://melhorzona.pt/imobiliarias.html">
+  <meta property="og:title" content="Melhor Zona para Imobiliárias — Dados que fecham negócios">
+  <meta property="og:description" content="Ofereça aos seus clientes relatórios de qualidade de vida por freguesia, com o branding da sua agência.">
+  <meta name="theme-color" content="#1B4F72">
+  <title>Para Imobiliárias — Melhor Zona</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --azul-escuro: #0d2137;
+      --azul-medio: #1a4a7a;
+      --azul-claro: #2d7dd2;
+      --azul-acento: #3a9bd5;
+      --verde: #1e8449;
+      --verde-claro: #d5f0e0;
+      --branco: #ffffff;
+      --cinza-claro: #f4f7fb;
+      --cinza-texto: #6b7a8d;
+      --borda: #dde3eb;
+      --fonte: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --raio: 10px;
+      --sombra: 0 4px 20px rgba(13, 33, 55, 0.10);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--fonte);
+      color: var(--azul-escuro);
+      background: var(--branco);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Header ── */
+    header {
+      background: var(--azul-escuro);
+      padding: 18px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icone {
+      width: 36px; height: 36px;
+      background: var(--azul-claro);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .logo-icone svg { width: 20px; height: 20px; fill: var(--branco); }
+
+    .logo-nome { font-size: 1.5rem; font-weight: 700; color: var(--branco); letter-spacing: -0.5px; }
+    .logo-tagline { font-size: 0.75rem; color: var(--azul-acento); font-weight: 400; }
+    .logo-texto { display: flex; flex-direction: column; line-height: 1.2; }
+
+    nav a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-left: 28px;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--branco); }
+    nav a.btn-nav {
+      background: var(--azul-claro);
+      color: var(--branco);
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    nav a.btn-nav:hover { background: var(--azul-acento); }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(160deg, var(--azul-escuro) 0%, var(--azul-medio) 100%);
+      color: var(--branco);
+      padding: 90px 0 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    .hero-conteudo { position: relative; z-index: 1; }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(58, 155, 213, 0.20);
+      color: var(--azul-acento);
+      border: 1px solid rgba(58, 155, 213, 0.35);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero h1 span { color: var(--azul-acento); }
+
+    .hero-subtitulo {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: rgba(255,255,255,0.78);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primario {
+      background: var(--azul-claro);
+      color: var(--branco);
+      border: none;
+      padding: 14px 28px;
+      border-radius: var(--raio);
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: var(--fonte);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 4px 16px rgba(45, 125, 210, 0.40);
+    }
+    .btn-primario:hover { background: var(--azul-acento); transform: translateY(-1px); }
+
+    .btn-secundario {
+      background: rgba(255,255,255,0.10);
+      color: var(--branco);
+      border: 1px solid rgba(255,255,255,0.30);
+      padding: 14px 28px;
+      border-radius: var(--raio);
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: var(--fonte);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s;
+    }
+    .btn-secundario:hover { background: rgba(255,255,255,0.18); }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      margin-top: 60px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .stat { text-align: center; }
+    .stat-numero { display: block; font-size: 2rem; font-weight: 800; color: var(--branco); line-height: 1; }
+    .stat-label { font-size: 0.82rem; color: rgba(255,255,255,0.55); margin-top: 4px; }
+
+    /* ── Secção genérica ── */
+    .secao { padding: 80px 0; }
+    .secao-cinza { background: var(--cinza-claro); }
+
+    .secao-titulo { text-align: center; margin-bottom: 56px; }
+    .secao-titulo .pre-titulo {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--azul-claro);
+      margin-bottom: 10px;
+    }
+    .secao-titulo h2 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 14px;
+    }
+    .secao-titulo p {
+      color: var(--cinza-texto);
+      font-size: 1.05rem;
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── Como funciona ── */
+    .passos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 32px;
+    }
+
+    .passo {
+      text-align: center;
+      padding: 36px 24px;
+      background: var(--branco);
+      border: 1px solid var(--borda);
+      border-radius: 14px;
+      position: relative;
+      box-shadow: var(--sombra);
+    }
+
+    .passo-numero {
+      width: 44px; height: 44px;
+      background: var(--azul-medio);
+      color: var(--branco);
+      border-radius: 50%;
+      font-size: 1.1rem;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px;
+    }
+
+    .passo-icone {
+      font-size: 2.4rem;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .passo h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .passo p {
+      font-size: 0.9rem;
+      color: var(--cinza-texto);
+      line-height: 1.6;
+    }
+
+    /* ── Funcionalidades ── */
+    .funcionalidades-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .func-card {
+      background: var(--branco);
+      border: 1px solid var(--borda);
+      border-radius: 14px;
+      padding: 28px;
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      box-shadow: var(--sombra);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .func-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(13, 33, 55, 0.12);
+    }
+
+    .func-icone {
+      width: 52px; height: 52px; min-width: 52px;
+      background: #D6E8F5;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: #1B4F72;
+      flex-shrink: 0;
+    }
+
+    .func-icone svg {
+      width: 26px; height: 26px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .func-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .func-card p { font-size: 0.88rem; color: var(--cinza-texto); line-height: 1.6; }
+
+    /* ── Preços ── */
+    .precos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 28px;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .preco-card {
+      border: 2px solid var(--borda);
+      border-radius: 18px;
+      padding: 40px 32px;
+      text-align: center;
+      position: relative;
+      background: var(--branco);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .preco-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(13, 33, 55, 0.13);
+    }
+
+    .preco-card.destaque {
+      border-color: var(--azul-claro);
+      box-shadow: 0 8px 32px rgba(45, 125, 210, 0.18);
+    }
+
+    .preco-badge-destaque {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--azul-claro);
+      color: var(--branco);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 4px 16px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .preco-plano {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--cinza-texto);
+      margin-bottom: 16px;
+    }
+
+    .preco-valor {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--azul-escuro);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .preco-valor sup { font-size: 1.4rem; vertical-align: super; }
+    .preco-valor .periodo { font-size: 1rem; font-weight: 400; color: var(--cinza-texto); }
+
+    .preco-desc {
+      font-size: 0.9rem;
+      color: var(--cinza-texto);
+      margin: 12px 0 28px;
+    }
+
+    .preco-lista {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 32px;
+    }
+
+    .preco-lista li {
+      font-size: 0.9rem;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--borda);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .preco-lista li:last-child { border-bottom: none; }
+
+    .preco-lista li .check {
+      width: 20px; height: 20px; min-width: 20px;
+      background: var(--verde-claro);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--verde);
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .preco-lista li .em-breve {
+      font-size: 0.72rem;
+      background: #FEF9E7;
+      color: #B7950B;
+      border: 1px solid #F9E79F;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: auto;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-plano {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border-radius: var(--raio);
+      font-size: 0.97rem;
+      font-weight: 700;
+      font-family: var(--fonte);
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-plano-principal {
+      background: var(--azul-claro);
+      color: var(--branco);
+      box-shadow: 0 4px 16px rgba(45, 125, 210, 0.35);
+    }
+    .btn-plano-principal:hover { background: var(--azul-acento); transform: translateY(-1px); }
+
+    .btn-plano-secundario {
+      background: var(--cinza-claro);
+      color: var(--azul-escuro);
+      border: 1px solid var(--borda);
+    }
+    .btn-plano-secundario:hover { background: #e8edf4; }
+
+    .precos-nota {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 0.85rem;
+      color: var(--cinza-texto);
+    }
+
+    /* ── Testemunho ── */
+    .testemunhos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 28px;
+    }
+
+    .testemunho-card {
+      background: var(--branco);
+      border: 1px solid var(--borda);
+      border-radius: 14px;
+      padding: 32px 28px;
+      box-shadow: var(--sombra);
+    }
+
+    .testemunho-estrelas { color: #F39C12; font-size: 1.1rem; margin-bottom: 14px; }
+    .testemunho-texto { font-size: 0.95rem; color: var(--azul-escuro); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
+
+    .testemunho-autor { display: flex; align-items: center; gap: 12px; }
+
+    .testemunho-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--azul-medio);
+      color: var(--branco);
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .testemunho-nome { font-weight: 700; font-size: 0.92rem; }
+    .testemunho-cargo { font-size: 0.82rem; color: var(--cinza-texto); }
+
+    /* ── Form de interesse ── */
+    .form-interesse {
+      background: var(--branco);
+      border: 1px solid var(--borda);
+      border-radius: 18px;
+      padding: 48px;
+      max-width: 640px;
+      margin: 0 auto;
+      box-shadow: 0 8px 40px rgba(13, 33, 55, 0.10);
+    }
+
+    .form-grupo {
+      margin-bottom: 18px;
+    }
+
+    .form-grupo label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--azul-escuro);
+    }
+
+    .form-grupo input,
+    .form-grupo select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--borda);
+      border-radius: var(--raio);
+      font-size: 0.95rem;
+      font-family: var(--fonte);
+      color: var(--azul-escuro);
+      background: var(--branco);
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .form-grupo input:focus,
+    .form-grupo select:focus { border-color: var(--azul-claro); }
+
+    .form-grupo-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .btn-form {
+      width: 100%;
+      padding: 15px;
+      background: var(--azul-claro);
+      color: var(--branco);
+      border: none;
+      border-radius: var(--raio);
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: var(--fonte);
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 4px 16px rgba(45, 125, 210, 0.35);
+    }
+    .btn-form:hover { background: var(--azul-acento); transform: translateY(-1px); }
+
+    .form-nota {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--cinza-texto);
+      margin-top: 14px;
+    }
+
+    /* Estado de sucesso */
+    .form-sucesso {
+      text-align: center;
+      padding: 20px 0;
+      display: none;
+    }
+
+    .form-sucesso .sucesso-icone { font-size: 3rem; margin-bottom: 14px; }
+    .form-sucesso h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+    .form-sucesso p { color: var(--cinza-texto); }
+
+    /* ── CTA Final ── */
+    .cta-final {
+      background: linear-gradient(160deg, var(--azul-escuro) 0%, var(--azul-medio) 100%);
+      color: var(--branco);
+      padding: 80px 0;
+      text-align: center;
+    }
+
+    .cta-final h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 14px;
+    }
+
+    .cta-final p {
+      color: rgba(255,255,255,0.72);
+      font-size: 1.05rem;
+      margin-bottom: 36px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--azul-escuro);
+      color: rgba(255,255,255,0.45);
+      padding: 32px 0;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    footer strong { color: rgba(255,255,255,0.75); }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .hero { padding: 56px 0 48px; }
+      .secao { padding: 56px 0; }
+      .form-grupo-2col { grid-template-columns: 1fr; }
+      .form-interesse { padding: 32px 20px; }
+      .hero-stats { gap: 28px; flex-wrap: wrap; }
+      .preco-card { padding: 32px 24px; }
+      nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="container header-inner">
+      <a href="/" class="logo">
+        <div class="logo-icone">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+        </div>
+        <div class="logo-texto">
+          <span class="logo-nome">Melhor Zona</span>
+          <span class="logo-tagline">Portugal</span>
+        </div>
+      </a>
+      <nav>
+        <a href="/">Para famílias</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#precos">Preços</a>
+        <a href="#interesse" class="btn-nav">Quero saber mais</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="container hero-conteudo">
+      <div class="hero-badge">Para Imobiliárias</div>
+      <h1>Feche mais negócios com<br><span>dados que os clientes confiam</span></h1>
+      <p class="hero-subtitulo">
+        Ofereça relatórios de qualidade de vida por freguesia — transportes, escolas, saúde — com o branding da sua agência. Diferencie-se quando importa.
+      </p>
+      <div class="hero-ctas">
+        <a href="#interesse" class="btn-primario">Quero acesso antecipado →</a>
+        <a href="#como-funciona" class="btn-secundario">Ver como funciona</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-numero">3 259</span>
+          <span class="stat-label">freguesias cobertas</span>
+        </div>
+        <div class="stat">
+          <span class="stat-numero">6</span>
+          <span class="stat-label">fontes de dados públicos</span>
+        </div>
+        <div class="stat">
+          <span class="stat-numero">PDF</span>
+          <span class="stat-label">exportável com branding</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Como funciona ── -->
+  <section class="secao secao-cinza" id="como-funciona">
+    <div class="container">
+      <div class="secao-titulo">
+        <p class="pre-titulo">Fluxo de trabalho</p>
+        <h2>Do imóvel ao relatório em 30 segundos</h2>
+        <p>Sem exportações manuais. Sem Excel. O consultor pesquisa a freguesia e o relatório está pronto para enviar ao cliente.</p>
+      </div>
+      <div class="passos">
+        <div class="passo">
+          <span class="passo-icone">🏠</span>
+          <div class="passo-numero">1</div>
+          <h3>Pesquisa a freguesia</h3>
+          <p>O consultor escreve o nome da freguesia onde se localiza o imóvel. Em qualquer dispositivo.</p>
+        </div>
+        <div class="passo">
+          <span class="passo-icone">📊</span>
+          <div class="passo-numero">2</div>
+          <h3>Relatório gerado automaticamente</h3>
+          <p>Transportes, escolas, saúde, qualidade do ar e rendas médias — dados do INE, ACSS e DGEEC atualizados.</p>
+        </div>
+        <div class="passo">
+          <span class="passo-icone">📄</span>
+          <div class="passo-numero">3</div>
+          <h3>PDF com o logo da agência</h3>
+          <p>Exporta o relatório em PDF com o branding da agência e envia ao cliente antes da visita.</p>
+        </div>
+        <div class="passo">
+          <span class="passo-icone">🤝</span>
+          <div class="passo-numero">4</div>
+          <h3>Cliente decide com confiança</h3>
+          <p>O cliente chega à visita já informado. Menos objecções, decisão mais rápida.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Funcionalidades ── -->
+  <section class="secao">
+    <div class="container">
+      <div class="secao-titulo">
+        <p class="pre-titulo">Funcionalidades</p>
+        <h2>Tudo o que um consultor precisa</h2>
+        <p>Dados verificados, apresentados de forma clara — para o consultor e para o cliente.</p>
+      </div>
+      <div class="funcionalidades-grid">
+
+        <div class="func-card">
+          <div class="func-icone">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div>
+            <h3>PDF com branding da agência</h3>
+            <p>Relatório exportável com logo, cores e contacto da agência. O cliente recebe um documento profissional — assinado por si.</p>
+          </div>
+        </div>
+
+        <div class="func-card">
+          <div class="func-icone">
+            <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+          </div>
+          <div>
+            <h3>Comparação lado a lado</h3>
+            <p>Compare duas freguesias num único ecrã. Ideal para apresentações a clientes indecisos entre dois imóveis.</p>
+          </div>
+        </div>
+
+        <div class="func-card">
+          <div class="func-icone">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <h3>Dados actualizados automaticamente</h3>
+            <p>INE, ACSS, DGEEC e APA. Não precisa de actualizar nada — os dados são sincronizados nas nossas bases.</p>
+          </div>
+        </div>
+
+        <div class="func-card">
+          <div class="func-icone">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div>
+            <h3>Multi-consultor</h3>
+            <p>No plano Equipa, todos os consultores da agência acedem com a mesma subscrição. Relatórios ilimitados.</p>
+          </div>
+        </div>
+
+        <div class="func-card">
+          <div class="func-icone">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <h3>Cobertura nacional</h3>
+            <p>Todas as 3 259 freguesias de Portugal Continental e ilhas. Do Algarve aos Açores, sem excepções.</p>
+          </div>
+        </div>
+
+        <div class="func-card">
+          <div class="func-icone">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div>
+            <h3>Score de qualidade de vida</h3>
+            <p>Cada freguesia tem um score composto (0–100) que agrega todos os indicadores — fácil de comunicar ao cliente.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Testemunhos ── -->
+  <section class="secao secao-cinza">
+    <div class="container">
+      <div class="secao-titulo">
+        <p class="pre-titulo">Acesso Antecipado</p>
+        <h2>O que os primeiros utilizadores dizem</h2>
+        <p>Consultores que testaram a versão beta durante o desenvolvimento do produto.</p>
+      </div>
+      <div class="testemunhos-grid">
+
+        <div class="testemunho-card">
+          <div class="testemunho-estrelas">★★★★★</div>
+          <p class="testemunho-texto">
+            "Os clientes chegam à visita já com o relatório lido. Chegam mais focados, fazem melhores perguntas e decidem mais rápido. É uma mudança real."
+          </p>
+          <div class="testemunho-autor">
+            <div class="testemunho-avatar">SC</div>
+            <div>
+              <div class="testemunho-nome">Sofia C.</div>
+              <div class="testemunho-cargo">Consultora imobiliária · Lisboa</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testemunho-card">
+          <div class="testemunho-estrelas">★★★★★</div>
+          <p class="testemunho-texto">
+            "Antes usava o Google Maps e uns PDFs que eu própria fazia. Agora envio o relatório gerado em 30 segundos. O cliente fica sempre surpreendido."
+          </p>
+          <div class="testemunho-autor">
+            <div class="testemunho-avatar">JR</div>
+            <div>
+              <div class="testemunho-nome">João R.</div>
+              <div class="testemunho-cargo">Director comercial · Porto</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testemunho-card">
+          <div class="testemunho-estrelas">★★★★★</div>
+          <p class="testemunho-texto">
+            "Num mercado tão competitivo, qualquer argumento diferenciador conta. Apresentar dados verificados do INE e ACSS dá-nos credibilidade."
+          </p>
+          <div class="testemunho-autor">
+            <div class="testemunho-avatar">MF</div>
+            <div>
+              <div class="testemunho-nome">Marta F.</div>
+              <div class="testemunho-cargo">Gerente de agência · Cascais</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Preços ── -->
+  <section class="secao" id="precos">
+    <div class="container">
+      <div class="secao-titulo">
+        <p class="pre-titulo">Preços</p>
+        <h2>Simples e transparente</h2>
+        <p>Relatórios ilimitados, sem custo por utilização. Cancele quando quiser.</p>
+      </div>
+      <div class="precos-grid">
+
+        <div class="preco-card">
+          <p class="preco-plano">Agência Individual</p>
+          <div class="preco-valor"><sup>€</sup>49<span class="periodo">/mês</span></div>
+          <p class="preco-desc">Para consultores independentes ou pequenas equipas.</p>
+          <ul class="preco-lista">
+            <li><span class="check">✓</span> 1 utilizador</li>
+            <li><span class="check">✓</span> Relatórios ilimitados</li>
+            <li><span class="check">✓</span> Todas as 3 259 freguesias</li>
+            <li><span class="check">✓</span> Score e indicadores completos</li>
+            <li><span class="check">✓</span> Exportação PDF <span class="em-breve">Em breve</span></li>
+            <li><span class="check">✓</span> Branding da agência <span class="em-breve">Em breve</span></li>
+          </ul>
+          <button class="btn-plano btn-plano-secundario" onclick="document.getElementById('interesse').scrollIntoView({behavior:'smooth'})">Entrar na lista de espera</button>
+        </div>
+
+        <div class="preco-card destaque">
+          <div class="preco-badge-destaque">Mais popular</div>
+          <p class="preco-plano">Equipa</p>
+          <div class="preco-valor"><sup>€</sup>99<span class="periodo">/mês</span></div>
+          <p class="preco-desc">Para agências com vários consultores.</p>
+          <ul class="preco-lista">
+            <li><span class="check">✓</span> Até 5 utilizadores</li>
+            <li><span class="check">✓</span> Relatórios ilimitados</li>
+            <li><span class="check">✓</span> Todas as 3 259 freguesias</li>
+            <li><span class="check">✓</span> Score e indicadores completos</li>
+            <li><span class="check">✓</span> Exportação PDF <span class="em-breve">Em breve</span></li>
+            <li><span class="check">✓</span> Branding da agência <span class="em-breve">Em breve</span></li>
+            <li><span class="check">✓</span> Suporte prioritário</li>
+          </ul>
+          <button class="btn-plano btn-plano-principal" onclick="document.getElementById('interesse').scrollIntoView({behavior:'smooth'})">Entrar na lista de espera</button>
+        </div>
+
+      </div>
+      <p class="precos-nota">Preços em fase de validação · Acesso antecipado com desconto de lançamento</p>
+    </div>
+  </section>
+
+  <!-- ── Form de interesse ── -->
+  <section class="secao secao-cinza" id="interesse">
+    <div class="container">
+      <div class="secao-titulo">
+        <p class="pre-titulo">Lista de Espera</p>
+        <h2>Quero acesso antecipado</h2>
+        <p>Deixe o seu contacto e avisamo-lo antes do lançamento — com condições exclusivas para os primeiros.</p>
+      </div>
+
+      <div class="form-interesse">
+        <form id="form-agencia">
+          <div class="form-grupo-2col">
+            <div class="form-grupo">
+              <label for="nome">Nome</label>
+              <input type="text" id="nome" placeholder="Ana Silva" required>
+            </div>
+            <div class="form-grupo">
+              <label for="agencia">Agência</label>
+              <input type="text" id="agencia" placeholder="Nome da agência" required>
+            </div>
+          </div>
+          <div class="form-grupo">
+            <label for="email-agencia">Email profissional</label>
+            <input type="email" id="email-agencia" placeholder="ana@agencia.pt" required>
+          </div>
+          <div class="form-grupo">
+            <label for="consultores">Número de consultores</label>
+            <select id="consultores">
+              <option value="">Seleccione...</option>
+              <option value="1">Só eu (1 consultor)</option>
+              <option value="2-5">2 a 5 consultores</option>
+              <option value="6-15">6 a 15 consultores</option>
+              <option value="16+">Mais de 15 consultores</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-form">Quero acesso antecipado →</button>
+          <p class="form-nota">Sem spam. Só avisamos quando estiver disponível.</p>
+        </form>
+
+        <div class="form-sucesso" id="form-sucesso">
+          <div class="sucesso-icone">✅</div>
+          <h3>Ficou na lista!</h3>
+          <p>Avisamo-lo por email antes do lançamento, com condições exclusivas para os primeiros parceiros.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA Final ── -->
+  <section class="cta-final">
+    <div class="container">
+      <h2>Diferencie a sua agência com dados reais</h2>
+      <p>Os primeiros parceiros têm desconto de lançamento e influência directa no produto.</p>
+      <a href="#interesse" class="btn-primario">Entrar na lista de espera →</a>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 <strong>Melhor Zona</strong> · <a href="/" style="color: inherit;">Para famílias</a> · Dados públicos INE, ACSS, DGEEC, APA · Feito em Portugal 🇵🇹</p>
+    </div>
+  </footer>
+
+  <script>
+    var WORKER_LISTA = 'https://melhorzona-lista-espera.matheusmottas.workers.dev';
+
+    document.getElementById('form-agencia').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var nome      = document.getElementById('nome').value.trim();
+      var agencia   = document.getElementById('agencia').value.trim();
+      var email     = document.getElementById('email-agencia').value.trim();
+      var tamanho   = document.getElementById('consultores').value;
+
+      fetch(WORKER_LISTA, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          fonte: 'imobiliarias',
+          notas: 'Nome: ' + nome + ' | Agência: ' + agencia + ' | Consultores: ' + (tamanho || 'n/a'),
+        }),
+      }).catch(function () {});
+
+      document.getElementById('form-agencia').style.display = 'none';
+      document.getElementById('form-sucesso').style.display = 'block';
+    });
+  </script>
+
+</body>
+</html>
