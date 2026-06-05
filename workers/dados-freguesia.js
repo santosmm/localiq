@@ -1,6 +1,3 @@
-const AIRTABLE_BASE_ID  = 'appzKGnGUD6pafKKn';
-const AIRTABLE_TABLE_ID = 'tbl2mvTKYsrb1h6fc';
-
 const ORIGENS_PERMITIDAS = [
   'https://melhorzona.netlify.app',
   'https://melhorzona.pt',
@@ -27,62 +24,59 @@ function respostaJson(dados, status, cors) {
   });
 }
 
-function escapar(str) {
-  return str.replace(/"/g, '');
-}
-
-function mapearRegisto(f) {
+function mapearRegisto(r) {
   return {
-    nome:               f.Nome               || '',
-    municipio:          f['Município']        || '',
-    codigo_ine:         f.Codigo_INE         || '',
-    populacao:          f.Populacao          || null,
-    score_geral:        f.Score_Geral        || null,
-    transportes_score:  f.Transportes_Score  || null,
-    saude_score:        f.Saude_Score        || null,
-    educacao_score:     f.Educacao_Score     || null,
-    seguranca_score:    f.Seguranca_Score    || null,
-    rendas_mediana:     f.Rendas_Mediana     || null,
+    nome:                r.nome                ?? '',
+    municipio:           r.municipio           ?? '',
+    codigo_ine:          r.codigo_ine          ?? '',
+    populacao:           r.populacao           ?? null,
+    score_geral:         r.score_geral         ?? null,
+    transportes_score:   r.transportes_score   ?? null,
+    transportes_valor:   r.transportes_valor   ?? null,
+    ar_score:            r.ar_score            ?? null,
+    ar_valor:            r.ar_valor            ?? null,
+    demografia_score:    r.demografia_score    ?? null,
+    demografia_valor:    r.demografia_valor    ?? null,
+    ensino_score:        r.ensino_score        ?? null,
+    ensino_valor:        r.ensino_valor        ?? null,
+    saude_score:         r.saude_score         ?? null,
+    saude_valor:         r.saude_valor         ?? null,
+    arrendamento_score:  r.arrendamento_score  ?? null,
+    arrendamento_valor:  r.arrendamento_valor  ?? null,
+    rendas_mediana:      r.rendas_mediana      ?? null,
+    preco_avaliacao_m2:  r.preco_avaliacao_m2  ?? null,
+    resumo_ia:           r.resumo_ia           ?? null,
   };
 }
 
-async function consultarFreguesia(nome, municipio, token) {
-  /* Se municipio fornecido, filtra por nome + município; caso contrário devolve até 5 matches */
-  let formula;
+async function consultarFreguesia(nome, municipio, supabaseUrl, supabaseKey) {
+  let url = `${supabaseUrl}/rest/v1/freguesias?select=*&nome=ilike.${encodeURIComponent(nome)}&limit=5`;
   if (municipio) {
-    formula = `AND(LOWER({Nome})=LOWER("${escapar(nome)}"),LOWER({Município})=LOWER("${escapar(municipio)}"))`;
-  } else {
-    formula = `LOWER({Nome})=LOWER("${escapar(nome)}")`;
+    url += `&municipio=ilike.${encodeURIComponent(municipio)}`;
   }
 
-  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`
-            + `?filterByFormula=${encodeURIComponent(formula)}&maxRecords=5`;
-
   const resposta = await fetch(url, {
-    headers: { 'Authorization': `Bearer ${token}` },
+    headers: {
+      'apikey':        supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+    },
   });
 
   if (!resposta.ok) {
-    throw new Error(`Airtable ${resposta.status}`);
+    throw new Error(`Supabase ${resposta.status}`);
   }
 
-  const json     = await resposta.json();
-  const registos = json.records || [];
+  const registos = await resposta.json();
 
-  if (registos.length === 0) return { tipo: 'nenhum' };
+  if (!registos.length) return { tipo: 'nenhum' };
 
-  /* Resultado único — devolve directamente */
   if (registos.length === 1) {
-    return { tipo: 'unico', dados: mapearRegisto(registos[0].fields) };
+    return { tipo: 'unico', dados: mapearRegisto(registos[0]) };
   }
 
-  /* Múltiplos resultados — pede para desambiguar com município */
   return {
     tipo: 'multiplos',
-    opcoes: registos.map(r => ({
-      nome:      r.fields.Nome      || '',
-      municipio: r.fields['Município'] || '',
-    })),
+    opcoes: registos.map(r => ({ nome: r.nome || '', municipio: r.municipio || '' })),
   };
 }
 
@@ -108,7 +102,12 @@ export default {
     }
 
     try {
-      const resultado = await consultarFreguesia(freguesia.trim(), municipio?.trim() || '', env.AIRTABLE_TOKEN);
+      const resultado = await consultarFreguesia(
+        freguesia.trim(),
+        municipio?.trim() || '',
+        env.SUPABASE_URL,
+        env.SUPABASE_KEY,
+      );
 
       if (resultado.tipo === 'nenhum') {
         return respostaJson({ encontrado: false }, 200, cors);
