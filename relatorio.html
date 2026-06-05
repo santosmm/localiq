@@ -546,6 +546,63 @@
 
     .btn-comparar:hover { background: rgba(255,255,255,0.1); color: var(--branco); }
 
+    /* ── Selector de município (desambiguação) ── */
+    .selector-municipio {
+      max-width: 540px;
+      margin: 60px auto;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    .selector-municipio h2 {
+      font-family: var(--titulo);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--azul-escuro);
+      margin-bottom: 8px;
+    }
+
+    .selector-municipio p {
+      font-size: 0.9rem;
+      color: var(--cinza-texto);
+      margin-bottom: 28px;
+    }
+
+    .opcoes-municipio {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-municipio {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--branco);
+      border: 1px solid var(--cinza-borda);
+      border-radius: var(--raio);
+      box-shadow: var(--sombra);
+      cursor: pointer;
+      font-family: var(--corpo);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--azul-escuro);
+      text-decoration: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-municipio:hover {
+      border-color: var(--azul-medio);
+      box-shadow: 0 4px 20px rgba(27,79,114,0.12);
+    }
+
+    .btn-municipio-municipio {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--cinza-texto);
+    }
+
     /* ── Footer ── */
     footer {
       background: var(--azul-escuro);
@@ -699,12 +756,15 @@
       '</div>';
     }
 
-    /* Lê o parâmetro ?freguesia= do URL */
-    function lerParametroUrl() {
+    /* Lê parâmetros do URL */
+    function lerParametrosUrl() {
       try {
         var params = new URLSearchParams(window.location.search);
-        return params.get('freguesia') || null;
-      } catch (e) { return null; }
+        return {
+          freguesia: params.get('freguesia') || null,
+          municipio: params.get('municipio') || null,
+        };
+      } catch (e) { return { freguesia: null, municipio: null }; }
     }
 
     /* Capitaliza cada palavra excepto conectivos portugueses no meio da frase */
@@ -851,37 +911,68 @@
       });
     }
 
+    /* Mostra o painel de desambiguação quando há múltiplas freguesias homónimas */
+    function mostrarSelectorMunicipio(nomeFreguesia, opcoes) {
+      /* Esconde hero e secções de indicadores */
+      document.querySelector('.hero-principal').style.display = 'none';
+      document.querySelector('.hero-analise').style.display   = 'none';
+      document.querySelectorAll('.secao').forEach(function (s) { s.style.display = 'none'; });
+      document.querySelector('.paywall').style.display        = 'none';
+
+      /* Injecto o selector antes do footer */
+      var html = '<div class="selector-municipio">' +
+        '<h2>' + nomeFreguesia + '</h2>' +
+        '<p>Existem várias freguesias com este nome.<br>Selecciona o município correcto:</p>' +
+        '<div class="opcoes-municipio">';
+
+      opcoes.forEach(function (op) {
+        var url = 'relatorio.html?freguesia=' + encodeURIComponent(op.nome)
+                + '&municipio='              + encodeURIComponent(op.municipio);
+        html += '<a href="' + url + '" class="btn-municipio">' +
+          '<span>' + op.nome + '</span>' +
+          '<span class="btn-municipio-municipio">' + op.municipio + ' →</span>' +
+        '</a>';
+      });
+
+      html += '</div></div>';
+
+      document.querySelector('footer').insertAdjacentHTML('beforebegin', html);
+    }
+
     /* Inicialização: tenta buscar dados reais, usa exemplo como fallback */
     async function init() {
-      var nomeUrl = lerParametroUrl();
+      var params = lerParametrosUrl();
+      var nomeUrl      = params.freguesia;
+      var municipioUrl = params.municipio;
 
       if (!nomeUrl) {
-        /* Sem parâmetro: mostra dados de exemplo com o nome por omissão */
         renderizar(DADOS);
         return;
       }
 
       var nomeFinal = capitalizarFreguesia(decodeURIComponent(nomeUrl));
 
-      /* Mostra o nome no hero imediatamente enquanto carrega */
       document.getElementById('hero-freguesia').textContent = nomeFinal;
       document.title = 'Relatório — ' + nomeFinal + ' | Melhor Zona';
 
       try {
-        var resposta = await fetch(WORKER_URL + '?freguesia=' + encodeURIComponent(nomeUrl));
+        var workerUrl = WORKER_URL + '?freguesia=' + encodeURIComponent(nomeUrl);
+        if (municipioUrl) workerUrl += '&municipio=' + encodeURIComponent(municipioUrl);
+
+        var resposta = await fetch(workerUrl);
         var json     = await resposta.json();
 
         if (json.encontrado && json.dados) {
           renderizar(dadosDeAirtable(json.dados));
+        } else if (json.multiplos && json.opcoes) {
+          mostrarSelectorMunicipio(nomeFinal, json.opcoes);
         } else {
-          /* Freguesia não encontrada no Airtable — usa exemplo com nome real */
           DADOS.freguesia  = nomeFinal;
           DADOS.concelho   = nomeFinal;
           DADOS.analise    = DADOS.analise.replace('Cascais e Estoril', nomeFinal);
           renderizar(DADOS);
         }
       } catch (erro) {
-        /* Erro de rede — usa exemplo como fallback silencioso */
         DADOS.freguesia = nomeFinal;
         DADOS.concelho  = nomeFinal;
         DADOS.analise   = DADOS.analise.replace('Cascais e Estoril', nomeFinal);
