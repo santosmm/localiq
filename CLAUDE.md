@@ -79,6 +79,8 @@ para imobiliárias.
 - RLS activo: leitura pública, escrita só com service_role
 - Secrets no Worker dados-freguesia: SUPABASE_URL, SUPABASE_KEY
 - Re-migrar: `export AIRTABLE_TOKEN=... SUPABASE_URL=... SUPABASE_KEY=... && python3 data/migrar-supabase.py`
+- Pesquisa usa `ilike.{nome}*` (começa por) — "Cascais" encontra "Cascais e Estoril"
+- Municípios usam `ilike.{municipio}` (exacto) — vêm de desambiguação, não de input livre
 
 ## Airtable (emails — mantém-se)
 - Base: Melhor Zona (appzKGnGUD6pafKKn)
