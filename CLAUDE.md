@@ -61,6 +61,7 @@ para imobiliárias.
 - workers/dados-freguesia.toml — config wrangler dados-freguesia
 - workers/ine-api.js — Cloudflare Worker de integração com a API INE
 - workers/ine-api.toml — config wrangler ine-api
+- imobiliarias.html — página B2B para imobiliárias (hero, como funciona, funcionalidades, preços 49€/99€, form lista de espera)
 - data/schema-supabase.sql — schema PostgreSQL da tabela freguesias
 - data/migrar-supabase.py — script de migração Airtable → Supabase (upsert por codigo_ine); calcula score_geral a partir de populacao se Airtable não tiver o campo
 - data/recalcular-scores.py — script standalone para recalcular score_geral no Supabase (só precisa SUPABASE_URL + SUPABASE_KEY); faz batch por valor de score para evitar SSL throttle
@@ -119,19 +120,21 @@ para imobiliárias.
 - `49dac95` feat: suporte a ?municipio= no worker para desambiguar freguesias homónimas
 - `cb5674b` docs: resultado final enricher INE e estado das rendas
 - `2d3fc3f` fix: recalcular score_geral após migração Airtable→Supabase
+- `4e6cb37` feat: página dedicada para imobiliárias
 
 ### Estado final do Sprint 1
 - **Supabase**: 3259/3259 freguesias com `score_geral` ✓ e `rendas_mediana` real INE 2024 em 2608/3259
   - 651 sem cobertura INE (interior e ilhas) — valor nulo, sem impacto no score
 - **Worker dados-freguesia**: lê do Supabase; pesquisa parcial por nome, por município, desambiguação com ?municipio=
 - **relatorio.html**: mostra score_geral (0–10 → 0–100), badge dinâmico, rendas reais, card de alerta, paywall
-- **index.html**: tabs Ver relatório / Comparar, pills reais, "Para imobiliárias" no nav
+- **index.html**: tabs Ver relatório / Comparar, pills reais, nav "Para imobiliárias" aponta para imobiliarias.html
+- **imobiliarias.html**: página B2B completa — hero, 4 passos, 6 funcionalidades, testemunhos, preços (49€/99€), form lista de espera → Worker lista-espera com `fonte: "imobiliarias"`
 - **migrar-supabase.py**: calcula score_geral inline — re-migrar nunca causa regressão
 
 ### Pendente para próxima sessão
 - [ ] Configurar `BREVO_API_KEY` no Worker lista-espera (emails de confirmação)
 - [ ] Integrar Stripe para pagamento 4,99€
-- [ ] Criar página dedicada "Para imobiliárias" (actualmente âncora #beneficios)
+- [x] Criar página dedicada "Para imobiliárias" → imobiliarias.html
 - [ ] Re-enriquecer 651 freguesias sem rendas (interior/ilhas): `python3 data/enricher-ine.py && python3 data/migrar-supabase.py`
 
 ## Próximos passos (Sprint 1 em curso)
