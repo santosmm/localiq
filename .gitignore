@@ -1,0 +1,10 @@
+# Wrangler
+workers/.wrangler/
+
+# Variáveis de ambiente
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
