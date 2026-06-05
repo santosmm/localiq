@@ -113,15 +113,17 @@ para imobiliárias.
 - `2bf853f` feat: tabs hero (Ver relatório / Comparar), nav imobiliárias, pills correctas
 
 ### Estado actual
-- **Supabase**: 3259 freguesias com `populacao`, `rendas_mediana` (parcial) e `score_geral` (proxy pop.)
+- **Supabase**: 3259 freguesias com `populacao`, `score_geral` (proxy pop.) e `rendas_mediana` real INE 2024 em 2608/3259 (651 sem cobertura INE — interior e ilhas)
+- **Enricher INE** (`data/enricher-ine.py`): correu e sincronizou via `migrar-supabase.py` — terminou com erro SSL aos ~1244 registos mas os dados de rendas são por município, pelo que a cobertura real foi 2608 freguesias
 - **Worker dados-freguesia**: lê do Supabase; pesquisa por nome parcial e por município
 - **relatorio.html**: mostra score_geral, badge dinâmico, card de alerta, paywall
 - **index.html**: tabs Ver relatório / Comparar, pills reais, "Para imobiliárias" no nav
 - **Enricher INE** (`data/enricher-ine.py`): a correr em background (PID 44589 em 2026-06-05)
-  - Quando terminar: `python3 data/migrar-supabase.py` para sincronizar rendas reais no Supabase
+  - Para re-enriquecer (retomar os 651 sem cobertura): `export AIRTABLE_TOKEN=... && python3 data/enricher-ine.py`
+  - Após enricher: `python3 data/migrar-supabase.py` para sincronizar no Supabase
 
 ### Pendente para próxima sessão
-- [ ] Confirmar que enricher INE terminou e sincronizar Supabase
+- [x] Enricher INE terminou — 2608/3259 freguesias com rendas reais sincronizadas no Supabase
 - [ ] Configurar `BREVO_API_KEY` no Worker lista-espera (emails de confirmação)
 - [ ] Integrar Stripe para pagamento 4,99€
 - [ ] Criar página dedicada "Para imobiliárias" (actualmente âncora #beneficios)
