@@ -471,6 +471,74 @@
       letter-spacing: 0.3px;
     }
 
+    /* ── Card de alerta de freguesia ── */
+    .card-alerta-freguesia {
+      background: #D6E8F5;
+      border: 1px solid #b3d4ee;
+      border-radius: var(--raio);
+      padding: 28px 32px;
+      margin: 0 auto 0;
+      max-width: 560px;
+      text-align: center;
+    }
+    .card-alerta-freguesia .alerta-icone {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+    .card-alerta-freguesia h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--azul);
+      margin-bottom: 6px;
+    }
+    .card-alerta-freguesia p {
+      font-size: 0.9rem;
+      color: #3a5a7a;
+      margin-bottom: 16px;
+    }
+    .form-alerta {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .form-alerta input[type="email"] {
+      flex: 1 1 200px;
+      min-width: 0;
+      padding: 10px 14px;
+      border: 1px solid #b3d4ee;
+      border-radius: var(--raio);
+      font-size: 0.9rem;
+      background: var(--branco);
+      color: var(--azul-escuro);
+    }
+    .form-alerta input[type="email"]:focus {
+      outline: none;
+      border-color: var(--azul);
+    }
+    .btn-alerta {
+      padding: 10px 20px;
+      background: var(--azul);
+      color: var(--branco);
+      border: none;
+      border-radius: var(--raio);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-alerta:hover { background: var(--azul-medio); }
+    .alerta-sucesso {
+      display: none;
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: #1a5a2a;
+      background: #d4edda;
+      border: 1px solid #b8dfc3;
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+
     /* ── Paywall ── */
     .paywall {
       background-color: var(--azul);
@@ -676,6 +744,22 @@
         <p>Dados públicos verificados disponíveis neste relatório gratuito.</p>
       </div>
       <div class="cards-grid" id="cards-livres"></div>
+    </div>
+  </section>
+
+  <!-- ── Card alerta de freguesia ── -->
+  <section class="secao" id="secao-alerta">
+    <div class="container">
+      <div class="card-alerta-freguesia">
+        <div class="alerta-icone">🔔</div>
+        <h3 id="alerta-titulo">Recebe alertas desta freguesia</h3>
+        <p>Fica a saber quando os dados de transportes, escolas e saúde actualizam.</p>
+        <form class="form-alerta" id="form-alerta" novalidate>
+          <input type="email" id="email-alerta" placeholder="email@exemplo.pt" autocomplete="email" required>
+          <button type="submit" class="btn-alerta">Activar alerta</button>
+        </form>
+        <div class="alerta-sucesso" id="alerta-sucesso"></div>
+      </div>
     </div>
   </section>
 
@@ -886,6 +970,7 @@
       document.getElementById('analise-texto').textContent    = d.analise;
       document.getElementById('analise-fonte').textContent    = d.analise_fonte;
       document.getElementById('paywall-titulo').textContent   = 'Relatório completo de ' + d.freguesia;
+      document.getElementById('alerta-titulo').textContent    = 'Recebe alertas de ' + d.freguesia;
 
       var btnComparar = document.querySelector('.btn-comparar');
       if (btnComparar) {
@@ -979,6 +1064,57 @@
         renderizar(DADOS);
       }
     }
+
+    /* ── Alerta de freguesia ── */
+    var WORKER_ALERTA = 'https://melhorzona-lista-espera.matheusmottas.workers.dev';
+
+    document.getElementById('form-alerta').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = document.getElementById('email-alerta').value.trim();
+      if (!email || !email.includes('@')) return;
+
+      var btn = this.querySelector('button');
+      var msgEl = document.getElementById('alerta-sucesso');
+      var nomeFreg = document.getElementById('alerta-titulo').textContent.replace('Recebe alertas de ', '');
+
+      btn.disabled = true;
+      btn.textContent = 'A activar...';
+
+      fetch(WORKER_ALERTA, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          fonte: 'alerta-' + nomeFreg,
+          notas: 'Freguesia: ' + nomeFreg,
+        }),
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (dados) {
+          if (dados.success) {
+            document.getElementById('form-alerta').style.display = 'none';
+            msgEl.textContent = 'Alerta activado! Vais ser o primeiro a saber quando ' + nomeFreg + ' actualiza.';
+            msgEl.style.display = 'block';
+          } else {
+            btn.disabled = false;
+            btn.textContent = 'Activar alerta';
+            msgEl.textContent = dados.error || 'Ocorreu um erro. Tenta novamente.';
+            msgEl.style.background = 'rgba(231,76,60,0.12)';
+            msgEl.style.borderColor = 'rgba(231,76,60,0.35)';
+            msgEl.style.color = '#c0392b';
+            msgEl.style.display = 'block';
+          }
+        })
+        .catch(function () {
+          btn.disabled = false;
+          btn.textContent = 'Activar alerta';
+          msgEl.textContent = 'Sem ligação. Verifica a tua internet e tenta novamente.';
+          msgEl.style.background = 'rgba(231,76,60,0.12)';
+          msgEl.style.borderColor = 'rgba(231,76,60,0.35)';
+          msgEl.style.color = '#c0392b';
+          msgEl.style.display = 'block';
+        });
+    });
 
     init();
   </script>

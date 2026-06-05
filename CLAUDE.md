@@ -32,10 +32,24 @@ para imobiliárias.
 - Linguagem: sempre portuguesa e local (freguesia, concelho,
   SNS, ACSS, CP, QualAr)
 
+## Arquitectura de recolha de emails
+- **index.html**: sem formulário de email. Hero tem só barra de pesquisa de freguesia.
+  CTA Final tem botão de scroll "Descobre a tua melhor zona →" que ancora em `#pesquisa`.
+- **relatorio.html**: card de alerta entre indicadores livres e bloqueados.
+  Envia para o Worker `lista-espera` com `fonte: "alerta-<nome>"` e `notas: "Freguesia: <nome>"`.
+- **lista-espera worker**: aceita `fonte` e `notas` no body JSON (override do origin-based fonte).
+  Envia confirmação via Brevo (requer secret `BREVO_API_KEY` — ver secção Brevo abaixo).
+
+## Brevo (email transaccional)
+- API: `https://api.brevo.com/v3/smtp/email`
+- Sender: `noreply@melhorzona.pt` (necessita verificação no painel Brevo)
+- Secret no Worker: `cd workers && wrangler secret put BREVO_API_KEY --config lista-espera.toml`
+- Falha silenciosa — signup continua mesmo que Brevo falhe
+
 ## Ficheiros existentes
-- index.html — landing page com formulário de lista espera
+- index.html — landing page; hero com barra de pesquisa; sem formulários de email
 - relatorio.html — página de relatório por freguesia
-  (dados de exemplo, paywall suave nos 3 últimos indicadores)
+  (dados de exemplo, paywall suave nos 3 últimos indicadores; card de alerta entre livres e bloqueados)
 - assets/css/ — estilos
 - assets/js/ — scripts
 - assets/images/ — imagens
@@ -70,9 +84,9 @@ para imobiliárias.
 
 ## Fluxo actual do utilizador
 1. Chega à landing page (index.html)
-2. Deixa email no formulário → vai para Airtable via Worker
-3. [A CONSTRUIR] Pesquisa freguesia → vai para relatorio.html
-4. Vê 3 indicadores gratuitos
+2. Pesquisa freguesia → vai para relatorio.html
+3. Vê 3 indicadores gratuitos
+4. Vê card de alerta → pode subscrever actualizações por email
 5. Clica "Desbloquear por 4,99€" → [A LIGAR] Stripe
 
 ## Próximos passos (Sprint 1 em curso)
@@ -84,6 +98,8 @@ para imobiliárias.
 - [x] Carregar dados reais do INE/IPMA no Airtable (10 freguesias de teste via data/importar-ine.py)
 - [x] Worker dados-freguesia.js — GET ?freguesia= → consulta Airtable → JSON (https://melhorzona-dados-freguesia.matheusmottas.workers.dev)
 - [x] relatorio.html liga ao Worker; fallback para dados de exemplo com badge amarelo
+- [x] Reestruturar recolha de emails: remover forms da landing; card de alerta no relatório
+- [x] lista-espera worker: aceitar fonte+notas no body; integração Brevo (aguarda BREVO_API_KEY)
 
 ## Modelo de negócio
 - B2C: 1 relatório gratuito/mês, relatório completo 4,99€

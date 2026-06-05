@@ -193,35 +193,6 @@
       line-height: 1.7;
     }
 
-    /* Formulário hero */
-    .form-espera {
-      display: flex;
-      gap: 10px;
-      max-width: 480px;
-      margin: 0 auto 16px;
-      justify-content: center;
-    }
-
-    .form-espera input[type="email"] {
-      flex: 1;
-      padding: 14px 18px;
-      border: none;
-      border-radius: var(--raio);
-      font-size: 1rem;
-      font-family: var(--fonte);
-      outline: none;
-      background: rgba(255,255,255,0.95);
-      color: var(--azul-escuro);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      transition: box-shadow 0.2s;
-    }
-
-    .form-espera input[type="email"]:focus {
-      box-shadow: 0 2px 20px rgba(58, 155, 213, 0.4);
-    }
-
-    .form-espera input[type="email"]::placeholder { color: var(--cinza-texto); }
-
     .btn-primario {
       background: var(--azul-claro);
       color: var(--branco);
@@ -239,11 +210,6 @@
 
     .btn-primario:hover { background: var(--azul-acento); transform: translateY(-1px); }
     .btn-primario:active { transform: translateY(0); }
-
-    .hero-nota {
-      font-size: 0.82rem;
-      color: rgba(255,255,255,0.5);
-    }
 
     .hero-stats {
       display: flex;
@@ -518,19 +484,23 @@
       color: var(--branco);
     }
 
-    /* Mensagem de sucesso */
-    .mensagem-sucesso {
-      display: none;
-      background: rgba(39, 174, 96, 0.15);
-      border: 1px solid rgba(39, 174, 96, 0.35);
-      color: #2ecc71;
-      padding: 14px 24px;
+    /* CTA scroll button */
+    .btn-cta-scroll {
+      display: inline-block;
+      background: var(--branco);
+      color: var(--azul-medio);
+      padding: 16px 32px;
       border-radius: var(--raio);
-      font-size: 0.95rem;
-      font-weight: 500;
-      max-width: 480px;
-      margin: 0 auto;
-      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.22);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-cta-scroll:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.28);
     }
 
     /* ── Footer ── */
@@ -553,7 +523,6 @@
       .beneficios { padding: 44px 0; }
       .cta-final { padding: 44px 0; }
 
-      .form-espera,
       .form-pesquisa {
         flex-direction: column;
         padding: 0 8px;
@@ -561,10 +530,8 @@
       }
 
       /* iOS: font-size mínimo 16px para evitar zoom automático */
-      .form-espera input[type="email"],
       .form-pesquisa input[type="text"] { font-size: 1rem; }
 
-      .form-espera input[type="email"],
       .form-pesquisa input[type="text"],
       .btn-primario { width: 100%; text-align: center; }
 
@@ -617,13 +584,13 @@
       </a>
       <nav>
         <a href="#beneficios">Como funciona</a>
-        <a href="#lista-espera" class="btn-nav">Entrar na lista</a>
+        <a href="#pesquisa" class="btn-nav">Pesquisar freguesia</a>
       </nav>
     </div>
   </header>
 
   <!-- ── Hero ── -->
-  <section class="hero">
+  <section class="hero" id="pesquisa">
     <div class="container hero-conteudo">
       <h1>Antes de assinar o contrato,<br><span>sabe mesmo onde vai viver?</span></h1>
       <p class="hero-subtitulo">
@@ -758,25 +725,11 @@
   </section>
 
   <!-- ── CTA Final ── -->
-  <section class="cta-final" id="lista-espera">
+  <section class="cta-final">
     <div class="container">
-      <h2>Sê dos primeiros a comparar</h2>
-      <p>Já tens uma mudança em vista? Entra na lista — os primeiros 500 inscritos têm acesso gratuito para sempre.</p>
-
-      <form class="form-espera" id="form-cta" novalidate style="margin-bottom: 12px;">
-        <input
-          type="email"
-          id="email-cta"
-          placeholder="email@exemplo.pt"
-          autocomplete="email"
-          required
-        >
-        <button type="submit" class="btn-primario">Quero ser dos primeiros</button>
-      </form>
-      <div class="mensagem-sucesso" id="sucesso-cta">
-        Perfeito! Estás na lista. Vamos avisar-te em breve. 🎉
-      </div>
-      <p class="hero-nota">Sem spam. Cancelas quando quiseres.</p>
+      <h2>Descobre a tua melhor zona</h2>
+      <p>Pesquisa qualquer freguesia de Portugal e compara transportes, escolas e saúde — de graça.</p>
+      <a href="#pesquisa" class="btn-cta-scroll">Descobre a tua melhor zona →</a>
     </div>
   </section>
 
@@ -790,50 +743,6 @@
   <script src="/data/freguesias.js"></script>
   <script src="/assets/js/autocomplete.js"></script>
   <script>
-    var WORKER_URL = 'https://melhorzona-lista-espera.matheusmottas.workers.dev';
-
-    // Envia o email para o Worker e trata a resposta
-    function registarEmail(email, formularioId, mensagemId) {
-      if (!email || !email.includes('@')) return;
-
-      var btn = document.querySelector('#' + formularioId + ' button');
-      var msgEl = document.getElementById(mensagemId);
-      btn.disabled = true;
-      btn.textContent = 'A guardar...';
-
-      fetch(WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email }),
-      })
-        .then(function (res) { return res.json(); })
-        .then(function (dados) {
-          if (dados.success) {
-            document.getElementById(formularioId).style.display = 'none';
-            msgEl.textContent = 'Ótimo! Vamos avisar-te quando abrirmos. 🎉';
-            msgEl.style.display = 'block';
-            localStorage.setItem('melhorzona_email', email);
-          } else {
-            btn.disabled = false;
-            btn.textContent = 'Tentar novamente';
-            msgEl.textContent = dados.error || 'Ocorreu um erro. Tenta novamente.';
-            msgEl.style.background = 'rgba(231, 76, 60, 0.15)';
-            msgEl.style.borderColor = 'rgba(231, 76, 60, 0.35)';
-            msgEl.style.color = '#e74c3c';
-            msgEl.style.display = 'block';
-          }
-        })
-        .catch(function () {
-          btn.disabled = false;
-          btn.textContent = 'Tentar novamente';
-          msgEl.textContent = 'Sem ligação. Verifica a tua internet e tenta novamente.';
-          msgEl.style.background = 'rgba(231, 76, 60, 0.15)';
-          msgEl.style.borderColor = 'rgba(231, 76, 60, 0.35)';
-          msgEl.style.color = '#e74c3c';
-          msgEl.style.display = 'block';
-        });
-    }
-
     // Pesquisa de freguesia — redireciona para o relatório
     function pesquisarFreguesia(nome) {
       var valor = nome.trim();
@@ -853,28 +762,6 @@
         pesquisarFreguesia(this.textContent.trim());
       });
     });
-
-    // Oculta formulário CTA se o utilizador já se inscreveu
-    function verificarInscricaoAnterior() {
-      if (localStorage.getItem('melhorzona_email')) {
-        var form = document.getElementById('form-cta');
-        if (form) form.style.display = 'none';
-        var msg = document.getElementById('sucesso-cta');
-        if (msg) {
-          msg.style.display = 'block';
-          msg.textContent = 'Já estás na lista. Avisamos-te em breve! 🎉';
-        }
-      }
-    }
-
-    // Submissão do formulário CTA final
-    document.getElementById('form-cta').addEventListener('submit', function (e) {
-      e.preventDefault();
-      registarEmail(document.getElementById('email-cta').value.trim(), 'form-cta', 'sucesso-cta');
-    });
-
-    // Corre ao carregar a página
-    verificarInscricaoAnterior();
 
     // Autocomplete no campo de pesquisa de freguesia
     iniciarAutocomplete(document.getElementById('input-freguesia'), {
