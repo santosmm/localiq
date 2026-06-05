@@ -451,6 +451,70 @@
 
     .form-pesquisa input[type="text"]::placeholder { color: var(--cinza-texto); }
 
+    /* Tabs do hero */
+    .hero-tabs {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin-bottom: 20px;
+      background: rgba(255,255,255,0.10);
+      border-radius: 12px;
+      padding: 4px;
+      max-width: 340px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-tab {
+      flex: 1;
+      padding: 9px 16px;
+      border: none;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-family: var(--fonte);
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      color: rgba(255,255,255,0.65);
+      transition: background 0.18s, color 0.18s;
+      white-space: nowrap;
+    }
+
+    .hero-tab.hero-tab-activa {
+      background: var(--branco);
+      color: var(--azul-medio);
+      font-weight: 700;
+    }
+
+    /* Form comparar */
+    .form-comparar {
+      max-width: 680px;
+      margin: 0 auto 14px;
+    }
+
+    .comparar-inputs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .comparar-inputs .ac-wrap { flex: 1; }
+
+    .comparar-vs {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.55);
+      flex-shrink: 0;
+    }
+
+    .form-comparar .btn-primario { width: 100%; justify-content: center; }
+
+    @media (max-width: 640px) {
+      .comparar-inputs { flex-direction: column; }
+      .comparar-vs { display: none; }
+    }
+
     /* Pills de pesquisas populares */
     .pesquisas-populares {
       display: flex;
@@ -584,6 +648,7 @@
       </a>
       <nav>
         <a href="#beneficios">Como funciona</a>
+        <a href="#beneficios">Para imobiliárias</a>
         <a href="#pesquisa" class="btn-nav">Pesquisar freguesia</a>
       </nav>
     </div>
@@ -597,25 +662,45 @@
         Compara qualquer duas freguesias de Portugal. Transportes, escolas, saúde — tudo num relatório.
       </p>
 
+      <div class="hero-tabs">
+        <button class="hero-tab hero-tab-activa" id="tab-relatorio" type="button">Ver relatório</button>
+        <button class="hero-tab" id="tab-comparar" type="button">Comparar duas zonas</button>
+      </div>
+
+      <!-- Modo: Ver relatório -->
       <form class="form-pesquisa" id="form-pesquisa">
         <div class="ac-wrap">
           <input
             type="text"
             id="input-freguesia"
-            placeholder="Pesquisa uma freguesia... ex: Cascais, Miraflores, Belém"
+            placeholder="ex: Arroios, Cascais e Estoril"
             autocomplete="off"
             required
           >
         </div>
         <button type="submit" class="btn-primario">Ver relatório →</button>
       </form>
+
+      <!-- Modo: Comparar duas zonas -->
+      <form class="form-comparar" id="form-comparar" style="display:none">
+        <div class="comparar-inputs">
+          <div class="ac-wrap">
+            <input type="text" id="input-zona-a" placeholder="Zona A — ex: Arroios" autocomplete="off" required>
+          </div>
+          <span class="comparar-vs">vs</span>
+          <div class="ac-wrap">
+            <input type="text" id="input-zona-b" placeholder="Zona B — ex: Lumiar" autocomplete="off" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-primario">Comparar agora →</button>
+      </form>
       <div class="pesquisas-populares">
         <span class="populares-label">Pesquisas populares:</span>
-        <button class="pill-pesquisa" type="button">Cascais</button>
-        <button class="pill-pesquisa" type="button">Miraflores</button>
+        <button class="pill-pesquisa" type="button">Arroios</button>
+        <button class="pill-pesquisa" type="button">Lumiar</button>
+        <button class="pill-pesquisa" type="button">Cascais e Estoril</button>
         <button class="pill-pesquisa" type="button">Belém</button>
-        <button class="pill-pesquisa" type="button">Porto</button>
-        <button class="pill-pesquisa" type="button">Braga</button>
+        <button class="pill-pesquisa" type="button">Paranhos</button>
         <button class="pill-pesquisa" type="button">Sintra</button>
       </div>
 
@@ -750,10 +835,39 @@
       window.location.href = 'relatorio.html?freguesia=' + encodeURIComponent(valor);
     }
 
+    // Tabs do hero
+    var tabRelatorio = document.getElementById('tab-relatorio');
+    var tabComparar  = document.getElementById('tab-comparar');
+    var formPesquisa = document.getElementById('form-pesquisa');
+    var formComparar = document.getElementById('form-comparar');
+
+    tabRelatorio.addEventListener('click', function () {
+      tabRelatorio.classList.add('hero-tab-activa');
+      tabComparar.classList.remove('hero-tab-activa');
+      formPesquisa.style.display = '';
+      formComparar.style.display = 'none';
+    });
+
+    tabComparar.addEventListener('click', function () {
+      tabComparar.classList.add('hero-tab-activa');
+      tabRelatorio.classList.remove('hero-tab-activa');
+      formComparar.style.display = '';
+      formPesquisa.style.display = 'none';
+    });
+
     // Submissão da barra de pesquisa
-    document.getElementById('form-pesquisa').addEventListener('submit', function (e) {
+    formPesquisa.addEventListener('submit', function (e) {
       e.preventDefault();
       pesquisarFreguesia(document.getElementById('input-freguesia').value);
+    });
+
+    // Submissão do form comparar
+    formComparar.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var zonaA = document.getElementById('input-zona-a').value.trim();
+      var zonaB = document.getElementById('input-zona-b').value.trim();
+      if (!zonaA || !zonaB) return;
+      window.location.href = 'comparar.html?zona1=' + encodeURIComponent(zonaA) + '&zona2=' + encodeURIComponent(zonaB);
     });
 
     // Pills de pesquisas populares
@@ -767,6 +881,18 @@
     iniciarAutocomplete(document.getElementById('input-freguesia'), {
       aoSelecionar: function (f) {
         pesquisarFreguesia(f.nome);
+      }
+    });
+
+    // Autocomplete nas zonas do comparador
+    iniciarAutocomplete(document.getElementById('input-zona-a'), {
+      aoSelecionar: function (f) {
+        document.getElementById('input-zona-a').value = f.nome;
+      }
+    });
+    iniciarAutocomplete(document.getElementById('input-zona-b'), {
+      aoSelecionar: function (f) {
+        document.getElementById('input-zona-b').value = f.nome;
       }
     });
   </script>
