@@ -27,11 +27,36 @@ function respostaJson(dados, status, cors) {
   });
 }
 
-async function consultarFreguesia(nome, token) {
-  /* Pesquisa case-insensitive pelo campo Nome */
-  const formula    = `LOWER({Nome})=LOWER("${nome.replace(/"/g, '')}")`;
-  const url        = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`
-                   + `?filterByFormula=${encodeURIComponent(formula)}&maxRecords=1`;
+function escapar(str) {
+  return str.replace(/"/g, '');
+}
+
+function mapearRegisto(f) {
+  return {
+    nome:               f.Nome               || '',
+    municipio:          f['Município']        || '',
+    codigo_ine:         f.Codigo_INE         || '',
+    populacao:          f.Populacao          || null,
+    score_geral:        f.Score_Geral        || null,
+    transportes_score:  f.Transportes_Score  || null,
+    saude_score:        f.Saude_Score        || null,
+    educacao_score:     f.Educacao_Score     || null,
+    seguranca_score:    f.Seguranca_Score    || null,
+    rendas_mediana:     f.Rendas_Mediana     || null,
+  };
+}
+
+async function consultarFreguesia(nome, municipio, token) {
+  /* Se municipio fornecido, filtra por nome + município; caso contrário devolve até 5 matches */
+  let formula;
+  if (municipio) {
+    formula = `AND(LOWER({Nome})=LOWER("${escapar(nome)}"),LOWER({Município})=LOWER("${escapar(municipio)}"))`;
+  } else {
+    formula = `LOWER({Nome})=LOWER("${escapar(nome)}")`;
+  }
+
+  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`
+            + `?filterByFormula=${encodeURIComponent(formula)}&maxRecords=5`;
 
   const resposta = await fetch(url, {
     headers: { 'Authorization': `Bearer ${token}` },
@@ -44,20 +69,20 @@ async function consultarFreguesia(nome, token) {
   const json     = await resposta.json();
   const registos = json.records || [];
 
-  if (registos.length === 0) return null;
+  if (registos.length === 0) return { tipo: 'nenhum' };
 
-  const f = registos[0].fields;
+  /* Resultado único — devolve directamente */
+  if (registos.length === 1) {
+    return { tipo: 'unico', dados: mapearRegisto(registos[0].fields) };
+  }
+
+  /* Múltiplos resultados — pede para desambiguar com município */
   return {
-    nome:               f.Nome               || '',
-    municipio:          f['Município']        || '',
-    codigo_ine:         f.Codigo_INE         || '',
-    populacao:          f.Populacao          || null,
-    score_geral:        f.Score_Geral        || null,
-    transportes_score:  f.Transportes_Score  || null,
-    saude_score:        f.Saude_Score        || null,
-    educacao_score:     f.Educacao_Score     || null,
-    seguranca_score:    f.Seguranca_Score    || null,
-    rendas_mediana:     f.Rendas_Mediana     || null,
+    tipo: 'multiplos',
+    opcoes: registos.map(r => ({
+      nome:      r.fields.Nome      || '',
+      municipio: r.fields['Município'] || '',
+    })),
   };
 }
 
@@ -74,21 +99,26 @@ export default {
       return respostaJson({ erro: 'Método não permitido' }, 405, cors);
     }
 
-    const url      = new URL(request.url);
+    const url       = new URL(request.url);
     const freguesia = url.searchParams.get('freguesia');
+    const municipio = url.searchParams.get('municipio');
 
     if (!freguesia || freguesia.trim().length < 2) {
       return respostaJson({ erro: 'Parâmetro ?freguesia= obrigatório' }, 400, cors);
     }
 
     try {
-      const dados = await consultarFreguesia(freguesia.trim(), env.AIRTABLE_TOKEN);
+      const resultado = await consultarFreguesia(freguesia.trim(), municipio?.trim() || '', env.AIRTABLE_TOKEN);
 
-      if (!dados) {
+      if (resultado.tipo === 'nenhum') {
         return respostaJson({ encontrado: false }, 200, cors);
       }
 
-      return respostaJson({ encontrado: true, dados }, 200, cors);
+      if (resultado.tipo === 'multiplos') {
+        return respostaJson({ encontrado: false, multiplos: true, opcoes: resultado.opcoes }, 200, cors);
+      }
+
+      return respostaJson({ encontrado: true, dados: resultado.dados }, 200, cors);
     } catch (erro) {
       return respostaJson({ erro: 'Erro ao consultar dados' }, 500, cors);
     }
