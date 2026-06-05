@@ -81,6 +81,9 @@ para imobiliárias.
 - Re-migrar: `export AIRTABLE_TOKEN=... SUPABASE_URL=... SUPABASE_KEY=... && python3 data/migrar-supabase.py`
 - Pesquisa usa `ilike.{nome}*` (começa por) — "Cascais" encontra "Cascais e Estoril"
 - Municípios usam `ilike.{municipio}` (exacto) — vêm de desambiguação, não de input livre
+- **score_geral preenchido** para todas as 3259 freguesias (proxy temporário: `LEAST(ROUND((populacao/50000)*10,1),10)`)
+  - Recalcular se scores reais forem importados: SQL `UPDATE freguesias SET score_geral = LEAST(ROUND((populacao::float/50000)*10,1),10)`
+  - relatorio.html converte score (0–10) para 0–100 com `Math.round(score*10)` antes de exibir
 
 ## Airtable (emails — mantém-se)
 - Base: Melhor Zona (appzKGnGUD6pafKKn)
