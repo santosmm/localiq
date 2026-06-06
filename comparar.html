@@ -941,13 +941,38 @@
       } catch (e) { return null; }
     }
 
-    /* Busca dados reais de uma freguesia no Worker */
+    /* Busca dados reais — resolve município automaticamente se necessário.
+       Devolve { dados, nome } onde nome é o nome final resolvido. */
     async function buscarDadosFreguesia(nome) {
       try {
         var r = await fetch(WORKER_URL + '?freguesia=' + encodeURIComponent(nome));
         var j = await r.json();
-        return (j.encontrado && j.dados) ? j.dados : null;
-      } catch(e) { return null; }
+
+        if (j.encontrado && j.dados) {
+          return { dados: j.dados, nome: j.dados.nome || nome };
+        }
+
+        /* Não encontrou como freguesia (ex: "Braga", "Porto" são municípios) —
+           tenta a rota de município e pega a top freguesia por score_geral */
+        var munR = await fetch(WORKER_URL + '/municipio?nome=' + encodeURIComponent(nome));
+        var munJ = await munR.json();
+
+        if (munJ.encontrado && munJ.freguesias && munJ.freguesias.length) {
+          var top = munJ.freguesias[0];
+          var r2  = await fetch(
+            WORKER_URL + '?freguesia=' + encodeURIComponent(top.nome)
+                       + '&municipio=' + encodeURIComponent(top.municipio)
+          );
+          var j2 = await r2.json();
+          if (j2.encontrado && j2.dados) {
+            return { dados: j2.dados, nome: top.nome };
+          }
+        }
+
+        return { dados: null, nome: nome };
+      } catch(e) {
+        return { dados: null, nome: nome };
+      }
     }
 
     /* Constrói indicadores livres a partir dos dados reais (ou fallback) */
@@ -1196,12 +1221,18 @@
         buscarDadosFreguesia(params.a),
         buscarDadosFreguesia(params.b)
       ]);
-      var dadosA = resultados[0], dadosB = resultados[1];
+      var resA = resultados[0], resB = resultados[1];
+      var dadosA = resA.dados,  dadosB = resB.dados;
+      var nomeA  = resA.nome,   nomeB  = resB.nome;
+
+      /* Actualiza os campos com o nome resolvido (ex: "Braga" → "Braga (São Vítor)") */
+      document.getElementById('input-a').value = nomeA;
+      document.getElementById('input-b').value = nomeB;
 
       DADOS.indicadores_livres     = construirIndicadoresLivres(dadosA, dadosB);
       DADOS.indicadores_bloqueados = construirIndicadoresBloqueados(dadosA, dadosB);
 
-      renderizarComparacao(params.a, params.b);
+      renderizarComparacao(nomeA, nomeB);
 
       setTimeout(function() {
         document.getElementById('secao-comparacao').scrollIntoView({ behavior: 'smooth', block: 'start' });
