@@ -121,6 +121,7 @@ para imobiliárias.
 - `cb5674b` docs: resultado final enricher INE e estado das rendas
 - `2d3fc3f` fix: recalcular score_geral após migração Airtable→Supabase
 - `4e6cb37` feat: página dedicada para imobiliárias
+- `eae5508` feat: paywall redireciona para lista de espera em vez de Stripe
 
 ### Estado final do Sprint 1
 - **Supabase**: 3259/3259 freguesias com `score_geral` ✓ e `rendas_mediana` real INE 2024 em 2608/3259
@@ -129,11 +130,12 @@ para imobiliárias.
 - **relatorio.html**: mostra score_geral (0–10 → 0–100), badge dinâmico, rendas reais, card de alerta, paywall
 - **index.html**: tabs Ver relatório / Comparar, pills reais, nav "Para imobiliárias" aponta para imobiliarias.html
 - **imobiliarias.html**: página B2B completa — hero, 4 passos, 6 funcionalidades, testemunhos, preços (49€/99€), form lista de espera → Worker lista-espera com `fonte: "imobiliarias"`
+- **relatorio.html paywall**: botão "Desbloquear por 4,99€" substituído por fluxo inline de lista de espera — clique → input email → Worker lista-espera com `fonte: "paywall-relatorio"` e `notas: "Freguesia: <nome>"`. Stripe fica pendente até validação com utilizadores reais.
 - **migrar-supabase.py**: calcula score_geral inline — re-migrar nunca causa regressão
 
 ### Pendente para próxima sessão
 - [ ] Configurar `BREVO_API_KEY` no Worker lista-espera (emails de confirmação)
-- [ ] Integrar Stripe para pagamento 4,99€
+- [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais (paywall actual vai para lista de espera)
 - [x] Criar página dedicada "Para imobiliárias" → imobiliarias.html
 - [ ] Re-enriquecer 651 freguesias sem rendas (interior/ilhas): `python3 data/enricher-ine.py && python3 data/migrar-supabase.py`
 
