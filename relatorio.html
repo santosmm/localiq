@@ -788,9 +788,35 @@
     <div class="container">
       <h2 id="paywall-titulo">Relatório completo</h2>
       <p class="paywall-sub">Acede a todos os indicadores, compara com outras freguesias e toma uma decisão informada sobre onde viver.</p>
-      <div class="paywall-botoes">
-        <button class="btn-desbloquear">Desbloquear por 4,99€</button>
+
+      <!-- Estado inicial: botão -->
+      <div class="paywall-botoes" id="paywall-cta">
+        <button class="btn-desbloquear" id="btn-desbloquear">Quero o relatório completo →</button>
         <a href="/comparar.html" class="btn-comparar">Comparar com outra freguesia →</a>
+      </div>
+
+      <!-- Estado: form de lista de espera (aparece ao clicar) -->
+      <div id="paywall-form" style="display:none; margin-top: 8px;">
+        <p style="color: rgba(255,255,255,0.85); font-size: 0.95rem; margin-bottom: 16px;">
+          Estamos a preparar o acesso completo. Deixa o teu email e avisamos-te quando estiver disponível.
+        </p>
+        <form id="form-paywall" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; max-width:480px; margin:0 auto;">
+          <input
+            type="email"
+            id="email-paywall"
+            placeholder="o teu email"
+            required
+            style="flex:1; min-width:220px; padding:13px 16px; border:none; border-radius:8px; font-size:0.95rem; outline:none; color:#0d2137;"
+          >
+          <button type="submit" class="btn-desbloquear" style="flex-shrink:0;">Avisar-me</button>
+        </form>
+      </div>
+
+      <!-- Estado: sucesso -->
+      <div id="paywall-sucesso" style="display:none; margin-top:8px;">
+        <p style="color: rgba(255,255,255,0.9); font-size: 1rem;">
+          ✅ Ficaste na lista! Avisamos-te assim que o acesso completo estiver disponível.
+        </p>
       </div>
     </div>
   </section>
@@ -1164,6 +1190,32 @@
           msgEl.style.color = '#c0392b';
           msgEl.style.display = 'block';
         });
+    });
+
+    /* ── Paywall: botão → form lista de espera ── */
+    document.getElementById('btn-desbloquear').addEventListener('click', function () {
+      document.getElementById('paywall-cta').style.display = 'none';
+      document.getElementById('paywall-form').style.display = 'block';
+      document.getElementById('email-paywall').focus();
+    });
+
+    document.getElementById('form-paywall').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email    = document.getElementById('email-paywall').value.trim();
+      var freguesia = DADOS.freguesia || '';
+
+      fetch(WORKER_ALERTA, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          fonte: 'paywall-relatorio',
+          notas: 'Freguesia: ' + freguesia,
+        }),
+      }).catch(function () {});
+
+      document.getElementById('paywall-form').style.display = 'none';
+      document.getElementById('paywall-sucesso').style.display = 'block';
     });
 
     init();
