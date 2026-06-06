@@ -107,9 +107,9 @@ para imobiliárias.
 2. Pesquisa freguesia → vai para relatorio.html
 3. Vê 3 indicadores gratuitos
 4. Vê card de alerta → pode subscrever actualizações por email
-5. Clica "Desbloquear por 4,99€" → [A LIGAR] Stripe
+5. Vê paywall → clica "Quero o relatório completo" → form email inline → lista de espera
 
-## Sessão 2026-06-05 — Sprint 1 (concluído)
+## Sessão 2026-06-05/06 — Sprint 1 (concluído)
 
 ### Commits desta sessão
 - `3426ae4` feat: migrar base de dados do Airtable para Supabase
@@ -124,35 +124,24 @@ para imobiliárias.
 - `2d3fc3f` fix: recalcular score_geral após migração Airtable→Supabase
 - `4e6cb37` feat: página dedicada para imobiliárias
 - `eae5508` feat: paywall redireciona para lista de espera em vez de Stripe
+- `23b03a6` fix: form comparar envia ?a= e ?b= em vez de ?zona1= e ?zona2=
+- `90fec1e` docs: Brevo funcional — DKIM/DMARC verificado, entrega na inbox
+- `fe6b7d1` feat: enricher --apenas-sem-rendas salta freguesias com dados
 
 ### Estado final do Sprint 1
 - **Supabase**: 3259/3259 freguesias com `score_geral` ✓ e `rendas_mediana` real INE 2024 em 2608/3259
-  - 651 sem cobertura INE (interior e ilhas) — valor nulo, sem impacto no score
+  - 651 sem cobertura INE (interior, Açores, Madeira) — limite dos dados públicos, não bug
 - **Worker dados-freguesia**: lê do Supabase; pesquisa parcial por nome, por município, desambiguação com ?municipio=
-- **relatorio.html**: mostra score_geral (0–10 → 0–100), badge dinâmico, rendas reais, card de alerta, paywall
-- **index.html**: tabs Ver relatório / Comparar, pills reais, nav "Para imobiliárias" aponta para imobiliarias.html
-- **imobiliarias.html**: página B2B completa — hero, 4 passos, 6 funcionalidades, testemunhos, preços (49€/99€), form lista de espera → Worker lista-espera com `fonte: "imobiliarias"`
-- **relatorio.html paywall**: botão "Desbloquear por 4,99€" substituído por fluxo inline de lista de espera — clique → input email → Worker lista-espera com `fonte: "paywall-relatorio"` e `notas: "Freguesia: <nome>"`. Stripe fica pendente até validação com utilizadores reais.
-- **migrar-supabase.py**: calcula score_geral inline — re-migrar nunca causa regressão
+- **relatorio.html**: score 0–10→0–100, badge dinâmico, rendas reais, card de alerta, paywall → lista de espera
+- **index.html**: tabs Ver relatório / Comparar, pills, nav "Para imobiliárias" → imobiliarias.html
+- **comparar.html**: parâmetros ?a= e ?b= corrigidos — carrega dados automaticamente
+- **imobiliarias.html**: página B2B — hero, 4 passos, funcionalidades, preços (49€/99€), form → lista de espera
+- **Brevo**: DKIM/DMARC verificado em melhorzona.pt; emails entregues na inbox (testado 2026-06-06)
+- **migrar-supabase.py**: calcula score_geral inline — re-migrar nunca causa regressão de scores
+- **enricher-ine.py**: flag `--apenas-sem-rendas` para só processar as que faltam
 
 ### Pendente para próxima sessão
-- [x] Configurar `BREVO_API_KEY` no Worker lista-espera (emails de confirmação)
-- [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais (paywall actual vai para lista de espera)
-- [x] Criar página dedicada "Para imobiliárias" → imobiliarias.html
-- [x] Re-enriquecer 651 freguesias sem rendas — confirmado: genuinamente sem cobertura INE (interior, Açores, Madeira). INE não publica dados para municípios com mercado de arrendamento insuficiente. Ficam com `rendas_mediana = NULL`.
-
-## Próximos passos (Sprint 1 em curso)
-- [x] Ligar barra de pesquisa da home ao relatorio.html
-- [x] Ler parâmetro ?freguesia= no URL do relatório
-- [x] Pills de freguesias populares na home
-- [x] Construir comparar.html (comparação entre 2 freguesias — veredicto dinâmico, 3 perfis, insight surpresa, paywall contextual)
-- [ ] Integrar Stripe para pagamento de 4,99€
-- [x] Carregar dados reais do INE/IPMA no Airtable (10 freguesias de teste via data/importar-ine.py)
-- [x] Worker dados-freguesia.js — GET ?freguesia= → consulta Supabase → JSON
-- [x] relatorio.html liga ao Worker; fallback para dados de exemplo com badge amarelo
-- [x] Reestruturar recolha de emails: remover forms da landing; card de alerta no relatório
-- [x] lista-espera worker: aceitar fonte+notas no body; integração Brevo (aguarda BREVO_API_KEY)
-- [x] Migrar base de dados de freguesias do Airtable para Supabase (3259 registos)
+- [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
 
 ## Modelo de negócio
 - B2C: 1 relatório gratuito/mês, relatório completo 4,99€
