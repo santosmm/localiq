@@ -44,9 +44,10 @@ para imobiliárias.
 
 ## Brevo (email transaccional)
 - API: `https://api.brevo.com/v3/smtp/email`
-- Sender: `noreply@melhorzona.pt` (necessita verificação no painel Brevo)
+- Sender: `noreply@melhorzona.pt` — domínio autenticado com DKIM/DMARC (verificado 2026-06-06)
 - Secret no Worker: `cd workers && printf 'key' | wrangler secret put BREVO_API_KEY --config wrangler.toml`
 - Falha silenciosa — signup continua mesmo que Brevo falhe
+- **Estado**: funcional — emails entregues directamente na inbox (testado com Gmail 2026-06-06)
 
 ## Ficheiros existentes
 - index.html — landing page; hero com barra de pesquisa; sem formulários de email
