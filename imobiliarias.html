@@ -924,8 +924,9 @@
               <option value="16+">Mais de 15 consultores</option>
             </select>
           </div>
-          <button type="submit" class="btn-form">Quero acesso antecipado →</button>
-          <p class="form-nota">Sem spam. Só avisamos quando estiver disponível.</p>
+          <button type="submit" class="btn-form" id="btn-form-submit">Quero acesso antecipado →</button>
+          <p class="form-nota" id="form-nota">Sem spam. Só avisamos quando estiver disponível.</p>
+          <p class="form-nota" id="form-erro" style="display:none;color:#c0392b;font-weight:600">Ocorreu um erro. Tente novamente ou envie-nos um email para <a href="mailto:ola@melhorzona.pt">ola@melhorzona.pt</a>.</p>
         </form>
 
         <div class="form-sucesso" id="form-sucesso">
@@ -964,6 +965,14 @@
       var email     = document.getElementById('email-agencia').value.trim();
       var tamanho   = document.getElementById('consultores').value;
 
+      var btn  = document.getElementById('btn-form-submit');
+      var erro = document.getElementById('form-erro');
+      var nota = document.getElementById('form-nota');
+
+      btn.disabled    = true;
+      btn.textContent = 'A enviar…';
+      erro.style.display = 'none';
+
       fetch(WORKER_LISTA, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -972,10 +981,25 @@
           fonte: 'imobiliarias',
           notas: 'Nome: ' + nome + ' | Agência: ' + agencia + ' | Consultores: ' + (tamanho || 'n/a'),
         }),
-      }).catch(function () {});
-
-      document.getElementById('form-agencia').style.display = 'none';
-      document.getElementById('form-sucesso').style.display = 'block';
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (dados) {
+        if (dados.success) {
+          document.getElementById('form-agencia').style.display = 'none';
+          document.getElementById('form-sucesso').style.display = 'block';
+        } else {
+          btn.disabled    = false;
+          btn.textContent = 'Quero acesso antecipado →';
+          nota.style.display  = 'none';
+          erro.style.display  = 'block';
+        }
+      })
+      .catch(function () {
+        btn.disabled    = false;
+        btn.textContent = 'Quero acesso antecipado →';
+        nota.style.display  = 'none';
+        erro.style.display  = 'block';
+      });
     });
   </script>
 

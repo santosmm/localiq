@@ -87,6 +87,55 @@ async function enviarEmailConfirmacao(email, apiKey) {
   }
 }
 
+async function enviarEmailConfirmacaoB2B(email, notas, apiKey) {
+  const resposta = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: 'Melhor Zona', email: 'noreply@melhorzona.pt' },
+      to: [{ email }],
+      subject: 'Recebemos o seu interesse — Melhor Zona para Imobiliárias',
+      htmlContent: `
+        <div style="font-family:Inter,sans-serif;max-width:520px;margin:0 auto;color:#0d2137">
+          <div style="background:#1B4F72;padding:32px 28px;border-radius:12px 12px 0 0">
+            <p style="font-size:1.3rem;font-weight:700;color:#fff;margin:0">Melhor Zona<span style="color:rgba(255,255,255,0.45);font-weight:400">.pt</span></p>
+          </div>
+          <div style="background:#fff;padding:32px 28px;border:1px solid #dde3eb;border-top:none;border-radius:0 0 12px 12px">
+            <h1 style="font-size:1.4rem;font-weight:700;margin:0 0 12px">Recebemos o seu contacto</h1>
+            <p style="color:#4a5568;line-height:1.7;margin:0 0 20px">
+              Obrigado pelo interesse no Melhor Zona para imobiliárias.
+              A nossa equipa irá entrar em contacto em breve para apresentar
+              as condições de parceria e responder às suas questões.
+            </p>
+            <p style="color:#4a5568;line-height:1.7;margin:0 0 20px">
+              Os primeiros parceiros têm acesso antecipado ao produto e desconto
+              de lançamento nos planos <strong>Agência</strong> (49 €/mês)
+              e <strong>Rede</strong> (99 €/mês).
+            </p>
+            <p style="color:#4a5568;line-height:1.7;margin:0 0 28px">
+              Entretanto, pode explorar relatórios de qualidade de vida
+              por freguesia em <a href="https://melhorzona.pt" style="color:#2E86C1">melhorzona.pt</a>.
+            </p>
+            <p style="font-size:0.8rem;color:#9aa5b4;margin:0">
+              Recebeu este email porque submeteu o formulário de interesse em
+              <a href="https://melhorzona.pt/imobiliarias.html" style="color:#9aa5b4">melhorzona.pt/imobiliarias.html</a>
+              com o endereço ${email}.
+            </p>
+          </div>
+        </div>
+      `,
+    }),
+  });
+
+  if (!resposta.ok) {
+    const erro = await resposta.text();
+    throw new Error(`Brevo ${resposta.status}: ${erro}`);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
@@ -122,8 +171,9 @@ export default {
       );
     }
 
+    const fonteFinal = fonteBody || origin;
+
     try {
-      const fonteFinal = fonteBody || origin;
       await guardarNoAirtable(email, fonteFinal, notas, env.AIRTABLE_TOKEN);
     } catch (erro) {
       return new Response(
@@ -135,7 +185,11 @@ export default {
     /* Email de confirmação — falha silenciosa para não bloquear o signup */
     if (env.BREVO_API_KEY) {
       try {
-        await enviarEmailConfirmacao(email.trim(), env.BREVO_API_KEY);
+        if (fonteFinal === 'imobiliarias') {
+          await enviarEmailConfirmacaoB2B(email.trim(), notas, env.BREVO_API_KEY);
+        } else {
+          await enviarEmailConfirmacao(email.trim(), env.BREVO_API_KEY);
+        }
       } catch (e) {
         console.error('Brevo falhou:', e.message);
       }

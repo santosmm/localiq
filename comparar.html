@@ -928,13 +928,16 @@
       }).join(' ');
     }
 
-    /* Lê os parâmetros ?a= e ?b= do URL */
+    /* Lê os parâmetros ?a= e ?b= do URL; b pode ser null */
     function lerParams() {
       try {
         var p = new URLSearchParams(window.location.search);
         var a = p.get('a'), b = p.get('b');
-        if (!a || !b) return null;
-        return { a: capitalizar(decodeURIComponent(a)), b: capitalizar(decodeURIComponent(b)) };
+        if (!a) return null;
+        return {
+          a: capitalizar(decodeURIComponent(a)),
+          b: b ? capitalizar(decodeURIComponent(b)) : null
+        };
       } catch (e) { return null; }
     }
 
@@ -1180,6 +1183,13 @@
       if (!params) return;
 
       document.getElementById('input-a').value = params.a;
+
+      /* Vem do relatório com só ?a= — preenche A e foca B para o utilizador completar */
+      if (!params.b) {
+        document.getElementById('input-b').focus();
+        return;
+      }
+
       document.getElementById('input-b').value = params.b;
 
       var resultados = await Promise.all([
