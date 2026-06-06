@@ -8,3 +8,6 @@ workers/.wrangler/
 # Python
 __pycache__/
 *.pyc
+
+# Logs
+logs/

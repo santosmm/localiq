@@ -66,6 +66,7 @@ para imobiliárias.
 - data/schema-supabase.sql — schema PostgreSQL da tabela freguesias
 - data/migrar-supabase.py — script de migração Airtable → Supabase (upsert por codigo_ine); calcula score_geral a partir de populacao se Airtable não tiver o campo
 - data/recalcular-scores.py — script standalone para recalcular score_geral no Supabase (só precisa SUPABASE_URL + SUPABASE_KEY); faz batch por valor de score para evitar SSL throttle
+- data/enricher-ine.py — enriquece Airtable com rendas e preços do INE; flag `--apenas-sem-rendas` para saltar as que já têm dados
 - data/importar-ine.py — lê CSV do INE e importa para Airtable (usa AIRTABLE_TOKEN)
 - data/teste_censos2021.csv — 9 freguesias de teste (Lisboa, Porto, Cascais) com geocods DICOFRE reais
 
@@ -138,7 +139,7 @@ para imobiliárias.
 - [x] Configurar `BREVO_API_KEY` no Worker lista-espera (emails de confirmação)
 - [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais (paywall actual vai para lista de espera)
 - [x] Criar página dedicada "Para imobiliárias" → imobiliarias.html
-- [ ] Re-enriquecer 651 freguesias sem rendas (interior/ilhas): `python3 data/enricher-ine.py && python3 data/migrar-supabase.py`
+- [x] Re-enriquecer 651 freguesias sem rendas — confirmado: genuinamente sem cobertura INE (interior, Açores, Madeira). INE não publica dados para municípios com mercado de arrendamento insuficiente. Ficam com `rendas_mediana = NULL`.
 
 ## Próximos passos (Sprint 1 em curso)
 - [x] Ligar barra de pesquisa da home ao relatorio.html

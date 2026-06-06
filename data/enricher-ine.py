@@ -259,17 +259,24 @@ def criar_campo(nome, tipo="number", precision=2):
             print(f"  ⚠ Não foi possível criar '{nome}': {e}", file=sys.stderr)
 
 
-def listar_freguesias():
-    """Obtém todas as freguesias com os campos necessários."""
+def listar_freguesias(apenas_sem_rendas=False):
+    """Obtém todas as freguesias com os campos necessários.
+
+    Se apenas_sem_rendas=True, inclui Rendas_Mediana no pedido e
+    filtra localmente só as que ainda não têm valor preenchido.
+    """
     import urllib.parse
     registos = []
     offset   = None
-    # urlencode com multi-value para fields[] — lida com acentos em "Município"
-    params_base = urllib.parse.urlencode([
+    campos = [
         ("fields[]", "Nome"),
         ("fields[]", "Município"),
         ("fields[]", "Codigo_INE"),
-    ])
+    ]
+    if apenas_sem_rendas:
+        campos.append(("fields[]", "Rendas_Mediana"))
+    # urlencode com multi-value para fields[] — lida com acentos em "Município"
+    params_base = urllib.parse.urlencode(campos)
     while True:
         url = f"{AIRTABLE_BASE}/{BASE_ID}/{TABLE_ID}?{params_base}"
         if offset:
@@ -280,6 +287,12 @@ def listar_freguesias():
         if not offset:
             break
         time.sleep(0.25)
+
+    if apenas_sem_rendas:
+        antes = len(registos)
+        registos = [r for r in registos if not r.get("fields", {}).get("Rendas_Mediana")]
+        print(f"  Filtro: {antes} total → {len(registos)} sem rendas_mediana.")
+
     return registos
 
 
@@ -296,6 +309,8 @@ def main():
                         help="Mostra o que seria actualizado, sem escrever no Airtable")
     parser.add_argument("--limite",      type=int, default=None,
                         help="Processar apenas N registos (útil para teste)")
+    parser.add_argument("--apenas-sem-rendas", action="store_true",
+                        help="Saltar freguesias que já têm Rendas_Mediana preenchida")
     parser.add_argument("--ano-rendas",  default=PERIODO_RENDAS_DEFAULT,
                         help=f"Período para rendas (default: {PERIODO_RENDAS_DEFAULT})")
     parser.add_argument("--mes-precos",  default=PERIODO_PRECO_MES,
@@ -360,8 +375,8 @@ def main():
 
     # ── 4. Listar freguesias no Airtable ──────────────────────────────────────
     print("\nA obter freguesias do Airtable...")
-    freguesias = listar_freguesias()
-    print(f"  {len(freguesias)} registos encontrados.")
+    freguesias = listar_freguesias(apenas_sem_rendas=args.apenas_sem_rendas)
+    print(f"  {len(freguesias)} registos a processar.")
 
     if args.limite:
         freguesias = freguesias[:args.limite]
