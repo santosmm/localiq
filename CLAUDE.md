@@ -45,7 +45,7 @@ para imobiliárias.
 ## Brevo (email transaccional)
 - API: `https://api.brevo.com/v3/smtp/email`
 - Sender: `noreply@melhorzona.pt` (necessita verificação no painel Brevo)
-- Secret no Worker: `cd workers && wrangler secret put BREVO_API_KEY --config lista-espera.toml`
+- Secret no Worker: `cd workers && printf 'key' | wrangler secret put BREVO_API_KEY --config wrangler.toml`
 - Falha silenciosa — signup continua mesmo que Brevo falhe
 
 ## Ficheiros existentes
@@ -134,7 +134,7 @@ para imobiliárias.
 - **migrar-supabase.py**: calcula score_geral inline — re-migrar nunca causa regressão
 
 ### Pendente para próxima sessão
-- [ ] Configurar `BREVO_API_KEY` no Worker lista-espera (emails de confirmação)
+- [x] Configurar `BREVO_API_KEY` no Worker lista-espera (emails de confirmação)
 - [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais (paywall actual vai para lista de espera)
 - [x] Criar página dedicada "Para imobiliárias" → imobiliarias.html
 - [ ] Re-enriquecer 651 freguesias sem rendas (interior/ilhas): `python3 data/enricher-ine.py && python3 data/migrar-supabase.py`
