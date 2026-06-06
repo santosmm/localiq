@@ -143,6 +143,40 @@ para imobiliárias.
 ### Pendente para próxima sessão
 - [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
 
+## Sessão 2026-06-06 — Sprint 2 (concluído)
+
+### Commits desta sessão
+- `f04ee65` feat: UX comparar + formulário imobiliárias funcional
+
+### O que foi feito
+
+**comparar.html — UX "vem do relatório"**
+- `lerParams()` passou a aceitar só `?a=` (b opcional); antes retornava null se faltasse b
+- `init()`: quando só há `?a=`, preenche campo A e foca campo B — utilizador só escreve a 2ª zona
+- relatorio.html já passava `?a=` desde Sprint 1 — agora comparar.html aproveita-o
+
+**imobiliarias.html — formulário ligado ao Worker**
+- Form era fire-and-forget (`.catch(() => {})`): mostrava sucesso mesmo que o Worker falhasse
+- Agora aguarda resposta; só mostra "Ficou na lista!" se `{ success: true }`
+- Em caso de erro: botão reactivado, mensagem com email de fallback `ola@melhorzona.pt`
+- Botão desactivado + "A enviar…" durante o pedido
+
+**workers/lista-espera.js — email B2B**
+- Novo `enviarEmailConfirmacaoB2B()`: template profissional (sem emojis, menciona planos 49€/99€, avisa que a equipa contactará)
+- Handler detecta `fonte === 'imobiliarias'` e chama o template certo
+- **Bug corrigido**: `fonteFinal` estava declarado com `const` dentro do bloco `try`, ficando fora de scope no `if` do Brevo → `ReferenceError` silencioso impedia todos os emails; movido para antes do try
+- Testado: email B2B entregue na inbox (2026-06-06)
+
+### Estado final do Sprint 2
+- **comparar.html**: recebe `?a=` do relatório, preenche campo A, foca campo B
+- **imobiliarias.html**: formulário robusto — guarda lead + envia email B2B profissional
+- **lista-espera Worker**: dois templates Brevo (B2C genérico / B2B imobiliárias)
+- Leads de imobiliárias guardados no Airtable com `Fonte=imobiliarias` e `Notas` com nome + agência + nº consultores
+
+### Pendente para próxima sessão
+- [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
+- [ ] Acompanhar leads B2B recebidos e validar interesse real antes de construir mais
+
 ## Modelo de negócio
 - B2C: 1 relatório gratuito/mês, relatório completo 4,99€
   (preço a validar com utilizadores reais)
