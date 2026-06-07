@@ -13,14 +13,18 @@ function cabecalhosCors(origin) {
     'Access-Control-Allow-Origin': origemPermitida,
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Cache-Control': 'public, max-age=3600',
   };
 }
 
-function respostaJson(dados, status, cors) {
+function respostaJson(dados, status, cors, temResumoIa = false) {
+  const maxAge = temResumoIa ? 300 : 3600;
   return new Response(JSON.stringify(dados), {
     status,
-    headers: { ...cors, 'Content-Type': 'application/json' },
+    headers: {
+      ...cors,
+      'Content-Type': 'application/json',
+      'Cache-Control': `public, max-age=${maxAge}`,
+    },
   });
 }
 
@@ -155,7 +159,8 @@ export default {
         return respostaJson({ encontrado: false, multiplos: true, opcoes: resultado.opcoes }, 200, cors);
       }
 
-      return respostaJson({ encontrado: true, dados: resultado.dados }, 200, cors);
+      const temResumoIa = !!resultado.dados.resumo_ia;
+      return respostaJson({ encontrado: true, dados: resultado.dados }, 200, cors, temResumoIa);
     } catch (erro) {
       return respostaJson({ erro: 'Erro ao consultar dados' }, 500, cors);
     }
