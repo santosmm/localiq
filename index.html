@@ -629,6 +629,7 @@
       .stat-numero { font-size: 1.6rem; }
     }
   </style>
+  <script defer data-domain="melhorzona.pt" src="https://plausible.io/js/script.outbound-links.js"></script>
 </head>
 <body>
 
@@ -832,6 +833,7 @@
     function pesquisarFreguesia(nome) {
       var valor = nome.trim();
       if (!valor) return;
+      if (typeof window.plausible === 'function') window.plausible('Pesquisa', { props: { freguesia: valor } });
       window.location.href = 'relatorio.html?freguesia=' + encodeURIComponent(valor);
     }
 
