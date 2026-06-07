@@ -177,6 +177,51 @@ para imobiliárias.
 - [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
 - [ ] Acompanhar leads B2B recebidos e validar interesse real antes de construir mais
 
+## Sessão 2026-06-07 — Sprint 3 (concluído)
+
+### Commits desta sessão
+- `70f9389` feat: resolver municípios no comparar.html (Braga, Porto, etc.)
+- `620e774` fix: nomes longos nas barras do comparar não truncam
+- `81cb449` chore: ignorar node_modules e .wrangler no .gitignore
+
+### O que foi feito
+
+**comparar.html — desambiguação de municípios**
+- `buscarDadosFreguesia()` passa a retornar `{ dados, nome }` em vez de só `dados`
+- Quando o Worker devolve `encontrado: false` (ex: "Braga", "Porto" são municípios),
+  tenta `/municipio?nome=` → pega a top freguesia por `score_geral` → faz 2ª chamada
+  com `?freguesia=X&municipio=Y` para obter dados completos
+- `init()` usa o nome resolvido para actualizar `input-a`/`input-b` e os labels da comparação
+- Testado em produção: "Braga" → "Braga (São Vítor)", "Porto" → "Paranhos"
+- Dados reais de arrendamento aparecem (ex: €7,69 vs €12,58/m² · INE 2024)
+
+**comparar.html — nomes nas barras**
+- `.barra-nome`: `width` 88px→110px (mobile 72px→90px), removido `white-space:nowrap`
+  e `text-overflow:ellipsis`, adicionado `line-height:1.3`
+- "Braga (São Vítor)" já não trunca nas barras de comparação
+
+**.gitignore — limpeza**
+- Adicionados `node_modules/`, `package-lock.json`, `.wrangler/` (raiz)
+- `node_modules` foi criado localmente por `npm install playwright` para testes
+  com Playwright — nunca entrou no histórico git, mas estava desprotegido
+
+### Estado final do Sprint 3
+- **comparar.html**: resolve municípios automaticamente (top freguesia por score_geral);
+  nomes completos nas barras; campos actualizados com nome resolvido
+- **Playwright**: usado para testes visuais em produção (headless); `node_modules` ignorado
+- **Repositório**: `.gitignore` cobre `node_modules/`, `.wrangler/`, `.env*`, `__pycache__`
+
+### Notas técnicas
+- Scores de transportes/saúde/segurança ainda `null` no Supabase para a maioria das
+  freguesias — comparação usa fallback hardcoded nesses casos; é limitação dos dados, não bug
+- Worker `/municipio?nome=Braga` pode devolver freguesias de "Bragança" (ilike prefix match);
+  o código pega sempre `freguesias[0]` que em prática é do município correcto
+
+### Pendente para próxima sessão
+- [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
+- [ ] Acompanhar leads B2B recebidos e validar interesse real antes de construir mais
+- [ ] Enriquecer scores reais no Supabase (transportes, saúde, segurança) para mais freguesias
+
 ## Modelo de negócio
 - B2C: 1 relatório gratuito/mês, relatório completo 4,99€
   (preço a validar com utilizadores reais)
