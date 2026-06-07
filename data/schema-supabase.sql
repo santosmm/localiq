@@ -33,6 +33,10 @@ CREATE TABLE IF NOT EXISTS freguesias (
   saude_score          NUMERIC(4,1),
   saude_valor          NUMERIC(10,2),
 
+  -- Segurança
+  seguranca_score      NUMERIC(4,1),
+  seguranca_valor      NUMERIC(10,2),
+
   -- Arrendamento
   arrendamento_score   NUMERIC(4,1),
   arrendamento_valor   NUMERIC(10,2),

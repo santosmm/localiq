@@ -69,6 +69,7 @@ para imobiliárias.
 - data/enricher-ine.py — enriquece Airtable com rendas e preços do INE; flag `--apenas-sem-rendas` para saltar as que já têm dados
 - data/importar-ine.py — lê CSV do INE e importa para Airtable (usa AIRTABLE_TOKEN)
 - data/teste_censos2021.csv — 9 freguesias de teste (Lisboa, Porto, Cascais) com geocods DICOFRE reais
+- data/enricher-seguranca.py — enriquece Supabase com `seguranca_score`/`seguranca_valor` via INE indicador 0008254 (crimes/1000 hab, 2023, nível município); flags `--dry-run`, `--limite N`
 
 ## Supabase (base de dados de freguesias)
 - Projecto: melhorzona (hkxdmregnsmsbxvpykul)
@@ -78,6 +79,7 @@ para imobiliárias.
     score_geral, transportes_score, transportes_valor,
     ar_score, ar_valor, demografia_score, demografia_valor,
     ensino_score, ensino_valor, saude_score, saude_valor,
+    seguranca_score, seguranca_valor,
     arrendamento_score, arrendamento_valor,
     rendas_mediana, preco_avaliacao_m2, resumo_ia
 - RLS activo: leitura pública, escrita só com service_role
@@ -212,7 +214,7 @@ para imobiliárias.
 - **Repositório**: `.gitignore` cobre `node_modules/`, `.wrangler/`, `.env*`, `__pycache__`
 
 ### Notas técnicas
-- Scores de transportes/saúde/segurança ainda `null` no Supabase para a maioria das
+- Scores de transportes/saúde ainda `null` no Supabase para a maioria das
   freguesias — comparação usa fallback hardcoded nesses casos; é limitação dos dados, não bug
 - Worker `/municipio?nome=Braga` pode devolver freguesias de "Bragança" (ilike prefix match);
   o código pega sempre `freguesias[0]` que em prática é do município correcto
@@ -220,7 +222,52 @@ para imobiliárias.
 ### Pendente para próxima sessão
 - [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
 - [ ] Acompanhar leads B2B recebidos e validar interesse real antes de construir mais
-- [ ] Enriquecer scores reais no Supabase (transportes, saúde, segurança) para mais freguesias
+- [ ] Enriquecer scores reais no Supabase (transportes, saúde) — segurança já feita
+
+## Sessão 2026-06-07 — Sprint 4 (concluído)
+
+### Commits desta sessão
+- `d7cf64e` fix: font-size 1rem nos inputs de email do relatorio.html (iOS zoom)
+- `e6ec8b3` feat: enricher-seguranca.py — score de segurança via INE API
+- `7708157` feat: links Idealista contextual no relatório e comparação
+
+### O que foi feito
+
+**relatorio.html — iOS zoom fix**
+- Inputs de email com `font-size < 16px` causavam zoom automático no Safari iOS
+- `font-size: 0.9rem → 1rem` no `.form-alerta input[type="email"]`
+- `font-size: 0.95rem → 1rem` no `#email-paywall` inline style
+
+**enricher-seguranca.py — score de segurança**
+- Fonte: INE indicador `0008254` (taxa de criminalidade, crimes/1000 hab, 2023, nível município)
+- Granularidade: município → aplicado a todas as freguesias do município
+- Match: DICOFRE4 (últimos 4 dígitos do geocod INE = código município) → 100% coverage
+  - Fallback nome_exacto e nome_parcial para Açores (Calheta R.A.A., Lagoa R.A.A.)
+- Score invertido com referências fixas (evita distorção por outliers futuros):
+  - `20 crimes/1000 → score 10.0` (muito seguro)
+  - `60 crimes/1000 → score 0.0` (muito inseguro)
+  - Fórmula: `max(0, min(10, round((1 - (valor - 20) / 40) * 10, 1)))`
+- Supabase: `PATCH ?codigo_ine=like.{dicofre4}%` — um PATCH por município (eficiente)
+- Colunas adicionadas ao schema: `seguranca_score NUMERIC(4,1)`, `seguranca_valor NUMERIC(10,2)`
+- Executar: `export SUPABASE_URL=... SUPABASE_KEY=... && python3 data/enricher-seguranca.py`
+
+### Estado final do Sprint 4
+- **Supabase**: 3259/3259 freguesias com `seguranca_score` e `seguranca_valor` preenchidos
+  - 308/308 municípios actualizados; 0 erros; 0 sem correspondência
+  - Exemplos: Almeida 8.8 (24.6 crimes/1000, interior), Lisboa 4.5 (41.9), Porto 5.0 (40.1), Cascais 5.0
+- **schema-supabase.sql**: colunas `seguranca_score` e `seguranca_valor` documentadas
+- **relatorio.html**: inputs de email com 1rem — iOS não faz zoom no foco
+
+### Notas técnicas — segurança
+- INE só tem dados a nível município (não freguesia) — uma limitação dos dados públicos
+- Açores: Calheta e Lagoa existem em dois arquipélagos distintos; script usa nome_parcial como tiebreak (geocod não é suficiente por si só nestes casos)
+- DICOFRE4 de Madeira começa com "32" e Açores com "48" — não colide com continente
+
+### Pendente para próxima sessão
+- [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
+- [ ] Acompanhar leads B2B recebidos e validar interesse real antes de construir mais
+- [ ] Enriquecer scores reais (transportes: GTFS, saúde: SNS Transparência, ar: QualAr)
+- [ ] Mostrar `seguranca_score` na UI de relatorio.html e comparar.html
 
 ## Modelo de negócio
 - B2C: 1 relatório gratuito/mês, relatório completo 4,99€
