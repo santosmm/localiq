@@ -1027,7 +1027,12 @@
       var livres = [];
       if (t  != null) livres.push({ nome: 'Transportes Públicos', icone: '🚇', score: t,  valor: 'Score baseado em acessibilidade e rede', badge: badgeTexto(t)  });
       if (s  != null) livres.push({ nome: 'Saúde Primária SNS',   icone: '🏥', score: s,  valor: 'Score baseado em cobertura SNS',         badge: badgeTexto(s)  });
-      if (sg != null) livres.push({ nome: 'Segurança',            icone: '🛡️', score: sg, valor: 'Score baseado em indicadores locais',    badge: badgeTexto(sg) });
+      if (sg != null) {
+        var sgValor = r.seguranca_valor != null
+          ? r.seguranca_valor.toFixed(1).replace('.', ',') + ' crimes/1000 hab · INE 2023'
+          : 'Criminalidade municipal · INE 2023';
+        livres.push({ nome: 'Segurança', icone: '🛡️', score: sg, valor: sgValor, badge: badgeTexto(sg) });
+      }
       livres.push(cardRendas);
 
       var bloqueados = [];

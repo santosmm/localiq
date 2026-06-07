@@ -41,6 +41,8 @@ function mapearRegisto(r) {
     ensino_valor:        r.ensino_valor        ?? null,
     saude_score:         r.saude_score         ?? null,
     saude_valor:         r.saude_valor         ?? null,
+    seguranca_score:     r.seguranca_score     ?? null,
+    seguranca_valor:     r.seguranca_valor     ?? null,
     arrendamento_score:  r.arrendamento_score  ?? null,
     arrendamento_valor:  r.arrendamento_valor  ?? null,
     rendas_mediana:      r.rendas_mediana      ?? null,
