@@ -539,6 +539,54 @@
       padding: 8px 12px;
     }
 
+    /* ── Card Idealista ── */
+    .card-idealista {
+      background: var(--branco);
+      border: 1px solid var(--cinza-borda);
+      border-left: 3px solid var(--azul-medio);
+      border-radius: var(--raio);
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: var(--sombra);
+    }
+    .idealista-icone { font-size: 1.5rem; flex-shrink: 0; }
+    .idealista-conteudo { flex: 1; }
+    .idealista-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--cinza-texto);
+      margin-bottom: 3px;
+    }
+    .card-idealista h3 {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--azul-escuro);
+      margin-bottom: 2px;
+    }
+    .idealista-sub { font-size: 0.82rem; color: var(--cinza-texto); margin: 0; }
+    .btn-idealista {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      background: var(--azul);
+      color: var(--branco);
+      text-decoration: none;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-idealista:hover { background: var(--azul-medio); }
+    @media (max-width: 520px) {
+      .card-idealista { flex-direction: column; text-align: center; }
+      .btn-idealista { width: 100%; justify-content: center; }
+    }
+
     /* ── Paywall ── */
     .paywall {
       background-color: var(--azul);
@@ -768,6 +816,22 @@
           <button type="submit" class="btn-alerta">Activar alerta</button>
         </form>
         <div class="alerta-sucesso" id="alerta-sucesso"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Card Idealista ── -->
+  <section class="secao" id="secao-idealista">
+    <div class="container">
+      <div class="card-idealista">
+        <div class="idealista-icone">🏠</div>
+        <div class="idealista-conteudo">
+          <p class="idealista-label">Mercado imobiliário</p>
+          <h3 id="idealista-titulo">Imóveis disponíveis nesta freguesia</h3>
+          <p class="idealista-sub">Ver o que está no mercado agora</p>
+        </div>
+        <!-- TODO: substituir por link de afiliado quando aprovado -->
+        <a id="idealista-link" href="https://www.idealista.pt/arrendar-casas/" target="_blank" rel="noopener" class="btn-idealista">Ver imóveis →</a>
       </div>
     </div>
   </section>
@@ -1006,6 +1070,12 @@
       document.getElementById('analise-fonte').textContent    = d.analise_fonte;
       document.getElementById('paywall-titulo').textContent   = 'Relatório completo de ' + d.freguesia;
       document.getElementById('alerta-titulo').textContent    = 'Recebe alertas de ' + d.freguesia;
+
+      var slug = d.freguesia.toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '-');
+      document.getElementById('idealista-titulo').textContent = 'Imóveis disponíveis em ' + d.freguesia;
+      document.getElementById('idealista-link').href = 'https://www.idealista.pt/arrendar-casas/' + slug + '/';
 
       var btnComparar = document.querySelector('.btn-comparar');
       if (btnComparar) {

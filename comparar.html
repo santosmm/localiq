@@ -687,6 +687,46 @@
     }
 
     /* ── Sugestões relacionadas ── */
+    /* ── Links Idealista ── */
+    .idealista-comparar { padding: 32px 0 0; }
+    .idealista-comparar-titulo {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--cinza-texto);
+      margin-bottom: 12px;
+    }
+    .idealista-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .idealista-mini {
+      background: var(--branco);
+      border: 1px solid var(--cinza-borda);
+      border-radius: var(--raio);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      color: var(--azul-escuro);
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: var(--sombra);
+      transition: transform 0.15s, box-shadow 0.15s;
+      gap: 8px;
+    }
+    .idealista-mini:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(13,33,55,0.12);
+    }
+    .idealista-mini-left { display: flex; align-items: center; gap: 8px; }
+    .idealista-mini-icone { font-size: 1.1rem; flex-shrink: 0; }
+    .idealista-mini-nome { font-size: 0.82rem; color: var(--cinza-texto); font-weight: 400; }
+    .idealista-mini-seta { color: var(--azul-medio); flex-shrink: 0; }
+    @media (max-width: 480px) { .idealista-grid { grid-template-columns: 1fr; } }
+
     .secao-sugestoes {
       padding: 36px 0 48px;
     }
@@ -857,6 +897,36 @@
 
     </div>
   </section>
+
+  <!-- ── Links Idealista ── -->
+  <div class="idealista-comparar" id="idealista-comparar" style="display:none;">
+    <div class="container">
+      <p class="idealista-comparar-titulo">Mercado imobiliário</p>
+      <div class="idealista-grid">
+        <!-- TODO: substituir por links de afiliado quando aprovado -->
+        <a id="idealista-link-a" href="https://www.idealista.pt/arrendar-casas/" target="_blank" rel="noopener" class="idealista-mini">
+          <div class="idealista-mini-left">
+            <span class="idealista-mini-icone">🏠</span>
+            <div>
+              <div id="idealista-nome-a">Zona A</div>
+              <div class="idealista-mini-nome">Ver imóveis no Idealista</div>
+            </div>
+          </div>
+          <span class="idealista-mini-seta">→</span>
+        </a>
+        <a id="idealista-link-b" href="https://www.idealista.pt/arrendar-casas/" target="_blank" rel="noopener" class="idealista-mini">
+          <div class="idealista-mini-left">
+            <span class="idealista-mini-icone">🏠</span>
+            <div>
+              <div id="idealista-nome-b">Zona B</div>
+              <div class="idealista-mini-nome">Ver imóveis no Idealista</div>
+            </div>
+          </div>
+          <span class="idealista-mini-seta">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
 
   <!-- ── Sugestões relacionadas ── -->
   <section class="secao-sugestoes">
@@ -1160,6 +1230,18 @@
       /* Mostra secção de comparação e veredicto dentro do hero */
       document.getElementById('secao-comparacao').style.display = 'block';
       document.getElementById('veredicto-card').style.display = 'block';
+
+      /* Links Idealista */
+      function slugify(nome) {
+        return nome.toLowerCase()
+          .normalize('NFD').replace(/[̀-ͯ]/g, '')
+          .replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '-');
+      }
+      document.getElementById('idealista-nome-a').textContent = nomeA;
+      document.getElementById('idealista-nome-b').textContent = nomeB;
+      document.getElementById('idealista-link-a').href = 'https://www.idealista.pt/arrendar-casas/' + slugify(nomeA) + '/';
+      document.getElementById('idealista-link-b').href = 'https://www.idealista.pt/arrendar-casas/' + slugify(nomeB) + '/';
+      document.getElementById('idealista-comparar').style.display = 'block';
 
       /* Anima barras e cards */
       requestAnimationFrame(function() {
