@@ -36,7 +36,12 @@
   </script>
 
   <title>Relatório | Melhor Zona</title>
-  <meta name="description" content="Relatório de qualidade de vida por freguesia — transportes, escolas, saúde e mais.">
+  <meta id="meta-description" name="description" content="Relatório de qualidade de vida por freguesia — transportes, escolas, saúde e mais.">
+  <meta id="og-title"       property="og:title"       content="Relatório de Freguesia · Melhor Zona">
+  <meta id="og-description" property="og:description" content="Compara a qualidade de vida entre freguesias de Portugal.">
+  <meta id="og-url"         property="og:url"         content="https://melhorzona.pt/relatorio.html">
+  <meta                     property="og:type"        content="website">
+  <meta                     property="og:site_name"   content="Melhor Zona">
   <meta name="theme-color" content="#1B4F72">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1067,9 +1072,32 @@
       if (aviso) aviso.style.display = mostrar ? 'block' : 'none';
     }
 
+    /* Actualiza meta tags e título com dados reais da freguesia */
+    function actualizarMetaTags(d) {
+      var titulo = d.freguesia + ', ' + d.concelho + ' — Qualidade de Vida · Melhor Zona';
+
+      var partes = [];
+      if (d.score_total != null) partes.push('Score ' + d.score_total + '/100');
+      if (d.indicadores_livres) {
+        var cardRendas = d.indicadores_livres.find(function (c) { return c.icone === '🏠' && c.valor && !c.valor.includes('exemplo'); });
+        if (cardRendas) {
+          var m = cardRendas.valor.match(/€([\d,]+)\/m²/);
+          if (m) partes.push('renda mediana €' + m[1] + '/m²');
+        }
+      }
+      var descricao = (partes.length ? partes.join(', ') + '. ' : '')
+                    + 'Compara ' + d.freguesia + ' com outras freguesias de Portugal em transportes, escolas e saúde.';
+
+      document.title = titulo;
+      document.querySelector('#meta-description').setAttribute('content', descricao);
+      document.querySelector('#og-title').setAttribute('content', titulo);
+      document.querySelector('#og-description').setAttribute('content', descricao);
+      document.querySelector('#og-url').setAttribute('content', window.location.href);
+    }
+
     /* Preenche a página com os dados em d */
     function renderizar(d) {
-      document.title = 'Relatório — ' + d.freguesia + ' | Melhor Zona';
+      actualizarMetaTags(d);
 
       mostrarAvisoDadosExemplo(!!d.dadosExemplo);
 
@@ -1187,7 +1215,7 @@
       var nomeFinal = capitalizarFreguesia(decodeURIComponent(nomeUrl));
 
       document.getElementById('hero-freguesia').textContent = nomeFinal;
-      document.title = 'Relatório — ' + nomeFinal + ' | Melhor Zona';
+      document.title = nomeFinal + ' — Qualidade de Vida · Melhor Zona';
 
       try {
         var workerUrl = WORKER_URL + '?freguesia=' + encodeURIComponent(nomeUrl);
