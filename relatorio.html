@@ -787,7 +787,7 @@
   <!-- Secção cinza de análise -->
   <div class="hero-analise">
     <div class="hero-analise-inner">
-      <div class="analise-label">Análise automática</div>
+      <div class="analise-label" id="analise-label">Análise automática</div>
       <p class="analise-texto" id="analise-texto">—</p>
       <p class="analise-fonte"  id="analise-fonte">—</p>
     </div>
@@ -1004,23 +1004,30 @@
         };
       }
 
-      /* Construir análise adaptada à disponibilidade de dados */
-      var analise, analiseFonte;
-      var scoreParts = [];
-      if (t  != null) scoreParts.push('Transportes: ' + r.transportes_score + '/10');
-      if (s  != null) scoreParts.push('Saúde: ' + r.saude_score + '/10');
-      if (e  != null) scoreParts.push('Educação: ' + r.educacao_score + '/10');
-      if (sg != null) scoreParts.push('Segurança: ' + r.seguranca_score + '/10');
-
-      if (scoreParts.length > 0) {
-        analise = r.nome + ' regista um score geral de ' + r.score_geral + '/10 nos Censos 2021. '
-                + scoreParts.join(' · ') + '.'
-                + (pop ? ' População residente: ' + pop + '.' : '');
-        analiseFonte = 'INE Censos 2021 · INE Rendas 2024 · Base Melhor Zona';
+      /* Construir análise: usa resumo IA se disponível, senão fallback textual */
+      var analise, analiseFonte, analiseLabel;
+      if (r.resumo_ia) {
+        analise      = r.resumo_ia;
+        analiseFonte = 'Gerado por Claude AI · Dados INE Censos 2021 · INE Rendas 2024';
+        analiseLabel = 'Resumo IA';
       } else {
-        analise = r.nome + (pop ? ' tem ' + pop + ' de população residente (INE Censos 2021).' : '.')
-                + ' Os indicadores de qualidade de vida estão a ser processados.';
-        analiseFonte = 'INE Censos 2021 · Base Melhor Zona · Indicadores em actualização';
+        analiseLabel = 'Análise automática';
+        var scoreParts = [];
+        if (t  != null) scoreParts.push('Transportes: ' + r.transportes_score + '/10');
+        if (s  != null) scoreParts.push('Saúde: ' + r.saude_score + '/10');
+        if (e  != null) scoreParts.push('Educação: ' + r.educacao_score + '/10');
+        if (sg != null) scoreParts.push('Segurança: ' + r.seguranca_score + '/10');
+
+        if (scoreParts.length > 0) {
+          analise      = r.nome + ' regista um score geral de ' + r.score_geral + '/10 nos Censos 2021. '
+                       + scoreParts.join(' · ') + '.'
+                       + (pop ? ' População residente: ' + pop + '.' : '');
+          analiseFonte = 'INE Censos 2021 · INE Rendas 2024 · Base Melhor Zona';
+        } else {
+          analise      = r.nome + (pop ? ' tem ' + pop + ' de população residente (INE Censos 2021).' : '.')
+                       + ' Os indicadores de qualidade de vida estão a ser processados.';
+          analiseFonte = 'INE Censos 2021 · Base Melhor Zona · Indicadores em actualização';
+        }
       }
 
       /* Cards de indicadores — só mostrar quando há dados */
@@ -1045,9 +1052,10 @@
         regiao:       'Portugal',
         score_total:  total,
         badge:        badgePrincipal,
-        dadosExemplo: false,
-        analise:      analise,
+        dadosExemplo:  false,
+        analise:       analise,
         analise_fonte: analiseFonte,
+        analise_label: analiseLabel,
         indicadores_livres:    livres,
         indicadores_bloqueados: bloqueados,
       };
@@ -1071,6 +1079,7 @@
         ? 'Freguesia de ' + d.concelho + ' · ' + d.regiao
         : d.regiao;
       document.getElementById('hero-badge').textContent       = d.badge;
+      document.getElementById('analise-label').textContent    = d.analise_label || 'Análise automática';
       document.getElementById('analise-texto').textContent    = d.analise;
       document.getElementById('analise-fonte').textContent    = d.analise_fonte;
       document.getElementById('paywall-titulo').textContent   = 'Relatório completo de ' + d.freguesia;
