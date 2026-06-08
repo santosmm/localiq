@@ -329,6 +329,63 @@ para imobiliárias.
 - [ ] Enriquecer scores reais (transportes: GTFS, saúde: SNS Transparência, ar: QualAr)
 - [ ] Expandir guias SEO para mais freguesias (script `data/generate-guias.py` já pronto)
 
+## Sessão 2026-06-08 — Sprint 6 (concluído)
+
+### Commits desta sessão
+- `ee1d4a9` feat: trocar Cloudflare Analytics por Plausible com eventos custom
+- `a655b73` feat: página 404 personalizada e netlify.toml
+- `1f9c139` fix: usar script Plausible personalizado (pa-x4Vo4C1Oc7C-11iBfAlmJ.js)
+- `5e8b040` feat: og-image.svg para partilha social (1200×630)
+- `e3a3fc7` feat: Open Graph completo em todas as páginas
+- `9d4ee31` fix: corrigir headline truncado no Schema.org das 30 guias
+- `7b7c225` fix: acessibilidade — tag `<main>` e contraste de cores (91→95+)
+
+### O que foi feito
+
+**Analytics — Cloudflare → Plausible**
+- Removido `beacon.min.js` do Cloudflare das 4 páginas principais
+- Adicionado script personalizado Plausible `pa-x4Vo4C1Oc7C-11iBfAlmJ.js` + inicialização `window.plausible`
+- Restaurados eventos custom em relatorio.html: `Alerta Activado`, `Paywall Click`, `Paywall Signup`
+- Evento `Pesquisa` no index.html e `Pesquisa 404` no 404.html
+- Motivo: Plausible tem eventos custom que o Cloudflare Analytics não suporta
+
+**Página 404 personalizada**
+- `404.html`: identidade visual Melhor Zona, barra de pesquisa de freguesia, link para homepage
+- `netlify.toml`: `[[redirects]] from="/*" status=404 to="/404.html"` — substitui a 404 genérica do Netlify
+
+**Open Graph e Twitter Cards**
+- `og-image.svg`: 1200×630px com fundo azul #1B4F72, logótipo, subtítulo e "3259 freguesias · Dados INE 2024"
+- Todas as páginas principais: og:title, og:description, og:url, og:type, og:site_name, og:image, twitter:card
+  - `index.html`: url corrigida de netlify.app → melhorzona.pt
+  - `comparar.html`: bloco OG criado do zero (não tinha nenhuma tag)
+  - `imobiliarias.html`: og:url, og:type, og:image, twitter:card adicionados
+  - `relatorio.html`: og:image e twitter:card (og:title/description já dinâmicos por JS)
+- 30 guias: og:title truncado corrigido (usava 86 chars cortados), og:image, twitter:card adicionados
+
+**Schema.org — headline corrigido**
+- `headline` do Article estava truncado a meio em todas as 30 guias (ex: "qualidade de vida 6")
+- Corrigido para usar o `<title>` da página como fonte — sempre completo e ≤110 chars
+
+**Acessibilidade (Accessibility score 91 → 95+)**
+- Tag `<main>` adicionada como wrapper semântico nas 4 páginas (index, relatorio, comparar, imobiliarias)
+- Contraste corrigido (WCAG AA):
+  - `rgba(255,255,255,0.45)` → `rgba(255,255,255,0.65)` — passa de 3.1:1 para 4.7:1
+  - `#6b7a8d` → `#566779` — passa de 4.38:1 para 5.26:1 em fundo branco
+
+### Estado final do Sprint 6
+- **Plausible**: script correcto em 5 páginas; 4 eventos custom activos
+- **404.html**: página de erro com identidade visual e barra de pesquisa ✓
+- **Open Graph**: completo em todas as páginas — partilha no WhatsApp/LinkedIn mostra imagem e texto correctos ✓
+- **Schema.org**: Article + FAQPage em 30 guias com headline sem truncagem ✓
+- **Acessibilidade**: `<main>` semântico + contraste WCAG AA corrigido ✓
+
+### Pendente para próxima sessão
+- [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
+- [ ] Acompanhar leads B2B recebidos e validar interesse real antes de construir mais
+- [ ] Enriquecer scores reais (transportes: GTFS, saúde: SNS Transparência, ar: QualAr)
+- [ ] Expandir guias SEO para mais freguesias (script `data/generate-guias.py` já pronto)
+- [ ] Confirmar PageSpeed Accessibility score após deploy (esperado 95+)
+
 ## Modelo de negócio
 - B2C: 1 relatório gratuito/mês, relatório completo 4,99€
   (preço a validar com utilizadores reais)
