@@ -100,7 +100,7 @@ async function consultarMunicipio(nome, supabaseUrl, supabaseKey) {
 }
 
 async function consultarFreguesia(nome, municipio, supabaseUrl, supabaseKey) {
-  let url = `${supabaseUrl}/rest/v1/freguesias?select=*&nome=ilike.${encodeURIComponent(nome)}*&limit=5`;
+  let url = `${supabaseUrl}/rest/v1/freguesias?select=*&nome=ilike.${encodeURIComponent(nome)}*&order=populacao.desc.nullslast&limit=5`;
   if (municipio) {
     url += `&municipio=ilike.${encodeURIComponent(municipio)}`;
   }

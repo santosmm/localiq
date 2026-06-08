@@ -1035,6 +1035,20 @@
           return { dados: j.dados, nome: j.dados.nome || nome };
         }
 
+        /* Desambiguação: múltiplas freguesias homónimas (ex: "Arroios" em Lisboa e Vila Real).
+           O Worker ordena por população desc — pega a mais populada automaticamente. */
+        if (j.multiplos && j.opcoes && j.opcoes.length) {
+          var opcao = j.opcoes[0];
+          var rMult = await fetch(
+            WORKER_URL + '?freguesia=' + encodeURIComponent(opcao.nome)
+                       + '&municipio='  + encodeURIComponent(opcao.municipio)
+          );
+          var jMult = await rMult.json();
+          if (jMult.encontrado && jMult.dados) {
+            return { dados: jMult.dados, nome: jMult.dados.nome || opcao.nome };
+          }
+        }
+
         /* Não encontrou como freguesia (ex: "Braga", "Porto" são municípios) —
            tenta a rota de município e pega a top freguesia por score_geral */
         var munR = await fetch(WORKER_URL + '/municipio?nome=' + encodeURIComponent(nome));
