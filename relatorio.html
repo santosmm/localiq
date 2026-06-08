@@ -755,6 +755,38 @@
     }
 
     footer strong { color: rgba(255,255,255,0.62); }
+    .btn-pdf {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.9);
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: var(--corpo);
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn-pdf:hover { background: rgba(255,255,255,0.22); }
+
+    @media print {
+      nav, .hero-analise, #secao-alerta, .secao-idealista,
+      .paywall, footer, .card-overlay, .btn-voltar,
+      .btn-comparar, .btn-desbloquear, #paywall-cta { display: none !important; }
+      body { background: #fff; }
+      .hero-principal {
+        background: #1B4F72 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .card { break-inside: avoid; page-break-inside: avoid; }
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+      @page { margin: 18mm 20mm; }
+    }
+
   </style>
 </head>
 <body>
@@ -929,7 +961,7 @@
 
     /* Gera HTML de um card bloqueado com overlay; data-valor/data-badge revelados no unlock */
     function htmlCardBloqueado(ind) {
-      var svgIcone = ICONES_SVG[ind.icone] || '';
+      var svgIcone = ICONES_SVG[ind.icone] || ind.icone || '';
       return '<div class="card">' +
         '<div class="card-icone">' + svgIcone + '</div>' +
         '<div class="card-nome">' + ind.nome + '</div>' +
@@ -983,6 +1015,44 @@
       if (score >= 75) return 'Bom';
       if (score >= 50) return 'Médio';
       return 'Fraco';
+    }
+
+    /* Dados climáticos por distrito (IPMA) — estimativa por código DICOFRE */
+    var CLIMA_DISTRITO = {
+      '01': { nome: 'Atlântico',                 temp: 13.5, sol: 2000, chuva: 1500 }, // Viana do Castelo
+      '02': { nome: 'Atlântico temperado',        temp: 14.5, sol: 2100, chuva: 1500 }, // Braga
+      '03': { nome: 'Continental',                temp: 13.5, sol: 2500, chuva: 1000 }, // Vila Real
+      '04': { nome: 'Continental',                temp: 12.0, sol: 2400, chuva:  800 }, // Bragança
+      '05': { nome: 'Atlântico',                  temp: 15.0, sol: 1900, chuva: 1200 }, // Porto
+      '06': { nome: 'Atlântico',                  temp: 14.5, sol: 2400, chuva: 1000 }, // Aveiro
+      '07': { nome: 'Atlântico continental',      temp: 13.0, sol: 2300, chuva: 1100 }, // Viseu
+      '08': { nome: 'Continental montanhoso',     temp: 11.5, sol: 2400, chuva:  900 }, // Guarda
+      '09': { nome: 'Mediterrânico continental',  temp: 15.5, sol: 2500, chuva:  900 }, // Coimbra
+      '10': { nome: 'Atlântico',                  temp: 15.0, sol: 2300, chuva:  900 }, // Leiria
+      '11': { nome: 'Mediterrânico atlântico',    temp: 17.5, sol: 2800, chuva:  700 }, // Lisboa
+      '12': { nome: 'Mediterrânico atlântico',    temp: 17.0, sol: 2700, chuva:  700 }, // Setúbal
+      '13': { nome: 'Mediterrânico continental',  temp: 16.0, sol: 2800, chuva:  600 }, // Santarém
+      '14': { nome: 'Continental',                temp: 15.0, sol: 2700, chuva:  700 }, // Castelo Branco
+      '15': { nome: 'Mediterrânico continental',  temp: 15.5, sol: 2700, chuva:  700 }, // Portalegre
+      '16': { nome: 'Mediterrânico',              temp: 17.0, sol: 2900, chuva:  500 }, // Évora
+      '17': { nome: 'Mediterrânico',              temp: 18.0, sol: 3000, chuva:  500 }, // Beja
+      '18': { nome: 'Mediterrânico',              temp: 19.5, sol: 3100, chuva:  450 }, // Faro
+      '31': { nome: 'Subtropical',                temp: 22.0, sol: 2100, chuva:  700 }, // Madeira
+      '32': { nome: 'Subtropical',                temp: 22.0, sol: 2100, chuva:  700 }, // Madeira
+      '41': { nome: 'Oceânico subtropical',       temp: 18.5, sol: 1600, chuva: 1800 }, // Açores
+      '42': { nome: 'Oceânico subtropical',       temp: 18.5, sol: 1600, chuva: 1800 },
+      '43': { nome: 'Oceânico subtropical',       temp: 18.5, sol: 1600, chuva: 1800 },
+      '44': { nome: 'Oceânico subtropical',       temp: 18.5, sol: 1600, chuva: 1800 },
+      '45': { nome: 'Oceânico subtropical',       temp: 18.5, sol: 1600, chuva: 1800 },
+      '46': { nome: 'Oceânico subtropical',       temp: 18.5, sol: 1600, chuva: 1800 },
+      '47': { nome: 'Oceânico subtropical',       temp: 18.5, sol: 1600, chuva: 1800 },
+      '48': { nome: 'Oceânico subtropical',       temp: 18.5, sol: 1600, chuva: 1800 },
+      '49': { nome: 'Oceânico subtropical',       temp: 18.5, sol: 1600, chuva: 1800 },
+    };
+
+    function climaDeDistrito(codigoIne) {
+      if (!codigoIne || codigoIne.length < 2) return null;
+      return CLIMA_DISTRITO[codigoIne.substring(0, 2)] || null;
     }
 
     /* Classifica o tipo de clima com base em temperatura, sol e precipitação (ERA5) */
@@ -1080,20 +1150,60 @@
       if (e     != null) bloqueados.push({ nome: 'Ensino e Escolas',  icone: 'ti-school',      score: e,    valor: r.ensino_valor || 'Cobertura escolar pública · DGEEC 2023', badge: badgeTexto(e) });
       if (total != null) bloqueados.push({ nome: 'Qualidade de Vida', icone: 'ti-stethoscope', score: total, valor: 'Índice composto de qualidade de vida · Melhor Zona 2024',   badge: badgeTexto(total) });
 
-      /* Card de clima — só quando o enricher já correu para este município */
-      if (r.clima_score != null) {
-        var climaScore = Math.round(r.clima_score * 10);
-        var climaIcone = climaScore >= 75 ? '☀️' : climaScore >= 50 ? '⛅' : '🌧️';
-        var climaPartes = [];
-        if (r.clima_temp_media   != null) climaPartes.push(parseFloat(r.clima_temp_media).toFixed(1).replace('.', ',') + '°C média');
-        if (r.clima_sol_horas    != null) climaPartes.push(Math.round(r.clima_sol_horas) + ' h sol/ano');
-        if (r.clima_precipitacao != null) climaPartes.push(Math.round(r.clima_precipitacao) + ' mm/ano');
+      /* Card de clima — dados reais (ERA5) ou estimativa por distrito (IPMA/DICOFRE) */
+      (function () {
+        var temp, sol, chuva, fonte, badge;
+        if (r.clima_score != null) {
+          /* Dados reais do enricher ERA5 */
+          temp  = r.clima_temp_media   != null ? parseFloat(r.clima_temp_media)   : null;
+          sol   = r.clima_sol_horas    != null ? parseFloat(r.clima_sol_horas)    : null;
+          chuva = r.clima_precipitacao != null ? parseFloat(r.clima_precipitacao) : null;
+          fonte = 'ERA5 2015–2024';
+          badge = tipoClima(temp, sol, chuva);
+          var climaScore = Math.round(r.clima_score * 10);
+          var climaIcone = climaScore >= 75 ? '☀️' : climaScore >= 50 ? '⛅' : '🌧️';
+          var climaPartes = [];
+          if (temp  != null) climaPartes.push(temp.toFixed(1).replace('.', ',') + '°C média');
+          if (sol   != null) climaPartes.push(Math.round(sol) + ' h sol/ano');
+          if (chuva != null) climaPartes.push(Math.round(chuva) + ' mm/ano');
+          bloqueados.push({
+            nome: 'Clima', icone: climaIcone, score: climaScore,
+            valor: (climaPartes.join(' · ') || fonte) + ' · ' + fonte, badge: badge,
+          });
+        } else {
+          /* Fallback por distrito (IPMA médias históricas) */
+          var cd = climaDeDistrito(r.codigo_ine);
+          if (cd) {
+            var csEst = Math.min(100, Math.max(0, Math.round(cd.sol / 30)));
+            var ciEst = csEst >= 75 ? '☀️' : csEst >= 50 ? '⛅' : '🌧️';
+            bloqueados.push({
+              nome:  'Clima',
+              icone: ciEst,
+              score: csEst,
+              valor: cd.temp.toFixed(1).replace('.', ',') + '°C média · '
+                   + Math.round(cd.sol) + ' h sol/ano · '
+                   + Math.round(cd.chuva) + ' mm/ano · IPMA por distrito',
+              badge: cd.nome,
+            });
+          }
+        }
+      })();
+
+      /* Card comparação de rendas vs média nacional */
+      if (r.rendas_mediana != null) {
+        var mediaNac = 10.50;
+        var diffPct  = Math.round((r.rendas_mediana - mediaNac) / mediaNac * 100);
+        var diffDir  = diffPct > 0
+          ? '+' + diffPct + '% acima da média nacional'
+          : diffPct + '% abaixo da média nacional';
+        var rendaCompScore = Math.max(0, Math.min(100, Math.round((mediaNac * 2 - r.rendas_mediana) / mediaNac * 50)));
+        var rendaCompBadge = diffPct > 30 ? 'Acima da média' : diffPct < -15 ? 'Abaixo da média' : 'Na média';
         bloqueados.push({
-          nome:  'Clima',
-          icone: climaIcone,
-          score: climaScore,
-          valor: (climaPartes.join(' · ') || 'ERA5 2015–2024') + ' · ERA5',
-          badge: tipoClima(r.clima_temp_media, r.clima_sol_horas, r.clima_precipitacao),
+          nome:  'Rendas vs Portugal',
+          icone: '📊',
+          score: rendaCompScore,
+          valor: '€' + r.rendas_mediana.toFixed(2).replace('.', ',') + '/m² · Média nacional €10,50/m² · ' + diffDir,
+          badge: rendaCompBadge,
         });
       }
 
@@ -1328,6 +1438,7 @@
           '<p class="paywall-sub">Estás a ver todos os indicadores desta freguesia.</p>' +
           '<div class="paywall-botoes">' +
           '<a href="/comparar.html?a=' + nomeFreg + '" class="btn-comparar" style="color:rgba(255,255,255,0.9);border-color:rgba(255,255,255,0.4)">Comparar com outra freguesia →</a>' +
+          '<button class="btn-pdf" onclick="window.print()">⬇ Exportar PDF</button>' +
           '</div></div>';
       }
 
