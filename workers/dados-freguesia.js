@@ -37,7 +37,6 @@ function calcularScoreReal(r) {
   if (r.ensino_score      != null) scores.push(r.ensino_score);
   if (r.rendas_mediana    != null) {
     /* Invertido: rendas baixas = mais acessível = melhor score */
-    /* Calibração: 3€/m² → 9.1, 10€/m² → 7.0, 20€/m² → 4.0, 33€/m² → 0.1 */
     var arScore = Math.max(0, Math.min(10, parseFloat((10 - r.rendas_mediana * 0.3).toFixed(1))));
     scores.push(arScore);
   } else if (r.arrendamento_score != null) {
@@ -72,6 +71,83 @@ function mapearRegisto(r) {
     rendas_mediana:      r.rendas_mediana      ?? null,
     preco_avaliacao_m2:  r.preco_avaliacao_m2  ?? null,
     resumo_ia:           r.resumo_ia           ?? null,
+    clima_temp_media:    r.clima_temp_media    ?? null,
+    clima_sol_horas:     r.clima_sol_horas     ?? null,
+    clima_precipitacao:  r.clima_precipitacao  ?? null,
+    clima_score:         r.clima_score         ?? null,
+  };
+}
+
+/* Gera análise expandida com Claude Haiku para relatório pago */
+async function gerarAnaliseIa(codigoIne, env) {
+  /* Busca dados completos da freguesia no Supabase */
+  const sbUrl = `${env.SUPABASE_URL}/rest/v1/freguesias?select=*&codigo_ine=eq.${encodeURIComponent(codigoIne)}&limit=1`;
+  const sbRes = await fetch(sbUrl, {
+    headers: {
+      'apikey':        env.SUPABASE_KEY,
+      'Authorization': `Bearer ${env.SUPABASE_KEY}`,
+    },
+  });
+  if (!sbRes.ok) throw new Error(`Supabase ${sbRes.status}`);
+  const registos = await sbRes.json();
+  if (!registos.length) return { erro: 'Freguesia não encontrada' };
+
+  const r = registos[0];
+
+  /* Perfil urbano/suburbano/rural pela população */
+  const pop    = r.populacao ?? 0;
+  const perfil = pop > 50000 ? 'urbana' : pop > 10000 ? 'suburbana' : pop > 2000 ? 'semi-urbana' : 'rural';
+
+  /* Monta lista de dados disponíveis para o prompt */
+  const dadosStr = [
+    r.score_geral     != null ? `score geral ${r.score_geral}/10 (índice Melhor Zona)` : null,
+    r.seguranca_valor != null
+      ? `segurança: ${parseFloat(r.seguranca_valor).toFixed(1)} crimes/1000 hab (média nacional ~35 — quanto menor, mais seguro)`
+      : null,
+    r.rendas_mediana  != null
+      ? `rendas: €${parseFloat(r.rendas_mediana).toFixed(2)}/m² de mediana (média nacional ~€10/m²; Lisboa ~€17/m²)`
+      : null,
+    pop > 0 ? `${pop.toLocaleString('pt-PT')} habitantes — zona ${perfil}` : null,
+    r.clima_temp_media   != null ? `temperatura média ${parseFloat(r.clima_temp_media).toFixed(1)}°C` : null,
+    r.clima_sol_horas    != null ? `${Math.round(r.clima_sol_horas)} horas de sol por ano` : null,
+    r.clima_precipitacao != null ? `${Math.round(r.clima_precipitacao)} mm de precipitação anual` : null,
+  ].filter(Boolean).join('\n- ');
+
+  const prompt = `Gera uma análise de 4 a 5 frases sobre a qualidade de vida em ${r.nome}, ${r.municipio}, Portugal.
+
+Dados reais disponíveis:
+- ${dadosStr}
+
+Inclui obrigatoriamente:
+1. Uma apresentação da zona e o que a caracteriza (zona ${perfil}).
+2. O contexto de segurança${r.seguranca_valor != null ? ` (${parseFloat(r.seguranca_valor).toFixed(1)} crimes/1000 hab)` : ''} em relação à média nacional (~35).
+3. O mercado de arrendamento${r.rendas_mediana != null ? ` (€${parseFloat(r.rendas_mediana).toFixed(2)}/m²)` : ''} face à média nacional (~€10/m²) e ao contexto regional.
+4. Para quem é ideal esta zona — famílias, jovens profissionais ou reformados — deduzido dos dados reais.
+
+Responde apenas com as 4 a 5 frases em texto corrido, sem bullets nem títulos. Português europeu, tom editorial sóbrio.`;
+
+  const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+    method:  'POST',
+    headers: {
+      'Content-Type':      'application/json',
+      'x-api-key':         env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model:      'claude-haiku-4-5-20251001',
+      max_tokens: 450,
+      messages:   [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  const claudeJson = await claudeRes.json();
+  const texto = claudeJson.content?.[0]?.text?.trim() ?? '';
+
+  if (!texto) throw new Error('Claude devolveu resposta vazia');
+
+  return {
+    analise: texto,
+    fonte:   'Gerado por Claude Haiku · Dados INE Censos 2021 · INE Rendas 2024',
   };
 }
 
@@ -147,6 +223,21 @@ export default {
     const pathname  = url.pathname;
     const freguesia = url.searchParams.get('freguesia');
     const municipio = url.searchParams.get('municipio');
+
+    /* Endpoint /analise?codigo_ine=XXX — análise expandida com Claude Haiku (relatório pago) */
+    if (pathname === '/analise') {
+      const codigoIne = url.searchParams.get('codigo_ine');
+      if (!codigoIne) return respostaJson({ erro: 'codigo_ine obrigatório' }, 400, cors);
+      try {
+        const resultado = await gerarAnaliseIa(codigoIne, env);
+        return new Response(JSON.stringify(resultado), {
+          status:  resultado.erro ? 404 : 200,
+          headers: { ...cors, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+        });
+      } catch (_) {
+        return respostaJson({ erro: 'Erro ao gerar análise' }, 500, cors);
+      }
+    }
 
     /* Endpoint /municipio?nome=Lisboa — top 10 freguesias do município */
     if (pathname === '/municipio') {
