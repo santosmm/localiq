@@ -1082,8 +1082,8 @@
         ? (total >= 75 ? 'Boa zona para famílias' : total >= 50 ? 'Zona em crescimento' : 'Zona com desafios')
         : 'A calcular';
 
-      /* Card de arrendamento: dados reais INE 2024 ou exemplo com aviso */
-      var cardRendas;
+      /* Card de arrendamento: só quando há dados reais INE 2024 */
+      var cardRendas = null;
       if (r.rendas_mediana != null) {
         var scoreRendas = Math.max(0, Math.round(100 - r.rendas_mediana * 3));
         cardRendas = {
@@ -1092,14 +1092,6 @@
           score: scoreRendas,
           valor: 'Renda mediana: €' + r.rendas_mediana.toFixed(2).replace('.', ',') + '/m² · INE 2024',
           badge: badgeTexto(scoreRendas),
-        };
-      } else {
-        cardRendas = {
-          nome:  'Mercado de Arrendamento',
-          icone: '🏠',
-          score: 50,
-          valor: '12,50€/m² (dado de exemplo)',
-          badge: 'Dados de exemplo',
         };
       }
 
@@ -1144,7 +1136,7 @@
           : 'Criminalidade municipal · DGAI 2023';
         livres.push({ nome: 'Segurança', icone: '🛡️', score: sg, valor: sgValor, badge: badgeTexto(sg) });
       }
-      livres.push(cardRendas);
+      if (cardRendas) livres.push(cardRendas);
 
       var bloqueados = [];
       if (e     != null) bloqueados.push({ nome: 'Ensino e Escolas',  icone: 'ti-school',      score: e,    valor: r.ensino_valor || 'Cobertura escolar pública · DGEEC 2023', badge: badgeTexto(e) });
