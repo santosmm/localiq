@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <!-- Fundo azul principal -->
+  <rect width="1200" height="630" fill="#1B4F72"/>
+
+  <!-- Padrão diagonal subtil -->
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+      <line x1="0" y1="0" x2="0" y2="32" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Gradiente lateral direito -->
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1B4F72;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#0d2137;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grad)" opacity="0.6"/>
+
+  <!-- Círculo decorativo direito -->
+  <circle cx="1050" cy="315" r="280" fill="rgba(46,134,193,0.12)"/>
+  <circle cx="1050" cy="315" r="200" fill="rgba(46,134,193,0.10)"/>
+
+  <!-- Ícone de localização -->
+  <g transform="translate(120, 180)">
+    <rect width="72" height="72" rx="16" fill="#2E86C1"/>
+    <path d="M36 14C26.6 14 19 21.6 19 31c0 14.3 17 27 17 27s17-12.7 17-27c0-9.4-7.6-17-17-17zm0 23c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" fill="white"/>
+  </g>
+
+  <!-- Título principal -->
+  <text x="120" y="310" font-family="Georgia, serif" font-size="72" font-weight="700" fill="white" letter-spacing="-1">Melhor Zona</text>
+
+  <!-- Linha divisória -->
+  <rect x="120" y="330" width="80" height="4" rx="2" fill="#2E86C1"/>
+
+  <!-- Subtítulo -->
+  <text x="120" y="390" font-family="Arial, sans-serif" font-size="32" fill="rgba(255,255,255,0.75)">Compara qualidade de vida por freguesia</text>
+
+  <!-- Dados pill -->
+  <rect x="120" y="430" width="420" height="52" rx="26" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.20)" stroke-width="1"/>
+  <text x="330" y="462" font-family="Arial, sans-serif" font-size="22" fill="rgba(255,255,255,0.85)" text-anchor="middle">3 259 freguesias · Dados INE 2024</text>
+
+  <!-- URL rodapé -->
+  <text x="1080" y="590" font-family="Arial, sans-serif" font-size="24" fill="rgba(255,255,255,0.40)" text-anchor="end">melhorzona.pt</text>
+</svg>
