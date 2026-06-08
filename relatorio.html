@@ -1107,8 +1107,8 @@
       var analise, analiseFonte, analiseLabel;
       if (r.resumo_ia) {
         analise      = r.resumo_ia;
-        analiseFonte = 'Gerado por Claude AI · Dados INE Censos 2021 · INE Rendas 2024';
-        analiseLabel = 'Resumo IA';
+        analiseFonte = 'Análise editorial · Melhor Zona';
+        analiseLabel = 'Análise editorial';
       } else {
         analiseLabel = 'Análise automática';
         var scoreParts = [];
@@ -1126,11 +1126,11 @@
                        + (scoreParts.length > 0 ? ' ' + scoreParts.join(' · ') + '.' : '')
                        + rendasPart
                        + (pop ? ' População residente: ' + pop : '');
-          analiseFonte = 'INE Censos 2021 · INE Rendas 2024 · Base Melhor Zona';
+          analiseFonte = 'Dados: INE Censos 2021 · INE Rendas 2024 · DGAI 2023';
         } else {
           analise      = r.nome + (pop ? ' tem ' + pop + ' de população residente (INE Censos 2021).' : '.')
                        + ' Os indicadores de qualidade de vida estão a ser processados.';
-          analiseFonte = 'INE Censos 2021 · Base Melhor Zona · Indicadores em actualização';
+          analiseFonte = 'Dados: INE Censos 2021 · DGAI 2023';
         }
       }
 
@@ -1140,15 +1140,15 @@
       if (s  != null) livres.push({ nome: 'Saúde Primária SNS',   icone: '🏥', score: s,  valor: 'Score baseado em cobertura SNS',         badge: badgeTexto(s)  });
       if (sg != null) {
         var sgValor = r.seguranca_valor != null
-          ? r.seguranca_valor.toFixed(1).replace('.', ',') + ' crimes/1000 hab · INE 2023'
-          : 'Criminalidade municipal · INE 2023';
+          ? r.seguranca_valor.toFixed(1).replace('.', ',') + ' crimes/1000 hab · DGAI 2023'
+          : 'Criminalidade municipal · DGAI 2023';
         livres.push({ nome: 'Segurança', icone: '🛡️', score: sg, valor: sgValor, badge: badgeTexto(sg) });
       }
       livres.push(cardRendas);
 
       var bloqueados = [];
       if (e     != null) bloqueados.push({ nome: 'Ensino e Escolas',  icone: 'ti-school',      score: e,    valor: r.ensino_valor || 'Cobertura escolar pública · DGEEC 2023', badge: badgeTexto(e) });
-      if (total != null) bloqueados.push({ nome: 'Qualidade de Vida', icone: 'ti-stethoscope', score: total, valor: 'Índice composto de qualidade de vida · Melhor Zona 2024',   badge: badgeTexto(total) });
+      if (total != null) bloqueados.push({ nome: 'Qualidade de Vida', icone: 'ti-stethoscope', score: total, valor: 'Índice composto de qualidade de vida',   badge: badgeTexto(total) });
 
       /* Card de clima — dados reais (ERA5) ou estimativa por distrito (IPMA/DICOFRE) */
       (function () {
@@ -1458,7 +1458,7 @@
       var labelEl = document.getElementById('analise-label');
       var textoEl = document.getElementById('analise-texto');
       var fonteEl = document.getElementById('analise-fonte');
-      if (labelEl) labelEl.textContent = loading ? 'Análise IA completa' : 'Análise IA completa';
+      if (labelEl) labelEl.textContent = 'Análise editorial';
       if (textoEl) {
         textoEl.style.opacity = loading ? '0.55' : '1';
         textoEl.textContent   = texto;
@@ -1485,8 +1485,8 @@
         var res  = await fetch(WORKER_URL + '/analise?codigo_ine=' + encodeURIComponent(dadosReais.codigo_ine));
         var json = await res.json();
         if (json.analise) {
-          localStorage.setItem(cacheKey, JSON.stringify({ analise: json.analise, fonte: json.fonte }));
-          actualizarAnalise(json.analise, json.fonte);
+          localStorage.setItem(cacheKey, JSON.stringify({ analise: json.analise, fonte: 'Análise editorial · Melhor Zona' }));
+          actualizarAnalise(json.analise, 'Análise editorial · Melhor Zona');
         }
       } catch (_) { /* silencioso — análise curta mantém-se */ }
     }

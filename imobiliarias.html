@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Melhor Zona para imobiliárias — relatórios de qualidade de vida por freguesia com branding da agência. Feche mais negócios com dados INE verificados.">
+  <meta name="description" content="Melhor Zona para imobiliárias — os seus clientes merecem dados, não apenas fotos. Relatórios de qualidade de vida por freguesia com branding da agência.">
   <link rel="canonical" href="https://melhorzona.pt/imobiliarias.html">
-  <meta property="og:title"        content="Melhor Zona para Imobiliárias — Dados que fecham negócios">
-  <meta property="og:description"  content="Relatórios de qualidade de vida por freguesia, prontos em 30 segundos, com o branding da sua agência. Dados INE, ACSS, DGEEC.">
+  <meta property="og:title"        content="Os seus clientes merecem dados, não apenas fotos — Melhor Zona">
+  <meta property="og:description"  content="Relatórios de qualidade de vida por freguesia com o branding da sua agência. 3 259 freguesias, dados INE verificados.">
   <meta property="og:url"          content="https://melhorzona.pt/imobiliarias.html">
   <meta property="og:type"         content="website">
   <meta property="og:site_name"    content="Melhor Zona">
@@ -24,20 +24,20 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
+      --azul: #1B4F72;
+      --azul-medio: #2E86C1;
+      --azul-claro: #D6E8F5;
       --azul-escuro: #0d2137;
-      --azul:        #1B4F72;
-      --azul-medio:  #2E86C1;
-      --azul-claro:  #D6E8F5;
-      --verde:       #1e8449;
-      --verde-claro: #d5f0e0;
-      --branco:      #ffffff;
-      --cinza-fundo: #f4f7fb;
+      --verde: #1e8449;
+      --verde-claro: #d5f5e3;
+      --branco: #ffffff;
+      --cinza-fundo: #f2f6fa;
+      --cinza-borda: #dde3eb;
       --cinza-texto: #566779;
-      --borda:       #dde3eb;
-      --titulo:      'Playfair Display', Georgia, serif;
-      --corpo:       'Inter', system-ui, sans-serif;
-      --raio:        12px;
-      --sombra:      0 4px 20px rgba(13, 33, 55, 0.09);
+      --titulo: 'Playfair Display', Georgia, serif;
+      --corpo: 'Inter', system-ui, sans-serif;
+      --raio: 12px;
+      --sombra: 0 4px 20px rgba(13,33,55,0.09);
     }
 
     html { scroll-behavior: smooth; }
@@ -45,415 +45,134 @@
     .container { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
 
     /* ── Header ── */
-    header { background: var(--azul-escuro); padding: 16px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.18); }
+    header { background: var(--azul-escuro); padding: 16px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
     .header-inner { display: flex; align-items: center; justify-content: space-between; }
     .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .logo-icone { width: 34px; height: 34px; background: var(--azul-medio); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     .logo-icone svg { width: 18px; height: 18px; fill: var(--branco); }
-    .logo-nome { font-family: var(--corpo); font-size: 1.1rem; font-weight: 700; color: var(--branco); }
-    .logo-nome span { color: rgba(255,255,255,0.5); font-weight: 400; }
-    nav a { color: rgba(255,255,255,0.72); text-decoration: none; font-size: 0.875rem; margin-left: 24px; transition: color 0.2s; }
-    nav a:hover { color: var(--branco); }
-    nav a.btn-nav { background: var(--azul-medio); color: var(--branco); padding: 8px 18px; border-radius: 8px; font-weight: 600; }
-    nav a.btn-nav:hover { background: #3a9bd5; }
-    @media (max-width: 600px) { nav { display: none; } }
+    .logo-nome { font-size: 1.1rem; font-weight: 700; color: var(--branco); }
+    .logo-nome span { color: rgba(255,255,255,0.45); font-weight: 400; }
+    nav { display: flex; align-items: center; gap: 8px; }
+    nav a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.875rem; padding: 6px 14px; border-radius: 8px; transition: color 0.2s, background 0.2s; }
+    nav a:hover { color: var(--branco); background: rgba(255,255,255,0.08); }
+    nav a.btn-nav { border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.85); }
+    nav a.btn-nav:hover { background: rgba(255,255,255,0.12); color: var(--branco); }
+    @media (max-width: 580px) { nav { display: none; } }
 
     /* ── Hero ── */
     .hero {
-      background-color: var(--azul);
-      background-image: repeating-linear-gradient(-45deg, transparent 0px, transparent 18px, rgba(255,255,255,0.03) 18px, rgba(255,255,255,0.03) 19px);
-      color: var(--branco);
+      background-color: var(--azul-escuro);
+      background-image: repeating-linear-gradient(-45deg, transparent 0, transparent 18px, rgba(255,255,255,0.03) 18px, rgba(255,255,255,0.03) 19px);
       padding: 80px 0 72px;
       text-align: center;
     }
-
-    .hero-label {
-      display: inline-block;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.22);
-      color: rgba(255,255,255,0.85);
-      padding: 5px 16px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 28px;
-    }
-
-    .hero h1 {
-      font-family: var(--titulo);
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 800;
-      line-height: 1.18;
-      letter-spacing: -0.5px;
-      margin-bottom: 20px;
-      max-width: 720px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .hero h1 em { font-style: normal; color: #7ec8f0; }
-
-    .hero-sub {
-      font-size: clamp(1rem, 2vw, 1.1rem);
-      color: rgba(255,255,255,0.72);
-      max-width: 580px;
-      margin: 0 auto 40px;
-      line-height: 1.7;
-    }
-
+    .hero-badge { display: inline-block; background: rgba(46,134,193,0.2); border: 1px solid rgba(46,134,193,0.4); color: var(--azul-medio); padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 28px; }
+    .hero h1 { font-family: var(--titulo); font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: var(--branco); line-height: 1.15; letter-spacing: -0.5px; max-width: 780px; margin: 0 auto 20px; }
+    .hero h1 em { color: var(--azul-medio); font-style: normal; }
+    .hero-sub { font-size: clamp(1rem, 2vw, 1.1rem); color: rgba(255,255,255,0.72); max-width: 560px; margin: 0 auto 40px; line-height: 1.7; }
     .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-
-    .btn-primario {
-      background: var(--branco);
-      color: var(--azul);
-      border: none;
-      padding: 14px 28px;
-      border-radius: var(--raio);
-      font-family: var(--corpo);
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-      transition: transform 0.15s, box-shadow 0.15s;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    }
-    .btn-primario:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.25); }
-
-    .btn-demo {
-      background: transparent;
-      color: rgba(255,255,255,0.85);
-      border: 1px solid rgba(255,255,255,0.3);
-      padding: 14px 28px;
-      border-radius: var(--raio);
-      font-family: var(--corpo);
-      font-size: 0.95rem;
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-block;
-      transition: background 0.2s, color 0.2s;
-    }
-    .btn-demo:hover { background: rgba(255,255,255,0.1); color: var(--branco); }
-
-    .hero-stats {
-      display: flex;
-      justify-content: center;
-      gap: 52px;
-      margin-top: 60px;
-      padding-top: 40px;
-      border-top: 1px solid rgba(255,255,255,0.12);
-      flex-wrap: wrap;
-    }
-    .stat { text-align: center; }
-    .stat-num { display: block; font-family: var(--titulo); font-size: 2rem; font-weight: 800; color: var(--branco); line-height: 1; }
-    .stat-label { font-size: 0.8rem; color: rgba(255,255,255,0.52); margin-top: 4px; }
+    .btn-principal { display: inline-flex; align-items: center; gap: 8px; background: var(--azul-medio); color: var(--branco); text-decoration: none; font-weight: 700; font-size: 0.97rem; padding: 14px 28px; border-radius: var(--raio); border: none; cursor: pointer; font-family: var(--corpo); transition: background 0.2s, transform 0.15s; box-shadow: 0 4px 16px rgba(46,134,193,0.35); }
+    .btn-principal:hover { background: #2473a8; transform: translateY(-1px); }
+    .btn-secundario { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: rgba(255,255,255,0.8); text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 13px 24px; border: 1px solid rgba(255,255,255,0.25); border-radius: var(--raio); transition: background 0.2s; }
+    .btn-secundario:hover { background: rgba(255,255,255,0.08); color: var(--branco); }
+    .hero-credenciais { display: flex; justify-content: center; gap: 40px; margin-top: 52px; padding-top: 36px; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; }
+    .cred { text-align: center; }
+    .cred-num { display: block; font-family: var(--titulo); font-size: 2rem; font-weight: 800; color: var(--branco); line-height: 1; }
+    .cred-label { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-top: 4px; }
 
     /* ── Secção genérica ── */
-    .secao { padding: 80px 0; }
+    .secao { padding: 72px 0; }
     .secao-cinza { background: var(--cinza-fundo); }
-
-    .secao-titulo { text-align: center; margin-bottom: 56px; }
-    .pre-titulo { font-size: 0.75rem; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--azul-medio); margin-bottom: 10px; }
-    .secao-titulo h2 { font-family: var(--titulo); font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; letter-spacing: -0.3px; margin-bottom: 14px; }
+    .secao-titulo { text-align: center; margin-bottom: 52px; }
+    .pre-titulo { font-size: 0.75rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--azul-medio); margin-bottom: 10px; }
+    .secao-titulo h2 { font-family: var(--titulo); font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; letter-spacing: -0.4px; margin-bottom: 14px; }
     .secao-titulo p { color: var(--cinza-texto); font-size: 1rem; max-width: 540px; margin: 0 auto; line-height: 1.7; }
 
-    /* ── Antes / Depois ── */
-    .antes-depois {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 28px;
-      max-width: 820px;
-      margin: 0 auto;
-    }
-    @media (max-width: 640px) { .antes-depois { grid-template-columns: 1fr; } }
-
-    .ad-card {
-      border-radius: 16px;
-      padding: 32px 28px;
-    }
-    .ad-antes { background: #fff5f5; border: 1.5px solid #fadbd8; }
-    .ad-depois { background: #f0f9f4; border: 1.5px solid #b7e4c7; }
-
-    .ad-label {
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .ad-antes .ad-label { color: #c0392b; }
-    .ad-depois .ad-label { color: var(--verde); }
-
-    .ad-items { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-    .ad-items li { font-size: 0.9rem; display: flex; gap: 10px; align-items: flex-start; line-height: 1.5; }
-    .ad-items li .icone { flex-shrink: 0; font-size: 1.1rem; margin-top: 1px; }
-
-    /* ── O que contém o relatório ── */
-    .relatorio-demo {
-      background: var(--branco);
-      border: 1.5px solid var(--borda);
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 12px 48px rgba(13,33,55,0.10);
-      max-width: 780px;
-      margin: 0 auto;
-    }
-
-    .relatorio-header {
-      background: var(--azul);
-      color: var(--branco);
-      padding: 28px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .relatorio-header-info h3 { font-family: var(--titulo); font-size: 1.5rem; font-weight: 800; margin-bottom: 4px; }
-    .relatorio-header-info p { font-size: 0.85rem; color: rgba(255,255,255,0.65); }
-
-    .relatorio-score-circulo {
-      width: 76px; height: 76px; flex-shrink: 0;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.12);
-      border: 3px solid rgba(255,255,255,0.35);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-    .relatorio-score-num { font-family: var(--titulo); font-size: 1.6rem; font-weight: 800; line-height: 1; }
-    .relatorio-score-de { font-size: 0.65rem; color: rgba(255,255,255,0.55); }
-
-    .relatorio-indicadores {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0;
-    }
-    @media (max-width: 580px) { .relatorio-indicadores { grid-template-columns: 1fr 1fr; } }
-
-    .ind-item {
-      padding: 20px 22px;
-      border-right: 1px solid var(--borda);
-      border-bottom: 1px solid var(--borda);
-    }
-    .ind-item:nth-child(3n) { border-right: none; }
-    @media (max-width: 580px) {
-      .ind-item:nth-child(2n) { border-right: none; }
-      .ind-item:nth-child(3n) { border-right: 1px solid var(--borda); }
-    }
-
-    .ind-nome { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--cinza-texto); margin-bottom: 4px; }
-    .ind-valor { font-family: var(--titulo); font-size: 1.5rem; font-weight: 800; color: var(--azul); line-height: 1; margin-bottom: 3px; }
-    .ind-detalhe { font-size: 0.74rem; color: var(--cinza-texto); }
-
-    .ind-badge {
-      display: inline-block;
-      font-size: 0.68rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 10px;
-      margin-top: 4px;
-    }
-    .badge-bom    { background: #d5f5e3; color: #1e8449; }
-    .badge-medio  { background: #fef9e7; color: #9a7d0a; }
-    .badge-fraco  { background: #fadbd8; color: #c0392b; }
-
-    .relatorio-footer {
-      padding: 18px 24px;
-      background: var(--cinza-fundo);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .relatorio-footer p { font-size: 0.78rem; color: var(--cinza-texto); }
-    .btn-ver-demo {
-      background: var(--azul);
-      color: var(--branco);
-      text-decoration: none;
-      padding: 9px 18px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      white-space: nowrap;
-      transition: background 0.2s;
-    }
-    .btn-ver-demo:hover { background: var(--azul-medio); }
+    /* ── Casos de uso ── */
+    .casos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    .caso-card { background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 16px; padding: 32px 28px; box-shadow: var(--sombra); }
+    .caso-tag { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.73rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 18px; }
+    .caso-tag-familia    { background: var(--azul-claro); color: var(--azul); }
+    .caso-tag-investidor { background: var(--verde-claro); color: var(--verde); }
+    .caso-tag-agencia    { background: #fef9e7; color: #9a7d0a; }
+    .caso-card h3 { font-family: var(--titulo); font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+    .caso-card p { font-size: 0.88rem; color: var(--cinza-texto); line-height: 1.7; margin-bottom: 20px; }
+    .caso-roi { display: flex; align-items: center; gap: 12px; background: var(--cinza-fundo); border-radius: 10px; padding: 12px 16px; }
+    .caso-roi-num { font-family: var(--titulo); font-size: 1.5rem; font-weight: 800; color: var(--azul); line-height: 1; white-space: nowrap; }
+    .caso-roi-desc { font-size: 0.79rem; color: var(--cinza-texto); line-height: 1.4; }
 
     /* ── Como funciona ── */
     .passos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
-
-    .passo {
-      text-align: center;
-      padding: 32px 22px;
-      background: var(--branco);
-      border: 1px solid var(--borda);
-      border-radius: 14px;
-      box-shadow: var(--sombra);
-      position: relative;
-    }
-
-    .passo-icone { font-size: 2.2rem; margin-bottom: 12px; display: block; }
-    .passo-num {
-      position: absolute;
-      top: -14px; left: 50%; transform: translateX(-50%);
-      width: 28px; height: 28px;
-      background: var(--azul);
-      color: var(--branco);
-      border-radius: 50%;
-      font-size: 0.8rem;
-      font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 8px rgba(27,79,114,0.3);
-    }
-    .passo h3 { font-size: 0.98rem; font-weight: 700; margin-bottom: 6px; }
-    .passo p { font-size: 0.86rem; color: var(--cinza-texto); line-height: 1.6; }
-
-    /* ── ROI ── */
-    .roi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; max-width: 860px; margin: 0 auto; }
-
-    .roi-card {
-      background: var(--branco);
-      border: 1px solid var(--borda);
-      border-radius: 14px;
-      padding: 28px 24px;
-      box-shadow: var(--sombra);
-      text-align: center;
-    }
-    .roi-card .roi-icone { font-size: 2rem; margin-bottom: 14px; display: block; }
-    .roi-card .roi-num { font-family: var(--titulo); font-size: 2.2rem; font-weight: 800; color: var(--azul); line-height: 1; margin-bottom: 6px; }
-    .roi-card .roi-desc { font-size: 0.88rem; color: var(--cinza-texto); line-height: 1.5; }
-
-    .roi-calculo {
-      background: var(--azul);
-      color: var(--branco);
-      border-radius: 16px;
-      padding: 32px 36px;
-      max-width: 680px;
-      margin: 48px auto 0;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 28px;
-      align-items: center;
-    }
-    @media (max-width: 580px) { .roi-calculo { grid-template-columns: 1fr; text-align: center; } }
-
-    .roi-calculo h3 { font-family: var(--titulo); font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
-    .roi-calculo p { font-size: 0.88rem; color: rgba(255,255,255,0.72); line-height: 1.6; }
-    .roi-calculo .roi-math { font-size: 0.85rem; color: rgba(255,255,255,0.85); line-height: 2; }
-    .roi-calculo .roi-math strong { color: var(--branco); font-size: 1rem; }
+    .passo { background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 14px; padding: 32px 24px; text-align: center; box-shadow: var(--sombra); }
+    .passo-num { width: 40px; height: 40px; background: var(--azul-medio); color: var(--branco); border-radius: 50%; font-size: 1rem; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .passo-icone { font-size: 2.2rem; margin-bottom: 12px; }
+    .passo h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .passo p { font-size: 0.87rem; color: var(--cinza-texto); line-height: 1.6; }
 
     /* ── Preços ── */
-    .precos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 740px; margin: 0 auto; }
-
-    .preco-card {
-      border: 2px solid var(--borda);
-      border-radius: 18px;
-      padding: 36px 28px;
-      text-align: center;
-      background: var(--branco);
-      position: relative;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .preco-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(13,33,55,0.12); }
-    .preco-card.destaque { border-color: var(--azul-medio); box-shadow: 0 8px 32px rgba(46,134,193,0.16); }
-
-    .preco-badge {
-      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
-      background: var(--azul-medio); color: var(--branco);
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px;
-      padding: 4px 16px; border-radius: 20px; white-space: nowrap;
-    }
-
-    .preco-plano { font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cinza-texto); margin-bottom: 14px; }
-    .preco-valor { font-family: var(--titulo); font-size: 2.8rem; font-weight: 800; color: var(--azul-escuro); line-height: 1; margin-bottom: 4px; }
+    .precos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; max-width: 840px; margin: 0 auto; }
+    .preco-card { border: 2px solid var(--cinza-borda); border-radius: 18px; padding: 40px 32px; background: var(--branco); position: relative; }
+    .preco-card.destaque { border-color: var(--azul-medio); box-shadow: 0 8px 32px rgba(46,134,193,0.18); }
+    .preco-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--azul-medio); color: var(--branco); font-size: 0.73rem; font-weight: 700; letter-spacing: 0.5px; padding: 4px 16px; border-radius: 20px; white-space: nowrap; }
+    .preco-nome { font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cinza-texto); margin-bottom: 14px; }
+    .preco-valor { font-family: var(--titulo); font-size: 3rem; font-weight: 800; color: var(--azul-escuro); line-height: 1; margin-bottom: 4px; }
     .preco-valor sup { font-size: 1.3rem; vertical-align: super; }
     .preco-valor .periodo { font-size: 1rem; font-weight: 400; color: var(--cinza-texto); }
-    .preco-desc { font-size: 0.88rem; color: var(--cinza-texto); margin: 10px 0 24px; }
-
-    .preco-lista { list-style: none; text-align: left; margin-bottom: 28px; }
-    .preco-lista li { font-size: 0.88rem; padding: 7px 0; border-bottom: 1px solid var(--borda); display: flex; align-items: center; gap: 10px; }
+    .preco-desc { font-size: 0.88rem; color: var(--cinza-texto); margin: 12px 0 28px; line-height: 1.6; }
+    .preco-lista { list-style: none; margin-bottom: 32px; }
+    .preco-lista li { font-size: 0.88rem; padding: 8px 0; border-bottom: 1px solid var(--cinza-borda); display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
     .preco-lista li:last-child { border-bottom: none; }
-    .check { width: 18px; height: 18px; min-width: 18px; background: var(--verde-claro); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--verde); font-size: 0.7rem; font-weight: 700; flex-shrink: 0; }
-    .em-breve { font-size: 0.68rem; background: #fef9e7; color: #9a7d0a; border: 1px solid #f0d060; padding: 2px 7px; border-radius: 8px; margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+    .check { width: 18px; height: 18px; min-width: 18px; background: var(--verde-claro); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--verde); font-size: 0.7rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+    .em-breve { font-size: 0.7rem; background: #fef9e7; color: #9a7d0a; border: 1px solid #f9e79f; padding: 2px 7px; border-radius: 10px; margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+    .btn-plano { display: block; width: 100%; padding: 13px; border-radius: var(--raio); font-size: 0.97rem; font-weight: 700; font-family: var(--corpo); cursor: pointer; border: none; transition: background 0.2s, transform 0.15s; text-decoration: none; text-align: center; }
+    .btn-plano-primario { background: var(--azul-medio); color: var(--branco); box-shadow: 0 4px 16px rgba(46,134,193,0.3); }
+    .btn-plano-primario:hover { background: #2473a8; transform: translateY(-1px); }
+    .btn-plano-secundario { background: var(--cinza-fundo); color: var(--azul-escuro); border: 1px solid var(--cinza-borda); }
+    .btn-plano-secundario:hover { background: #e8edf4; }
+    .precos-nota { text-align: center; margin-top: 28px; font-size: 0.83rem; color: var(--cinza-texto); }
 
-    .btn-plano {
-      display: block; width: 100%; padding: 13px;
-      border-radius: var(--raio); font-family: var(--corpo); font-size: 0.95rem; font-weight: 700;
-      cursor: pointer; border: none; transition: background 0.2s, transform 0.1s;
-    }
-    .btn-plano-azul { background: var(--azul); color: var(--branco); box-shadow: 0 4px 14px rgba(27,79,114,0.3); }
-    .btn-plano-azul:hover { background: var(--azul-medio); transform: translateY(-1px); }
-    .btn-plano-ghost { background: var(--cinza-fundo); color: var(--azul-escuro); border: 1px solid var(--borda); }
-    .btn-plano-ghost:hover { background: #e8edf4; }
-
-    .precos-nota { text-align: center; margin-top: 24px; font-size: 0.83rem; color: var(--cinza-texto); }
+    /* ── Testemunho placeholder ── */
+    .testemunho-wrap { background: var(--azul-escuro); border-radius: 18px; padding: 52px 40px; text-align: center; max-width: 680px; margin: 0 auto; }
+    .testemunho-wrap .aspas { font-family: var(--titulo); font-size: 5rem; line-height: 0.7; color: var(--azul-medio); margin-bottom: 20px; }
+    .testemunho-wrap p { font-size: 1.05rem; color: rgba(255,255,255,0.68); font-style: italic; line-height: 1.7; margin-bottom: 28px; }
+    .testemunho-wrap a { display: inline-block; background: rgba(46,134,193,0.2); border: 1px solid rgba(46,134,193,0.4); color: var(--azul-medio); padding: 10px 22px; border-radius: 8px; font-size: 0.88rem; font-weight: 600; text-decoration: none; transition: background 0.2s; }
+    .testemunho-wrap a:hover { background: rgba(46,134,193,0.32); }
 
     /* ── Form ── */
-    .form-box {
-      background: var(--branco);
-      border: 1.5px solid var(--borda);
-      border-radius: 18px;
-      padding: 44px 40px;
-      max-width: 600px;
-      margin: 0 auto;
-      box-shadow: 0 8px 40px rgba(13,33,55,0.08);
-    }
-    @media (max-width: 580px) { .form-box { padding: 32px 20px; } }
-
+    .form-interesse { background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 18px; padding: 44px; max-width: 620px; margin: 0 auto; box-shadow: 0 8px 40px rgba(13,33,55,0.09); }
     .form-grupo { margin-bottom: 16px; }
-    .form-grupo label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; }
-    .form-grupo input, .form-grupo select {
-      width: 100%; padding: 11px 14px;
-      border: 1.5px solid var(--borda); border-radius: var(--raio);
-      font-size: 0.95rem; font-family: var(--corpo);
-      color: var(--azul-escuro); background: var(--branco);
-      transition: border-color 0.2s; outline: none;
-    }
+    .form-grupo label { display: block; font-size: 0.87rem; font-weight: 600; margin-bottom: 6px; }
+    .form-grupo input, .form-grupo select { width: 100%; padding: 11px 15px; border: 1.5px solid var(--cinza-borda); border-radius: var(--raio); font-size: 1rem; font-family: var(--corpo); color: var(--azul-escuro); background: var(--branco); transition: border-color 0.2s; outline: none; }
     .form-grupo input:focus, .form-grupo select:focus { border-color: var(--azul-medio); }
-    .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 480px) { .form-2col { grid-template-columns: 1fr; } }
-
-    .btn-form {
-      width: 100%; padding: 14px; margin-top: 6px;
-      background: var(--azul); color: var(--branco);
-      border: none; border-radius: var(--raio);
-      font-family: var(--corpo); font-size: 1rem; font-weight: 700;
-      cursor: pointer; transition: background 0.2s, transform 0.1s;
-      box-shadow: 0 4px 16px rgba(27,79,114,0.28);
-    }
-    .btn-form:hover { background: var(--azul-medio); transform: translateY(-1px); }
-
+    .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .btn-form { width: 100%; padding: 14px; background: var(--azul-medio); color: var(--branco); border: none; border-radius: var(--raio); font-size: 1rem; font-weight: 700; font-family: var(--corpo); cursor: pointer; margin-top: 6px; transition: background 0.2s, transform 0.15s; box-shadow: 0 4px 16px rgba(46,134,193,0.3); }
+    .btn-form:hover { background: #2473a8; transform: translateY(-1px); }
+    .btn-form:disabled { background: #7fa8c8; cursor: default; transform: none; }
     .form-nota { text-align: center; font-size: 0.8rem; color: var(--cinza-texto); margin-top: 12px; }
-    .form-erro { text-align: center; font-size: 0.82rem; color: #c0392b; font-weight: 600; display: none; margin-top: 10px; }
-
-    .form-sucesso { text-align: center; padding: 20px 0; display: none; }
-    .form-sucesso .suc-icone { font-size: 2.8rem; margin-bottom: 12px; }
+    .form-erro { display: none; text-align: center; font-size: 0.82rem; font-weight: 600; color: #c0392b; margin-top: 10px; }
+    .form-sucesso { display: none; text-align: center; padding: 12px 0; }
+    .form-sucesso .icone { font-size: 2.8rem; margin-bottom: 12px; }
     .form-sucesso h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; }
     .form-sucesso p { color: var(--cinza-texto); font-size: 0.9rem; }
 
-    /* ── CTA Final ── */
-    .cta-final {
-      background-color: var(--azul-escuro);
-      background-image: repeating-linear-gradient(-45deg, transparent 0px, transparent 18px, rgba(255,255,255,0.03) 18px, rgba(255,255,255,0.03) 19px);
-      color: var(--branco); padding: 80px 0; text-align: center;
-    }
-    .cta-final h2 { font-family: var(--titulo); font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 800; letter-spacing: -0.3px; margin-bottom: 14px; }
-    .cta-final p { color: rgba(255,255,255,0.68); font-size: 1rem; margin-bottom: 36px; max-width: 480px; margin-left: auto; margin-right: auto; }
+    /* ── CTA final ── */
+    .cta-final { background-color: var(--azul); background-image: repeating-linear-gradient(-45deg, transparent 0, transparent 18px, rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 19px); padding: 72px 0; text-align: center; }
+    .cta-final h2 { font-family: var(--titulo); font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 800; color: var(--branco); margin-bottom: 14px; letter-spacing: -0.4px; }
+    .cta-final p { color: rgba(255,255,255,0.7); font-size: 1rem; margin-bottom: 36px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.7; }
 
     /* ── Footer ── */
-    footer { background: var(--azul-escuro); color: rgba(255,255,255,0.55); padding: 28px 0; text-align: center; font-size: 0.82rem; }
-    footer strong { color: rgba(255,255,255,0.75); }
+    footer { background: var(--azul-escuro); color: rgba(255,255,255,0.55); padding: 28px 0; text-align: center; font-size: 0.82rem; line-height: 1.8; }
+    footer a { color: rgba(255,255,255,0.6); text-decoration: none; }
+    footer a:hover { color: var(--branco); }
 
-    /* ── Responsive geral ── */
-    @media (max-width: 640px) {
-      .hero { padding: 56px 0 48px; }
-      .hero-stats { gap: 28px; }
-      .secao { padding: 56px 0; }
+    @media (max-width: 520px) {
+      .hero { padding: 56px 0 52px; }
+      .secao { padding: 52px 0; }
+      .form-2col { grid-template-columns: 1fr; }
+      .form-interesse { padding: 28px 18px; }
+      .testemunho-wrap { padding: 36px 24px; }
+      .hero-credenciais { gap: 24px; }
+      .preco-card { padding: 32px 22px; }
     }
   </style>
 </head>
@@ -464,15 +183,15 @@
     <div class="container header-inner">
       <a href="/" class="logo">
         <div class="logo-icone">
-          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
         </div>
         <span class="logo-nome">Melhor Zona<span>.pt</span></span>
       </a>
       <nav>
         <a href="/">Para famílias</a>
-        <a href="#demo">Ver relatório</a>
+        <a href="#como-funciona">Como funciona</a>
         <a href="#precos">Preços</a>
-        <a href="#contacto" class="btn-nav">Falar connosco →</a>
+        <a href="#interesse" class="btn-nav">Solicitar demo →</a>
       </nav>
     </div>
   </header>
@@ -482,131 +201,64 @@
   <!-- ── Hero ── -->
   <section class="hero">
     <div class="container">
-      <div class="hero-label">Para Imobiliárias &amp; Consultores</div>
-      <h1>O seu cliente pergunta<br><em>"É segura esta zona?"</em><br>e você ainda procura no Google?</h1>
+      <div class="hero-badge">Para Imobiliárias</div>
+      <h1>Os seus clientes merecem<br><em>dados, não apenas fotos</em></h1>
       <p class="hero-sub">
-        Relatórios de qualidade de vida por freguesia — segurança, rendas, transportes, escolas —
-        prontos em 30 segundos, com o branding da sua agência.
-        Dados oficiais INE, ACSS e DGEEC. Nenhum concorrente tem isto.
+        Envie um relatório de qualidade de vida antes de cada visita — segurança, transportes, escolas, rendas. Com o branding da sua agência.
       </p>
       <div class="hero-ctas">
-        <a href="#contacto" class="btn-primario">Quero uma demonstração →</a>
-        <a href="https://melhorzona.pt/relatorio.html?freguesia=Arroios&municipio=Lisboa" target="_blank" class="btn-demo">Ver relatório de exemplo ↗</a>
+        <a href="#interesse" class="btn-principal">Solicitar demo →</a>
+        <a href="#casos" class="btn-secundario">Ver casos de uso</a>
       </div>
-      <div class="hero-stats">
-        <div class="stat">
-          <span class="stat-num">3 259</span>
-          <span class="stat-label">freguesias cobertas</span>
-        </div>
-        <div class="stat">
-          <span class="stat-num">< 30s</span>
-          <span class="stat-label">do imóvel ao relatório</span>
-        </div>
-        <div class="stat">
-          <span class="stat-num">€49</span>
-          <span class="stat-label">por mês, tudo incluído</span>
-        </div>
-        <div class="stat">
-          <span class="stat-num">INE</span>
-          <span class="stat-label">dados oficiais verificados</span>
-        </div>
+      <div class="hero-credenciais">
+        <div class="cred"><span class="cred-num">3 259</span><span class="cred-label">freguesias cobertas</span></div>
+        <div class="cred"><span class="cred-num">INE</span><span class="cred-label">dados verificados 2024</span></div>
+        <div class="cred"><span class="cred-num">PDF</span><span class="cred-label">branding da agência</span></div>
+        <div class="cred"><span class="cred-num">30s</span><span class="cred-label">para gerar o relatório</span></div>
       </div>
     </div>
   </section>
 
-  <!-- ── Antes / Depois ── -->
-  <section class="secao">
+  <!-- ── Casos de uso ── -->
+  <section class="secao secao-cinza" id="casos">
     <div class="container">
       <div class="secao-titulo">
-        <p class="pre-titulo">O problema que resolvemos</p>
-        <h2>A diferença entre perder e fechar o negócio</h2>
-        <p>O cliente indeciso não precisa de mais visitas. Precisa de dados que confiram segurança à decisão.</p>
+        <p class="pre-titulo">Casos de uso reais</p>
+        <h2>Quando os dados fazem a diferença</h2>
+        <p>Três situações onde um relatório de qualidade de vida muda o resultado da negociação.</p>
       </div>
-      <div class="antes-depois">
-        <div class="ad-card ad-antes">
-          <div class="ad-label">✗ &nbsp;Hoje (sem Melhor Zona)</div>
-          <ul class="ad-items">
-            <li><span class="icone">😓</span> Cliente pergunta se a zona é segura — você não tem números, responde por impressão</li>
-            <li><span class="icone">📱</span> Pesquisa no Google Maps + fóruns + comparações manuais (20–30 minutos)</li>
-            <li><span class="icone">📄</span> Envia PDF genérico sem dados ou não envia nada</li>
-            <li><span class="icone">⏳</span> Cliente pede mais tempo para "pensar" — e às vezes nunca volta</li>
-            <li><span class="icone">💸</span> Concorrente que mostrou dados fecha o negócio que era seu</li>
-          </ul>
-        </div>
-        <div class="ad-card ad-depois">
-          <div class="ad-label">✓ &nbsp;Com Melhor Zona</div>
-          <ul class="ad-items">
-            <li><span class="icone">✅</span> Pesquisa a freguesia e o relatório está pronto em 30 segundos</li>
-            <li><span class="icone">📊</span> Dados reais do INE: segurança, rendas, transportes, escolas, saúde</li>
-            <li><span class="icone">📄</span> PDF com o logo da sua agência — documento profissional que o cliente guarda</li>
-            <li><span class="icone">🤝</span> Cliente chega à visita já informado, com menos objecções</li>
-            <li><span class="icone">🏆</span> Posiciona-se como o consultor que usa dados — não opiniões</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
+      <div class="casos-grid">
 
-  <!-- ── Demo do relatório ── -->
-  <section class="secao secao-cinza" id="demo">
-    <div class="container">
-      <div class="secao-titulo">
-        <p class="pre-titulo">O produto real</p>
-        <h2>Isto é o que o seu cliente vai receber</h2>
-        <p>Relatório de Arroios, Lisboa — dados reais do INE, ACSS e DGEEC. Clique para ver ao vivo.</p>
-      </div>
-      <div class="relatorio-demo">
-        <div class="relatorio-header">
-          <div class="relatorio-header-info">
-            <h3>Arroios</h3>
-            <p>Freguesia de Lisboa · Portugal</p>
-            <p style="margin-top:6px; font-size:0.78rem; background:rgba(255,255,255,0.12); display:inline-block; padding:3px 10px; border-radius:10px;">Zona suburbana · 33 400 hab.</p>
-          </div>
-          <div class="relatorio-score-circulo">
-            <span class="relatorio-score-num">67</span>
-            <span class="relatorio-score-de">/ 100</span>
+        <div class="caso-card">
+          <span class="caso-tag caso-tag-familia">Família</span>
+          <h3>Relocalização: de Lisboa para o Porto</h3>
+          <p>Uma família quer sair de Lisboa mas não conhece as zonas do Porto. O consultor envia o comparativo de 3 freguesias antes da primeira visita — a família chega decidida e fecha em 2 visitas em vez de 8.</p>
+          <div class="caso-roi">
+            <span class="caso-roi-num">−75%</span>
+            <span class="caso-roi-desc">visitas necessárias quando o cliente chega informado</span>
           </div>
         </div>
-        <div class="relatorio-indicadores">
-          <div class="ind-item">
-            <div class="ind-nome">Segurança</div>
-            <div class="ind-valor">5<span style="font-size:0.9rem;font-weight:500">/10</span></div>
-            <div class="ind-detalhe">41,9 crimes/1000 hab · INE 2023</div>
-            <span class="ind-badge badge-medio">Médio</span>
-          </div>
-          <div class="ind-item">
-            <div class="ind-nome">Arrendamento</div>
-            <div class="ind-valor">€15,93</div>
-            <div class="ind-detalhe">por m² · mediana INE 2024</div>
-            <span class="ind-badge badge-fraco">Acima da média</span>
-          </div>
-          <div class="ind-item">
-            <div class="ind-nome">Score geral</div>
-            <div class="ind-valor">6,7<span style="font-size:0.9rem;font-weight:500">/10</span></div>
-            <div class="ind-detalhe">Índice composto · Melhor Zona</div>
-            <span class="ind-badge badge-medio">Zona em crescimento</span>
-          </div>
-          <div class="ind-item" style="border-bottom:none">
-            <div class="ind-nome">Análise IA</div>
-            <div style="font-size:0.82rem; color:var(--cinza-texto); line-height:1.55; margin-top:4px">
-              "Arroios atrai famílias que procuram proximidade a Lisboa com custos mais moderados que o centro..."
-            </div>
-          </div>
-          <div class="ind-item" style="border-bottom:none">
-            <div class="ind-nome">Ensino</div>
-            <div class="ind-valor" style="color:var(--cinza-texto);font-size:1rem;margin-top:6px">🔒 Relatório completo</div>
-            <div class="ind-detalhe">Cobertura escolar · DGEEC 2023</div>
-          </div>
-          <div class="ind-item" style="border-bottom:none;border-right:none">
-            <div class="ind-nome">Qualidade de Vida</div>
-            <div class="ind-valor" style="color:var(--cinza-texto);font-size:1rem;margin-top:6px">🔒 Relatório completo</div>
-            <div class="ind-detalhe">Score composto · Melhor Zona</div>
+
+        <div class="caso-card">
+          <span class="caso-tag caso-tag-investidor">Investidor</span>
+          <h3>Comparação de rendimento por zona</h3>
+          <p>Um investidor quer perceber qual das 3 zonas tem melhor rácio segurança/arrendamento. Em vez de pesquisa dispersa, o consultor entrega a comparação lado a lado — com dados INE 2024, não estimativas.</p>
+          <div class="caso-roi">
+            <span class="caso-roi-num">45 min</span>
+            <span class="caso-roi-desc">poupados por cliente em research manual</span>
           </div>
         </div>
-        <div class="relatorio-footer">
-          <p>Dados INE Censos 2021 · INE Rendas 2024 · Análise Claude AI · Melhor Zona 2026</p>
-          <a href="https://melhorzona.pt/relatorio.html?freguesia=Arroios&municipio=Lisboa" target="_blank" rel="noopener" class="btn-ver-demo">Ver relatório completo ao vivo ↗</a>
+
+        <div class="caso-card">
+          <span class="caso-tag caso-tag-agencia">Agência</span>
+          <h3>Diferenciação da concorrência</h3>
+          <p>Duas agências apresentam o mesmo imóvel. Uma envia o PDF de qualidade de vida com o logo da agência antes da visita. A outra não. O cliente escolhe quem demonstra mais conhecimento da zona.</p>
+          <div class="caso-roi">
+            <span class="caso-roi-num">+NPS</span>
+            <span class="caso-roi-desc">clientes que recebem dados confiam mais e recomendam mais</span>
+          </div>
         </div>
+
       </div>
     </div>
   </section>
@@ -617,134 +269,110 @@
       <div class="secao-titulo">
         <p class="pre-titulo">Fluxo de trabalho</p>
         <h2>Do imóvel ao relatório em 30 segundos</h2>
-        <p>Sem instalação, sem exportações manuais, sem Excel. Funciona no telemóvel do consultor.</p>
+        <p>Sem exportações manuais. Sem Excel. O consultor pesquisa a freguesia e o relatório está pronto.</p>
       </div>
       <div class="passos">
         <div class="passo">
+          <div class="passo-icone">🏠</div>
           <div class="passo-num">1</div>
-          <span class="passo-icone">🏠</span>
-          <h3>Consultor pesquisa a freguesia</h3>
-          <p>Escreve o nome da freguesia onde se localiza o imóvel — em qualquer dispositivo, em qualquer lugar.</p>
+          <h3>Pesquisa a freguesia</h3>
+          <p>O consultor escreve o nome da freguesia onde fica o imóvel. Em qualquer dispositivo.</p>
         </div>
         <div class="passo">
+          <div class="passo-icone">📊</div>
           <div class="passo-num">2</div>
-          <span class="passo-icone">📊</span>
           <h3>Relatório gerado automaticamente</h3>
-          <p>Score de qualidade de vida, segurança com dados reais, rendas medianas INE, análise IA contextualizada.</p>
+          <p>Segurança, rendas, transportes, escolas e saúde — dados INE e ACSS actualizados.</p>
         </div>
         <div class="passo">
+          <div class="passo-icone">📄</div>
           <div class="passo-num">3</div>
-          <span class="passo-icone">📱</span>
-          <h3>Partilha com o cliente</h3>
-          <p>Envia o link ou o PDF (com o logo da agência) por WhatsApp ou email antes da visita.</p>
+          <h3>PDF com o logo da agência</h3>
+          <p>Exporta com o branding da agência e envia ao cliente antes da visita.</p>
         </div>
         <div class="passo">
+          <div class="passo-icone">🤝</div>
           <div class="passo-num">4</div>
-          <span class="passo-icone">🤝</span>
-          <h3>Visita mais produtiva</h3>
-          <p>O cliente chega informado. Menos "deixe-me pensar". Decisão mais rápida, menos objecções.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── ROI ── -->
-  <section class="secao secao-cinza">
-    <div class="container">
-      <div class="secao-titulo">
-        <p class="pre-titulo">Retorno sobre investimento</p>
-        <h2>€49/mês. Uma comissão fecha o negócio</h2>
-        <p>Não precisamos de convencê-lo. Os números fazem isso por nós.</p>
-      </div>
-      <div class="roi-grid">
-        <div class="roi-card">
-          <span class="roi-icone">⏱️</span>
-          <div class="roi-num">30s</div>
-          <div class="roi-desc">De tempo por consulta, contra 20–30 minutos de pesquisa manual hoje</div>
-        </div>
-        <div class="roi-card">
-          <span class="roi-icone">🇵🇹</span>
-          <div class="roi-num">3 259</div>
-          <div class="roi-desc">Freguesias cobertas — do Algarve aos Açores, sem excepções</div>
-        </div>
-        <div class="roi-card">
-          <span class="roi-icone">🏆</span>
-          <div class="roi-num">0</div>
-          <div class="roi-desc">Concorrentes em Portugal com dados INE por freguesia desta forma</div>
-        </div>
-      </div>
-      <div class="roi-calculo">
-        <div>
-          <h3>A matemática é simples</h3>
-          <p>Uma comissão média em Portugal ronda os €3 000–5 000. Se o relatório ajudar a fechar um negócio extra por semestre, o retorno é de 30× a 50×.</p>
-        </div>
-        <div class="roi-math">
-          Subscrição: <strong>€49/mês</strong><br>
-          Custo anual: <strong>€588</strong><br>
-          1 negócio extra/semestre: <strong>€3 000+</strong><br>
-          Retorno: <strong>> 5× no 1.º ano</strong>
+          <h3>Cliente decide com confiança</h3>
+          <p>Menos objecções, menos visitas desnecessárias, decisão mais rápida.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ── Preços ── -->
-  <section class="secao" id="precos">
+  <section class="secao secao-cinza" id="precos">
     <div class="container">
       <div class="secao-titulo">
         <p class="pre-titulo">Preços</p>
-        <h2>Simples. Sem surpresas.</h2>
-        <p>Relatórios ilimitados para todas as 3 259 freguesias. Cancela quando quiser.</p>
+        <h2>Simples e transparente</h2>
+        <p>Relatórios ilimitados, sem custo por utilização. Cancele quando quiser.</p>
       </div>
       <div class="precos-grid">
 
         <div class="preco-card">
-          <p class="preco-plano">Consultor individual</p>
+          <p class="preco-nome">Hub</p>
           <div class="preco-valor"><sup>€</sup>49<span class="periodo">/mês</span></div>
-          <p class="preco-desc">Ideal para independentes e pequenas equipas.</p>
+          <p class="preco-desc">Para consultores independentes e pequenas agências. Acesso completo sem custos por utilização.</p>
           <ul class="preco-lista">
             <li><span class="check">✓</span> 1 utilizador</li>
-            <li><span class="check">✓</span> Relatórios ilimitados</li>
-            <li><span class="check">✓</span> Todas as 3 259 freguesias</li>
-            <li><span class="check">✓</span> Score + indicadores completos</li>
+            <li><span class="check">✓</span> Relatórios ilimitados — 3 259 freguesias</li>
+            <li><span class="check">✓</span> Score e indicadores completos (segurança, rendas, transportes)</li>
             <li><span class="check">✓</span> Análise IA por freguesia</li>
-            <li><span class="check">✓</span> PDF com branding <span class="em-breve">Em breve</span></li>
+            <li><span class="check">✓</span> Exportação PDF <span class="em-breve">Em breve</span></li>
+            <li><span class="check">✓</span> Branding da agência no PDF <span class="em-breve">Em breve</span></li>
           </ul>
-          <button class="btn-plano btn-plano-ghost" onclick="document.getElementById('contacto').scrollIntoView({behavior:'smooth'})">Quero este plano</button>
+          <button class="btn-plano btn-plano-secundario" onclick="document.getElementById('interesse').scrollIntoView({behavior:'smooth'})">Entrar na lista de espera</button>
         </div>
 
         <div class="preco-card destaque">
-          <div class="preco-badge">Mais popular</div>
-          <p class="preco-plano">Equipa</p>
-          <div class="preco-valor"><sup>€</sup>99<span class="periodo">/mês</span></div>
-          <p class="preco-desc">Para agências com vários consultores activos.</p>
+          <div class="preco-badge">Para redes imobiliárias</div>
+          <p class="preco-nome">Rede</p>
+          <div class="preco-valor"><sup>€</sup>800<span class="periodo">/mês</span></div>
+          <p class="preco-desc">Para redes e franchisings com múltiplas agências. White-label, API e gestor de conta dedicado.</p>
           <ul class="preco-lista">
-            <li><span class="check">✓</span> Até 5 utilizadores</li>
-            <li><span class="check">✓</span> Relatórios ilimitados</li>
-            <li><span class="check">✓</span> Todas as 3 259 freguesias</li>
-            <li><span class="check">✓</span> Score + indicadores completos</li>
-            <li><span class="check">✓</span> Análise IA por freguesia</li>
-            <li><span class="check">✓</span> PDF com branding <span class="em-breve">Em breve</span></li>
-            <li><span class="check">✓</span> Suporte prioritário</li>
+            <li><span class="check">✓</span> Utilizadores ilimitados</li>
+            <li><span class="check">✓</span> Relatórios ilimitados — 3 259 freguesias</li>
+            <li><span class="check">✓</span> White-label — sem menção à Melhor Zona</li>
+            <li><span class="check">✓</span> API para integração com CRM da rede</li>
+            <li><span class="check">✓</span> PDF com branding por agência</li>
+            <li><span class="check">✓</span> Gestor de conta dedicado</li>
+            <li><span class="check">✓</span> SLA e facturação centralizada</li>
           </ul>
-          <button class="btn-plano btn-plano-azul" onclick="document.getElementById('contacto').scrollIntoView({behavior:'smooth'})">Agendar demonstração →</button>
+          <a href="mailto:ola@melhorzona.pt?subject=Demo%20Rede%20Imobili%C3%A1rias&body=Ol%C3%A1%2C%0A%0AGostaria%20de%20agendar%20uma%20demo%20do%20plano%20Rede.%0A%0ANome%20da%20rede%3A%20%0AN%C3%BAmero%20de%20ag%C3%AAncias%3A%20%0AContacto%3A%20" class="btn-plano btn-plano-primario">Solicitar demo →</a>
         </div>
 
       </div>
-      <p class="precos-nota">Preços de lançamento · Os primeiros parceiros têm condições especiais garantidas</p>
+      <p class="precos-nota">Preços em fase de validação · Acesso antecipado com desconto de lançamento</p>
     </div>
   </section>
 
-  <!-- ── Contacto / Form ── -->
-  <section class="secao secao-cinza" id="contacto">
+  <!-- ── Testemunho placeholder ── -->
+  <section class="secao">
     <div class="container">
       <div class="secao-titulo">
-        <p class="pre-titulo">Demonstração</p>
-        <h2>Veja o produto ao vivo em 15 minutos</h2>
-        <p>Deixe o seu contacto e marcamos uma chamada — sem compromisso, sem argumentário de vendas.</p>
+        <p class="pre-titulo">Primeiros utilizadores</p>
+        <h2>Em breve — seja o primeiro a experimentar</h2>
+        <p>O produto está em fase de acesso antecipado. Os primeiros parceiros têm desconto de lançamento e influência directa no produto.</p>
+      </div>
+      <div class="testemunho-wrap">
+        <div class="aspas">"</div>
+        <p>Em breve aqui o que os primeiros consultores e agências dizem sobre como o relatório de qualidade de vida mudou a forma como apresentam imóveis aos seus clientes.</p>
+        <a href="mailto:ola@melhorzona.pt?subject=Quero%20testar%20a%20Melhor%20Zona&body=Ol%C3%A1%2C%0A%0AQuero%20ser%20um%20dos%20primeiros%20a%20experimentar%20a%20Melhor%20Zona%20para%20imobili%C3%A1rias.%0A%0ANome%3A%20%0AAgência%3A%20">Seja o primeiro a experimentar →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Form de interesse ── -->
+  <section class="secao secao-cinza" id="interesse">
+    <div class="container">
+      <div class="secao-titulo">
+        <p class="pre-titulo">Lista de Espera</p>
+        <h2>Quero acesso antecipado</h2>
+        <p>Deixe o seu contacto e avisamo-lo antes do lançamento — com condições exclusivas para os primeiros parceiros.</p>
       </div>
 
-      <div class="form-box">
+      <div class="form-interesse">
         <form id="form-agencia">
           <div class="form-2col">
             <div class="form-grupo">
@@ -752,7 +380,7 @@
               <input type="text" id="nome" placeholder="Ana Silva" required>
             </div>
             <div class="form-grupo">
-              <label for="agencia">Agência</label>
+              <label for="agencia">Agência / Rede</label>
               <input type="text" id="agencia" placeholder="Nome da agência" required>
             </div>
           </div>
@@ -761,24 +389,23 @@
             <input type="email" id="email-agencia" placeholder="ana@agencia.pt" required>
           </div>
           <div class="form-grupo">
-            <label for="consultores">Número de consultores na agência</label>
+            <label for="consultores">Número de consultores</label>
             <select id="consultores">
               <option value="">Seleccione...</option>
               <option value="1">Só eu (1 consultor)</option>
               <option value="2-5">2 a 5 consultores</option>
-              <option value="6-15">6 a 15 consultores</option>
-              <option value="16+">Mais de 15 consultores</option>
+              <option value="6-15">6 a 15 consultores (Hub)</option>
+              <option value="16+">Mais de 15 / rede imobiliária (Rede)</option>
             </select>
           </div>
-          <button type="submit" class="btn-form" id="btn-submit">Quero uma demonstração de 15 min →</button>
-          <p class="form-nota" id="form-nota">Respondemos em menos de 24h. Sem spam.</p>
-          <p class="form-erro" id="form-erro">Ocorreu um erro. Envie-nos um email para <a href="mailto:ola@melhorzona.pt">ola@melhorzona.pt</a></p>
+          <button type="submit" class="btn-form" id="btn-form-submit">Quero acesso antecipado →</button>
+          <p class="form-nota" id="form-nota">Sem spam. Avisamo-lo quando estiver disponível.</p>
+          <p class="form-erro" id="form-erro">Ocorreu um erro. Envie-nos um email para <a href="mailto:ola@melhorzona.pt">ola@melhorzona.pt</a>.</p>
         </form>
-
         <div class="form-sucesso" id="form-sucesso">
-          <div class="suc-icone">✅</div>
-          <h3>Mensagem recebida!</h3>
-          <p>Vamos contactá-lo em menos de 24 horas para marcar a demonstração.</p>
+          <div class="icone">✅</div>
+          <h3>Ficou na lista!</h3>
+          <p>Avisamo-lo por email antes do lançamento, com condições exclusivas para os primeiros parceiros.</p>
         </div>
       </div>
     </div>
@@ -787,9 +414,9 @@
   <!-- ── CTA Final ── -->
   <section class="cta-final">
     <div class="container">
-      <h2>O consultor que mostra dados<br>fecha mais negócios</h2>
-      <p>Os primeiros parceiros têm acesso antecipado e condições de lançamento garantidas.</p>
-      <a href="#contacto" class="btn-primario">Agendar demonstração →</a>
+      <h2>Os dados que os seus clientes procuram, com o seu nome</h2>
+      <p>Os primeiros parceiros têm desconto de lançamento e influência directa no produto.</p>
+      <a href="#interesse" class="btn-principal">Entrar na lista de espera →</a>
     </div>
   </section>
 
@@ -798,14 +425,14 @@
   <!-- ── Footer ── -->
   <footer>
     <div class="container">
-      <p>&copy; 2026 <strong>Melhor Zona</strong> · <a href="mailto:ola@melhorzona.pt" style="color:inherit">ola@melhorzona.pt</a> · <a href="/" style="color:inherit">Para famílias</a> · <a href="/privacidade.html" style="color:inherit">Privacidade</a> · Dados públicos INE, ACSS, DGEEC, APA · Feito em Portugal 🇵🇹</p>
+      <p>&copy; 2026 <strong>Melhor Zona</strong> · <a href="mailto:ola@melhorzona.pt">ola@melhorzona.pt</a> · <a href="/">Para famílias</a> · <a href="/privacidade.html">Privacidade</a> · Dados públicos INE, ACSS, DGEEC · Feito em Portugal</p>
     </div>
   </footer>
 
   <script>
     var WORKER_LISTA = 'https://melhorzona-lista-espera.matheusmottas.workers.dev';
 
-    document.getElementById('form-agencia').addEventListener('submit', function (e) {
+    document.getElementById('form-agencia').addEventListener('submit', function(e) {
       e.preventDefault();
 
       var nome    = document.getElementById('nome').value.trim();
@@ -813,16 +440,16 @@
       var email   = document.getElementById('email-agencia').value.trim();
       var tamanho = document.getElementById('consultores').value;
 
-      var btn  = document.getElementById('btn-submit');
-      var erro = document.getElementById('form-erro');
+      var btn  = document.getElementById('btn-form-submit');
       var nota = document.getElementById('form-nota');
+      var erro = document.getElementById('form-erro');
 
       btn.disabled    = true;
       btn.textContent = 'A enviar…';
       erro.style.display = 'none';
 
       fetch(WORKER_LISTA, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: email,
@@ -830,21 +457,21 @@
           notas: 'Nome: ' + nome + ' | Agência: ' + agencia + ' | Consultores: ' + (tamanho || 'n/a'),
         }),
       })
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (d.success) {
+      .then(function(r) { return r.json(); })
+      .then(function(dados) {
+        if (dados.success) {
           document.getElementById('form-agencia').style.display = 'none';
           document.getElementById('form-sucesso').style.display = 'block';
         } else {
-          btn.disabled = false;
-          btn.textContent = 'Quero uma demonstração de 15 min →';
+          btn.disabled    = false;
+          btn.textContent = 'Quero acesso antecipado →';
           nota.style.display = 'none';
           erro.style.display = 'block';
         }
       })
-      .catch(function () {
-        btn.disabled = false;
-        btn.textContent = 'Quero uma demonstração de 15 min →';
+      .catch(function() {
+        btn.disabled    = false;
+        btn.textContent = 'Quero acesso antecipado →';
         nota.style.display = 'none';
         erro.style.display = 'block';
       });
@@ -857,5 +484,6 @@
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
     plausible.init()
   </script>
+
 </body>
 </html>
