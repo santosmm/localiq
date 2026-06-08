@@ -2,12 +2,11 @@ name = "melhorzona-stripe-checkout"
 main = "stripe-checkout.js"
 compatibility_date = "2025-05-31"
 
-# STRIPE_PRICE_ID: substituir pelo price_ID criado no Stripe Dashboard
-# (ex: price_1Abc...)
-# Após criar o produto "Relatório Completo" em stripe.com/dashboard,
-# copiar o price_ID para cá e fazer deploy.
+# Substituir pelos price_ID reais criados no Stripe Dashboard
+# Ver instruções em CLAUDE.md → secção Stripe
 [vars]
-STRIPE_PRICE_ID = "price_1Tg7ZQI5eO03eCdnFULIEZUf"
+STRIPE_PRICE_ID_UNITARIO = "STRIPE_PRICE_ID_UNITARIO"
+STRIPE_PRICE_ID_MENSAL   = "STRIPE_PRICE_ID_MENSAL"
 
-# STRIPE_SECRET_KEY: adicionar como secret (nunca em texto claro)
-# cd workers && printf 'sk_test_...' | wrangler secret put STRIPE_SECRET_KEY --config stripe-checkout.toml
+# Secrets (nunca em texto claro — usar wrangler secret put):
+# cd workers && printf 'sk_live_...' | wrangler secret put STRIPE_SECRET_KEY --config stripe-checkout.toml

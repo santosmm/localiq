@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagamento confirmado · Melhor Zona</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --azul-escuro: #1B4F72;
+      --azul:        #2E86C1;
+      --azul-claro:  #D6E8F5;
+      --branco:      #ffffff;
+      --cinza:       #f4f7fa;
+      --titulo:      'Playfair Display', Georgia, serif;
+      --corpo:       'Inter', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--corpo);
+      background: var(--cinza);
+      color: #1a2e3e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      background: var(--azul-escuro);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-logo {
+      font-family: var(--titulo);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--branco);
+      text-decoration: none;
+    }
+
+    .nav-logo strong { font-weight: 800; }
+    .nav-logo span   { opacity: 0.6; }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--azul-escuro);
+      padding: 60px 24px 80px;
+      text-align: center;
+    }
+
+    .hero-icone {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .hero h1 {
+      font-family: var(--titulo);
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 800;
+      color: var(--branco);
+      margin-bottom: 12px;
+      letter-spacing: -0.3px;
+    }
+
+    .hero p {
+      color: rgba(255,255,255,0.72);
+      font-size: 1.05rem;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+
+    /* ── Card central ── */
+    .card-wrapper {
+      max-width: 520px;
+      margin: -40px auto 0;
+      padding: 0 20px 60px;
+    }
+
+    .card {
+      background: var(--branco);
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(27,79,114,0.12);
+      padding: 36px 32px;
+      text-align: center;
+    }
+
+    .card-loading { color: #566779; font-size: 0.95rem; }
+
+    .card-titulo {
+      font-family: var(--titulo);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--azul-escuro);
+      margin-bottom: 10px;
+    }
+
+    .card-desc {
+      color: #566779;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .btn-voltar {
+      display: inline-block;
+      background: var(--azul-escuro);
+      color: var(--branco);
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      font-family: var(--corpo);
+      transition: background 0.2s;
+    }
+
+    .btn-voltar:hover { background: var(--azul); }
+
+    .btn-secundario {
+      display: inline-block;
+      color: var(--azul);
+      text-decoration: none;
+      padding: 12px 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    .tag-tipo {
+      display: inline-block;
+      background: #e8f5e9;
+      color: #2e7d32;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      letter-spacing: 0.04em;
+    }
+
+    .tag-erro {
+      background: #fdecea;
+      color: #c62828;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: auto;
+      background: #e8f0f7;
+      padding: 20px 24px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: #566779;
+    }
+
+    footer a { color: inherit; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo"><strong>Melhor</strong> <span>Zona</span><strong>.pt</strong></a>
+  </nav>
+
+  <div class="hero">
+    <span class="hero-icone" id="hero-icone">✓</span>
+    <h1 id="hero-titulo">Pagamento confirmado</h1>
+    <p id="hero-sub">A verificar o teu acesso…</p>
+  </div>
+
+  <div class="card-wrapper">
+    <div class="card" id="card-conteudo">
+      <p class="card-loading" id="estado-loading">A verificar pagamento…</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 <strong>Melhor Zona</strong> · <a href="mailto:ola@melhorzona.pt">ola@melhorzona.pt</a> · Feito em Portugal</p>
+  </footer>
+
+  <script>
+    var WORKER_STRIPE = 'https://melhorzona-stripe-checkout.matheusmottas.workers.dev';
+
+    function params() {
+      return new URLSearchParams(window.location.search);
+    }
+
+    function mostrarSucesso(tipo, nomeFreguesia, urlRelatorio) {
+      var card  = document.getElementById('card-conteudo');
+      var icone = document.getElementById('hero-icone');
+      var titulo = document.getElementById('hero-titulo');
+      var sub    = document.getElementById('hero-sub');
+
+      icone.textContent  = '✓';
+      titulo.textContent = tipo === 'mensal' ? 'Subscrição activada!' : 'Relatório desbloqueado!';
+      sub.textContent    = tipo === 'mensal'
+        ? 'Tens acesso a todos os relatórios enquanto a subscrição estiver activa.'
+        : 'O teu relatório está pronto para ver.';
+
+      var tagTexto = tipo === 'mensal' ? 'ACESSO MENSAL' : 'RELATÓRIO ÚNICO';
+
+      card.innerHTML =
+        '<span class="tag-tipo">' + tagTexto + '</span>' +
+        '<div class="card-titulo">' +
+          (nomeFreguesia ? nomeFreguesia : 'Relatório completo') +
+        '</div>' +
+        '<p class="card-desc">' +
+          (tipo === 'mensal'
+            ? 'Podes agora ver o relatório completo de qualquer uma das 3&nbsp;259 freguesias de Portugal.'
+            : 'Podes agora ver o relatório completo desta freguesia, incluindo todos os indicadores e análise editorial.') +
+        '</p>' +
+        '<a href="' + (urlRelatorio || '/') + '" class="btn-voltar">Ver relatório →</a>' +
+        '<br>' +
+        '<a href="/" class="btn-secundario">Pesquisar outra freguesia</a>';
+    }
+
+    function mostrarErro(msg) {
+      var icone  = document.getElementById('hero-icone');
+      var titulo = document.getElementById('hero-titulo');
+      var sub    = document.getElementById('hero-sub');
+      var card   = document.getElementById('card-conteudo');
+
+      icone.textContent  = '✕';
+      titulo.textContent = 'Não foi possível verificar';
+      sub.textContent    = 'Ocorreu um problema ao confirmar o teu pagamento.';
+
+      card.innerHTML =
+        '<span class="tag-tipo tag-erro">ERRO</span>' +
+        '<div class="card-titulo">Problema na verificação</div>' +
+        '<p class="card-desc">' + (msg || 'Não conseguimos confirmar o pagamento. Se foste cobrado, contacta-nos.') + '</p>' +
+        '<a href="mailto:ola@melhorzona.pt?subject=Problema%20pagamento%20Melhor%20Zona" class="btn-voltar">Contactar suporte →</a>' +
+        '<br>' +
+        '<a href="/" class="btn-secundario">Voltar ao início</a>';
+    }
+
+    async function verificar() {
+      var p          = params();
+      var sessionId  = p.get('session_id');
+      var tipo       = p.get('tipo')       || 'unitario';
+      var freguesia  = p.get('freguesia')  || '';
+      var municipio  = p.get('municipio')  || '';
+      var codigoIne  = p.get('codigo_ine') || '';
+
+      if (!sessionId) {
+        mostrarErro('Parâmetros inválidos — sem session_id.');
+        return;
+      }
+
+      try {
+        var res  = await fetch(WORKER_STRIPE + '/verify?session_id=' + encodeURIComponent(sessionId));
+        var json = await res.json();
+
+        if (!json.pago) {
+          mostrarErro('O pagamento ainda não foi confirmado pelo Stripe. Aguarda alguns segundos e recarrega a página.');
+          return;
+        }
+
+        /* Guardar acesso no localStorage */
+        var ine = json.codigo_ine || codigoIne;
+        if (json.tipo === 'mensal' || tipo === 'mensal') {
+          localStorage.setItem('subscricao_ativa', 'true');
+        } else {
+          if (ine) localStorage.setItem('pago_' + ine, 'true');
+        }
+
+        /* Construir URL de regresso ao relatório */
+        var urlRelatorio = '/';
+        if (freguesia) {
+          urlRelatorio = '/relatorio.html?freguesia=' + encodeURIComponent(freguesia);
+          if (municipio) urlRelatorio += '&municipio=' + encodeURIComponent(municipio);
+        }
+
+        /* Limpar session_id do histórico */
+        var urlLimpa = new URL(window.location.href);
+        urlLimpa.searchParams.delete('session_id');
+        window.history.replaceState({}, '', urlLimpa.toString());
+
+        mostrarSucesso(json.tipo || tipo, json.nome_freguesia || decodeURIComponent(freguesia), urlRelatorio);
+
+      } catch (_) {
+        mostrarErro('Sem ligação ou o servidor não respondeu. Verifica a tua internet e tenta novamente.');
+      }
+    }
+
+    verificar();
+  </script>
+
+  <!-- Privacy-friendly analytics by Plausible -->
+  <script async src="https://plausible.io/js/pa-x4Vo4C1Oc7C-11iBfAlmJ.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
+
+</body>
+</html>

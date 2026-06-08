@@ -27,7 +27,7 @@ function respostaJson(dados, status, cors) {
 }
 
 async function chamarStripe(path, method, params, stripeKey) {
-  const url = `${STRIPE_API}/${path}`;
+  const url  = `${STRIPE_API}/${path}`;
   const opts = {
     method,
     headers: {
@@ -40,20 +40,31 @@ async function chamarStripe(path, method, params, stripeKey) {
   return res.json();
 }
 
-async function criarCheckout(body, env) {
+/* Cria sessão Stripe Checkout — modo 'payment' ou 'subscription' */
+async function criarSessao(body, env, modo) {
   const { codigo_ine, nome_freguesia, municipio, freguesia_param, municipio_param } = body;
 
-  const qFreg = encodeURIComponent(freguesia_param || nome_freguesia || '');
-  const qMun  = municipio_param ? '&municipio=' + encodeURIComponent(municipio_param) : '';
+  const tipo   = modo === 'subscription' ? 'mensal' : 'unitario';
+  const qFreg  = encodeURIComponent(freguesia_param || nome_freguesia || '');
+  const qMun   = municipio_param ? '&municipio=' + encodeURIComponent(municipio_param)   : '';
+  const qIne   = codigo_ine      ? '&codigo_ine='  + encodeURIComponent(codigo_ine)      : '';
 
   /* {CHECKOUT_SESSION_ID} é substituído pelo Stripe com o ID real da sessão */
-  const successUrl = `${SITE}/relatorio.html?freguesia=${qFreg}${qMun}&session_id={CHECKOUT_SESSION_ID}`;
+  const successUrl = `${SITE}/obrigado.html?session_id={CHECKOUT_SESSION_ID}&tipo=${tipo}&freguesia=${qFreg}${qMun}${qIne}`;
   const cancelUrl  = `${SITE}/relatorio.html?freguesia=${qFreg}${qMun}`;
 
+  const priceId = modo === 'subscription'
+    ? env.STRIPE_PRICE_ID_MENSAL
+    : env.STRIPE_PRICE_ID_UNITARIO;
+
+  if (!priceId) {
+    return { erro: `STRIPE_PRICE_ID_${modo === 'subscription' ? 'MENSAL' : 'UNITARIO'} não configurado` };
+  }
+
   const sessao = await chamarStripe('checkout/sessions', 'POST', {
-    'line_items[0][price]':     env.STRIPE_PRICE_ID,
+    'line_items[0][price]':     priceId,
     'line_items[0][quantity]':  '1',
-    'mode':                     'payment',
+    'mode':                     modo,
     'success_url':              successUrl,
     'cancel_url':               cancelUrl,
     'metadata[codigo_ine]':     codigo_ine     || '',
@@ -68,6 +79,7 @@ async function criarCheckout(body, env) {
   return { url: sessao.url };
 }
 
+/* Verifica sessão Stripe — funciona para pagamentos únicos e subscrições */
 async function verificarPagamento(sessionId, env) {
   const sessao = await chamarStripe(
     `checkout/sessions/${encodeURIComponent(sessionId)}`,
@@ -76,8 +88,12 @@ async function verificarPagamento(sessionId, env) {
 
   if (sessao.error) return { pago: false, erro: 'Sessão inválida' };
 
+  const pago = sessao.status === 'complete';
+  const tipo = sessao.mode  === 'subscription' ? 'mensal' : 'unitario';
+
   return {
-    pago:           sessao.payment_status === 'paid',
+    pago,
+    tipo,
     codigo_ine:     sessao.metadata?.codigo_ine     || null,
     nome_freguesia: sessao.metadata?.nome_freguesia || null,
   };
@@ -95,18 +111,29 @@ export default {
     const url      = new URL(request.url);
     const pathname = url.pathname;
 
-    /* POST /checkout — cria sessão Stripe Checkout */
-    if (pathname === '/checkout' && request.method === 'POST') {
+    /* POST /pagar-unitario — relatório único €4,99 (mode: payment) */
+    if (pathname === '/pagar-unitario' && request.method === 'POST') {
       try {
         const body      = await request.json();
-        const resultado = await criarCheckout(body, env);
+        const resultado = await criarSessao(body, env, 'payment');
         return respostaJson(resultado, resultado.erro ? 500 : 200, cors);
       } catch (_) {
         return respostaJson({ erro: 'Erro interno' }, 500, cors);
       }
     }
 
-    /* GET /verify?session_id=cs_xxx — verifica pagamento */
+    /* POST /pagar-mensal — acesso mensal €9,99/mês (mode: subscription) */
+    if (pathname === '/pagar-mensal' && request.method === 'POST') {
+      try {
+        const body      = await request.json();
+        const resultado = await criarSessao(body, env, 'subscription');
+        return respostaJson(resultado, resultado.erro ? 500 : 200, cors);
+      } catch (_) {
+        return respostaJson({ erro: 'Erro interno' }, 500, cors);
+      }
+    }
+
+    /* GET /verify?session_id=cs_xxx — verifica pagamento (unitário ou mensal) */
     if (pathname === '/verify' && request.method === 'GET') {
       const sessionId = url.searchParams.get('session_id');
       if (!sessionId) return respostaJson({ erro: 'session_id obrigatório' }, 400, cors);
@@ -115,6 +142,17 @@ export default {
         return respostaJson(resultado, 200, cors);
       } catch (_) {
         return respostaJson({ erro: 'Erro ao verificar pagamento' }, 500, cors);
+      }
+    }
+
+    /* POST /checkout — endpoint legado; mantido para compatibilidade (mode: payment) */
+    if (pathname === '/checkout' && request.method === 'POST') {
+      try {
+        const body      = await request.json();
+        const resultado = await criarSessao(body, env, 'payment');
+        return respostaJson(resultado, resultado.erro ? 500 : 200, cors);
+      } catch (_) {
+        return respostaJson({ erro: 'Erro interno' }, 500, cors);
       }
     }
 

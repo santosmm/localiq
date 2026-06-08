@@ -624,34 +624,99 @@
     .paywall-sub {
       color: rgba(255,255,255,0.7);
       font-size: 1rem;
-      max-width: 460px;
+      max-width: 520px;
       margin: 0 auto 32px;
       line-height: 1.65;
     }
 
     .paywall-sub strong { color: rgba(255,255,255,0.92); }
 
-    .paywall-botoes {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
+    /* Grelha de duas opções de compra */
+    .paywall-opcoes {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      max-width: 580px;
+      margin: 0 auto 24px;
     }
 
-    @media (min-width: 500px) {
-      .paywall-botoes { flex-direction: row; justify-content: center; }
+    @media (min-width: 560px) {
+      .paywall-opcoes { grid-template-columns: 1fr 1fr; }
     }
+
+    .paywall-opcao {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 14px;
+      padding: 24px 20px 20px;
+      text-align: left;
+      position: relative;
+    }
+
+    .paywall-opcao-destaque {
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.45);
+    }
+
+    .paywall-opcao-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f0d060;
+      color: #5a4200;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 3px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .paywall-opcao-preco {
+      font-family: var(--titulo);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--branco);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .paywall-opcao-preco span { font-size: 1rem; font-weight: 500; opacity: 0.75; }
+
+    .paywall-opcao-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.65);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+    }
+
+    .paywall-opcao-lista {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px;
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.7;
+    }
+
+    .paywall-opcao-lista li::before { content: '✓  '; color: #7dd9a0; font-weight: 700; }
 
     .btn-desbloquear {
+      display: block;
+      width: 100%;
       background: var(--branco);
       color: var(--azul);
       border: none;
-      padding: 15px 28px;
+      padding: 13px 18px;
       border-radius: 10px;
       font-family: var(--corpo);
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
+      text-align: center;
       box-shadow: 0 4px 18px rgba(0,0,0,0.22);
       transition: transform 0.15s, box-shadow 0.15s;
     }
@@ -661,17 +726,32 @@
       box-shadow: 0 8px 28px rgba(0,0,0,0.28);
     }
 
+    .btn-desbloquear:disabled { opacity: 0.65; cursor: wait; transform: none; }
+
+    .paywall-botoes {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 500px) {
+      .paywall-botoes { flex-direction: row; justify-content: center; }
+    }
+
     .btn-comparar {
       background: transparent;
       color: rgba(255,255,255,0.82);
       border: 1px solid rgba(255,255,255,0.28);
-      padding: 15px 22px;
+      padding: 13px 22px;
       border-radius: 10px;
       font-family: var(--corpo);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 600;
       text-decoration: none;
       transition: background 0.2s, color 0.2s;
+      display: inline-block;
     }
 
     .btn-comparar:hover { background: rgba(255,255,255,0.1); color: var(--branco); }
@@ -899,16 +979,45 @@
   <section class="paywall" id="secao-paywall">
     <div class="container">
       <h2 id="paywall-titulo">Relatório completo</h2>
-      <p class="paywall-sub">Acede a todos os indicadores de <strong>qualidade de vida, ensino e saúde</strong> desta freguesia por um pagamento único de €4,99.</p>
+      <p class="paywall-sub">Escolhe a opção que melhor se adapta ao que precisas.</p>
 
-      <!-- Estado inicial: botão -->
-      <div class="paywall-botoes" id="paywall-cta">
-        <button class="btn-desbloquear" id="btn-desbloquear">Desbloquear por €4,99 →</button>
-        <a href="/comparar.html" class="btn-comparar">Comparar com outra freguesia →</a>
+      <!-- Opções de compra -->
+      <div class="paywall-opcoes" id="paywall-cta">
+
+        <!-- Opção 1: relatório único -->
+        <div class="paywall-opcao">
+          <div class="paywall-opcao-preco">€4,99</div>
+          <div class="paywall-opcao-label">Relatório único</div>
+          <ul class="paywall-opcao-lista">
+            <li>Acesso permanente a este relatório</li>
+            <li>Todos os indicadores desbloqueados</li>
+            <li>Análise editorial completa</li>
+          </ul>
+          <button class="btn-desbloquear" id="btn-unitario">Comprar relatório →</button>
+        </div>
+
+        <!-- Opção 2: acesso mensal -->
+        <div class="paywall-opcao paywall-opcao-destaque">
+          <div class="paywall-opcao-badge">Mais popular</div>
+          <div class="paywall-opcao-preco">€9,99<span>/mês</span></div>
+          <div class="paywall-opcao-label">Acesso mensal</div>
+          <ul class="paywall-opcao-lista">
+            <li>Todos os relatórios ilimitados</li>
+            <li>3&nbsp;259 freguesias cobertas</li>
+            <li>Cancela quando quiseres</li>
+          </ul>
+          <button class="btn-desbloquear" id="btn-mensal">Subscrever →</button>
+        </div>
+
+      </div>
+
+      <!-- Link comparar -->
+      <div style="text-align:center; margin-top:4px;">
+        <a href="/comparar.html" class="btn-comparar" id="btn-comparar-paywall">Comparar com outra freguesia →</a>
       </div>
 
       <!-- Estado: erro no checkout -->
-      <div id="paywall-erro" style="display:none; margin-top:12px;">
+      <div id="paywall-erro" style="display:none; margin-top:16px; text-align:center;">
         <p style="color: rgba(255,200,200,0.9); font-size: 0.9rem;">
           Ocorreu um erro ao iniciar o pagamento. Tenta novamente ou contacta <a href="mailto:ola@melhorzona.pt" style="color:inherit">ola@melhorzona.pt</a>.
         </p>
@@ -1483,30 +1592,12 @@
       } catch (_) { /* silencioso — análise curta mantém-se */ }
     }
 
-    /* Verifica se o relatório já foi pago (localStorage ou retorno do Stripe) */
+    /* Verifica se o relatório já foi pago — unitário (específico) ou subscrição mensal (global) */
     async function verificarPagamentoExistente(codigoIne) {
       if (!codigoIne) return;
 
-      if (localStorage.getItem('pago_' + codigoIne) === 'true') {
-        desbloquear();
-        return;
-      }
-
-      var urlParams  = new URLSearchParams(window.location.search);
-      var sessionId  = urlParams.get('session_id');
-      if (!sessionId) return;
-
-      try {
-        var res  = await fetch(WORKER_STRIPE + '/verify?session_id=' + encodeURIComponent(sessionId));
-        var json = await res.json();
-        if (json.pago) {
-          localStorage.setItem('pago_' + (json.codigo_ine || codigoIne), 'true');
-          var urlLimpa = new URL(window.location.href);
-          urlLimpa.searchParams.delete('session_id');
-          window.history.replaceState({}, '', urlLimpa.toString());
-          desbloquear();
-        }
-      } catch (_) { /* falha silenciosa — paywall mantém-se */ }
+      if (localStorage.getItem('pago_' + codigoIne) === 'true') { desbloquear(); return; }
+      if (localStorage.getItem('subscricao_ativa')   === 'true') { desbloquear(); return; }
     }
 
     /* ── Alerta de freguesia ── */
@@ -1565,24 +1656,20 @@ document.getElementById('form-alerta').style.display = 'none';
         });
     });
 
-    /* ── Paywall: botão → Stripe Checkout ── */
-    document.getElementById('btn-desbloquear').addEventListener('click', async function () {
-      track('Paywall Click', { freguesia: dadosReais ? dadosReais.nome : '' });
+    /* ── Paywall: helpers de checkout ── */
+    async function iniciarCheckout(endpoint, labelOriginal) {
+      if (!dadosReais) { window.location.href = '/index.html'; return; }
 
-      if (!dadosReais) {
-        window.location.href = '/index.html';
-        return;
-      }
-
-      var btn  = this;
+      var btn  = document.getElementById(endpoint === '/pagar-unitario' ? 'btn-unitario' : 'btn-mensal');
       var erro = document.getElementById('paywall-erro');
+
       btn.disabled    = true;
       btn.textContent = 'A processar...';
       if (erro) erro.style.display = 'none';
 
       try {
         var params = lerParametrosUrl();
-        var res    = await fetch(WORKER_STRIPE + '/checkout', {
+        var res    = await fetch(WORKER_STRIPE + endpoint, {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1598,14 +1685,24 @@ document.getElementById('form-alerta').style.display = 'none';
           window.location.href = json.url;
         } else {
           btn.disabled    = false;
-          btn.textContent = 'Desbloquear por €4,99 →';
+          btn.textContent = labelOriginal;
           if (erro) erro.style.display = 'block';
         }
       } catch (_) {
         btn.disabled    = false;
-        btn.textContent = 'Desbloquear por €4,99 →';
+        btn.textContent = labelOriginal;
         if (erro) erro.style.display = 'block';
       }
+    }
+
+    document.getElementById('btn-unitario').addEventListener('click', function () {
+      track('Paywall Click', { tipo: 'unitario', freguesia: dadosReais ? dadosReais.nome : '' });
+      iniciarCheckout('/pagar-unitario', 'Comprar relatório →');
+    });
+
+    document.getElementById('btn-mensal').addEventListener('click', function () {
+      track('Paywall Click', { tipo: 'mensal', freguesia: dadosReais ? dadosReais.nome : '' });
+      iniciarCheckout('/pagar-mensal', 'Subscrever →');
     });
 
     init();
