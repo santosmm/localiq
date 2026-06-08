@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Páginas principais -->
+  <url>
+    <loc>https://melhorzona.pt/</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/imobiliarias.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/privacidade.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- Guias PT — Arroios -->
+  <url>
+    <loc>https://melhorzona.pt/guias/pt/arroios.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/arroios.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/arroios.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/arroios.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/br/arroios.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/arroios.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/arroios.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/arroios.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/en/arroios.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/arroios.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/arroios.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/arroios.html"/>
+  </url>
+
+  <!-- Guias — Cascais e Estoril -->
+  <url>
+    <loc>https://melhorzona.pt/guias/pt/cascais-e-estoril.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/cascais-e-estoril.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/cascais-e-estoril.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/cascais-e-estoril.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/br/cascais-e-estoril.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/cascais-e-estoril.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/cascais-e-estoril.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/cascais-e-estoril.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/en/cascais-e-estoril.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/cascais-e-estoril.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/cascais-e-estoril.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/cascais-e-estoril.html"/>
+  </url>
+
+  <!-- Guias — Lumiar -->
+  <url>
+    <loc>https://melhorzona.pt/guias/pt/lumiar.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/lumiar.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/lumiar.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/lumiar.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/br/lumiar.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/lumiar.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/lumiar.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/lumiar.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/en/lumiar.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/lumiar.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/lumiar.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/lumiar.html"/>
+  </url>
+
+  <!-- Guias — Belém -->
+  <url>
+    <loc>https://melhorzona.pt/guias/pt/belem.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/belem.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/belem.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/belem.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/br/belem.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/belem.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/belem.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/belem.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/en/belem.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/belem.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/belem.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/belem.html"/>
+  </url>
+
+  <!-- Guias — Sintra -->
+  <url>
+    <loc>https://melhorzona.pt/guias/pt/sintra.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/sintra.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/sintra.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/sintra.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/br/sintra.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/sintra.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/sintra.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/sintra.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/en/sintra.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/sintra.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/sintra.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/sintra.html"/>
+  </url>
+
+  <!-- Guias — Paranhos -->
+  <url>
+    <loc>https://melhorzona.pt/guias/pt/paranhos.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/paranhos.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/paranhos.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/paranhos.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/br/paranhos.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/paranhos.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/paranhos.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/paranhos.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/en/paranhos.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/paranhos.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/paranhos.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/paranhos.html"/>
+  </url>
+
+  <!-- Guias — Braga (São Vítor) -->
+  <url>
+    <loc>https://melhorzona.pt/guias/pt/braga-sao-vitor.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/braga-sao-vitor.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/braga-sao-vitor.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/braga-sao-vitor.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/br/braga-sao-vitor.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/braga-sao-vitor.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/braga-sao-vitor.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/braga-sao-vitor.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/en/braga-sao-vitor.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/braga-sao-vitor.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/braga-sao-vitor.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/braga-sao-vitor.html"/>
+  </url>
+
+  <!-- Guias — Oeiras -->
+  <url>
+    <loc>https://melhorzona.pt/guias/pt/oeiras.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/oeiras.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/oeiras.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/oeiras.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/br/oeiras.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/oeiras.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/oeiras.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/oeiras.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/en/oeiras.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/oeiras.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/oeiras.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/oeiras.html"/>
+  </url>
+
+  <!-- Guias — Almada -->
+  <url>
+    <loc>https://melhorzona.pt/guias/pt/almada.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/almada.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/almada.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/almada.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/br/almada.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/almada.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/almada.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/almada.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/en/almada.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/almada.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/almada.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/almada.html"/>
+  </url>
+
+  <!-- Guias — Setúbal -->
+  <url>
+    <loc>https://melhorzona.pt/guias/pt/setubal.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/setubal.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/setubal.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/setubal.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/br/setubal.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/setubal.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/setubal.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/setubal.html"/>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/guias/en/setubal.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/setubal.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/setubal.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/setubal.html"/>
+  </url>
+
+</urlset>
