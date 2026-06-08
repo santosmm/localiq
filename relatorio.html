@@ -10,7 +10,8 @@
        ════════════════════════════════════════════════════════════ -->
   <script>
     /* URL do Worker que consulta o Airtable */
-    var WORKER_URL = 'https://melhorzona-dados-freguesia.matheusmottas.workers.dev';
+    var WORKER_URL    = 'https://melhorzona-dados-freguesia.matheusmottas.workers.dev';
+    var WORKER_STRIPE = 'https://melhorzona-stripe-checkout.matheusmottas.workers.dev';
 
     /* Dados de exemplo usados como fallback */
     var DADOS = {
@@ -627,6 +628,8 @@
       line-height: 1.65;
     }
 
+    .paywall-sub strong { color: rgba(255,255,255,0.92); }
+
     .paywall-botoes {
       display: flex;
       flex-direction: column;
@@ -860,38 +863,21 @@
   </section>
 
   <!-- ── Paywall ── -->
-  <section class="paywall">
+  <section class="paywall" id="secao-paywall">
     <div class="container">
       <h2 id="paywall-titulo">Relatório completo</h2>
-      <p class="paywall-sub">Acede a todos os indicadores, compara com outras freguesias e toma uma decisão informada sobre onde viver.</p>
+      <p class="paywall-sub">Acede a todos os indicadores de <strong>qualidade de vida, ensino e saúde</strong> desta freguesia por um pagamento único de €4,99.</p>
 
       <!-- Estado inicial: botão -->
       <div class="paywall-botoes" id="paywall-cta">
-        <button class="btn-desbloquear" id="btn-desbloquear">Quero o relatório completo →</button>
+        <button class="btn-desbloquear" id="btn-desbloquear">Desbloquear por €4,99 →</button>
         <a href="/comparar.html" class="btn-comparar">Comparar com outra freguesia →</a>
       </div>
 
-      <!-- Estado: form de lista de espera (aparece ao clicar) -->
-      <div id="paywall-form" style="display:none; margin-top: 8px;">
-        <p style="color: rgba(255,255,255,0.85); font-size: 0.95rem; margin-bottom: 16px;">
-          Estamos a preparar o acesso completo. Deixa o teu email e avisamos-te quando estiver disponível.
-        </p>
-        <form id="form-paywall" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; max-width:480px; margin:0 auto;">
-          <input
-            type="email"
-            id="email-paywall"
-            placeholder="o teu email"
-            required
-            style="flex:1; min-width:220px; padding:13px 16px; border:none; border-radius:8px; font-size:1rem; outline:none; color:#0d2137;"
-          >
-          <button type="submit" class="btn-desbloquear" style="flex-shrink:0;">Avisar-me</button>
-        </form>
-      </div>
-
-      <!-- Estado: sucesso -->
-      <div id="paywall-sucesso" style="display:none; margin-top:8px;">
-        <p style="color: rgba(255,255,255,0.9); font-size: 1rem;">
-          ✅ Ficaste na lista! Avisamos-te assim que o acesso completo estiver disponível.
+      <!-- Estado: erro no checkout -->
+      <div id="paywall-erro" style="display:none; margin-top:12px;">
+        <p style="color: rgba(255,200,200,0.9); font-size: 0.9rem;">
+          Ocorreu um erro ao iniciar o pagamento. Tenta novamente ou contacta <a href="mailto:ola@melhorzona.pt" style="color:inherit">ola@melhorzona.pt</a>.
         </p>
       </div>
     </div>
@@ -909,6 +895,10 @@
   <script>
     /* Circunferência para r=50 */
     var CIRC = 2 * Math.PI * 50;
+
+    /* Registo Supabase bruto — preenchido após fetch bem sucedido */
+    var dadosReais       = null;
+    var dadosRenderizados = null;  /* última chamada a renderizar() — usado pelo desbloquear() */
 
     /* Devolve a classe de badge conforme o score */
     function badgeClasse(score) {
@@ -936,7 +926,7 @@
       'ti-home': '<svg viewBox="0 0 24 24"><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></svg>'
     };
 
-    /* Gera HTML de um card bloqueado com overlay */
+    /* Gera HTML de um card bloqueado com overlay; data-valor/data-badge revelados no unlock */
     function htmlCardBloqueado(ind) {
       var svgIcone = ICONES_SVG[ind.icone] || '';
       return '<div class="card">' +
@@ -944,12 +934,25 @@
         '<div class="card-nome">' + ind.nome + '</div>' +
         '<div class="card-score">' + ind.score + '<span> / 100</span></div>' +
         '<div class="barra-fundo"><div class="barra-progresso" style="width:' + ind.score + '%"></div></div>' +
-        '<div class="card-valor">&nbsp;</div>' +
-        '<span class="badge ' + badgeClasse(ind.score) + '">·····</span>' +
+        '<div class="card-valor" data-valor="' + (ind.valor || '') + '">&nbsp;</div>' +
+        '<span class="badge ' + badgeClasse(ind.score) + '" data-badge="' + (ind.badge || '') + '">·····</span>' +
         '<div class="card-overlay">' +
           '<div class="overlay-cadeado">🔒</div>' +
           '<span class="overlay-rotulo">Relatório completo</span>' +
         '</div>' +
+      '</div>';
+    }
+
+    /* Versão desbloqueada de um card bloqueado — usada após pagamento confirmado */
+    function htmlCardDesbloqueado(ind) {
+      var icone = ICONES_SVG[ind.icone] || ind.icone || '';
+      return '<div class="card">' +
+        '<div class="card-icone">' + icone + '</div>' +
+        '<div class="card-nome">' + ind.nome + '</div>' +
+        '<div class="card-score">' + ind.score + '<span> / 100</span></div>' +
+        '<div class="barra-fundo"><div class="barra-progresso" data-score="' + ind.score + '"></div></div>' +
+        '<div class="card-valor">' + (ind.valor || '') + '</div>' +
+        '<span class="badge ' + badgeClasse(ind.score) + '">' + badgeTexto(ind.score) + '</span>' +
       '</div>';
     }
 
@@ -1057,8 +1060,8 @@
       livres.push(cardRendas);
 
       var bloqueados = [];
-      if (e     != null) bloqueados.push({ nome: 'Ensino e Escolas',  icone: 'ti-school',      score: e     });
-      if (total != null) bloqueados.push({ nome: 'Qualidade de Vida', icone: 'ti-stethoscope', score: total });
+      if (e     != null) bloqueados.push({ nome: 'Ensino e Escolas',  icone: 'ti-school',      score: e,    valor: r.ensino_valor || 'Cobertura escolar pública · DGEEC 2023', badge: badgeTexto(e) });
+      if (total != null) bloqueados.push({ nome: 'Qualidade de Vida', icone: 'ti-stethoscope', score: total, valor: 'Índice composto de qualidade de vida · Melhor Zona 2024',   badge: badgeTexto(total) });
 
       return {
         freguesia:    r.nome,
@@ -1106,6 +1109,7 @@
 
     /* Preenche a página com os dados em d */
     function renderizar(d) {
+      dadosRenderizados = d;
       actualizarMetaTags(d);
 
       mostrarAvisoDadosExemplo(!!d.dadosExemplo);
@@ -1234,7 +1238,9 @@
         var json     = await resposta.json();
 
         if (json.encontrado && json.dados) {
+          dadosReais = json.dados;
           renderizar(dadosDeAirtable(json.dados));
+          verificarPagamentoExistente(json.dados.codigo_ine);
         } else if (json.multiplos && json.opcoes) {
           mostrarSelectorMunicipio(nomeFinal, json.opcoes);
         } else {
@@ -1260,6 +1266,64 @@
         DADOS.analise   = DADOS.analise.replace('Cascais e Estoril', nomeFinal);
         renderizar(DADOS);
       }
+    }
+
+    /* ── Stripe: desbloquear relatório completo ── */
+
+    /* Remove overlays e revela dados nos cards bloqueados */
+    function desbloquear() {
+      /* Re-renderiza cards bloqueados como cards livres (com badge e animação correctos) */
+      var gridBloqueados = document.getElementById('cards-bloqueados');
+      if (gridBloqueados && dadosRenderizados && dadosRenderizados.indicadores_bloqueados) {
+        gridBloqueados.innerHTML = dadosRenderizados.indicadores_bloqueados.map(htmlCardDesbloqueado).join('');
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            gridBloqueados.querySelectorAll('.barra-progresso[data-score]').forEach(function (b) {
+              b.style.width = b.getAttribute('data-score') + '%';
+            });
+          });
+        });
+      }
+
+      var nomeFreg = dadosReais ? encodeURIComponent(dadosReais.nome) : '';
+      var secao = document.getElementById('secao-paywall');
+      if (secao) {
+        secao.innerHTML =
+          '<div class="container" style="text-align:center">' +
+          '<p style="font-family:var(--titulo);font-size:1.8rem;font-weight:800;color:var(--branco);margin-bottom:10px">Relatório completo desbloqueado ✓</p>' +
+          '<p class="paywall-sub">Estás a ver todos os indicadores desta freguesia.</p>' +
+          '<div class="paywall-botoes">' +
+          '<a href="/comparar.html?a=' + nomeFreg + '" class="btn-comparar" style="color:rgba(255,255,255,0.9);border-color:rgba(255,255,255,0.4)">Comparar com outra freguesia →</a>' +
+          '</div></div>';
+      }
+
+      track('Pagamento Concluído', { freguesia: dadosReais ? dadosReais.nome : '' });
+    }
+
+    /* Verifica se o relatório já foi pago (localStorage ou retorno do Stripe) */
+    async function verificarPagamentoExistente(codigoIne) {
+      if (!codigoIne) return;
+
+      if (localStorage.getItem('pago_' + codigoIne) === 'true') {
+        desbloquear();
+        return;
+      }
+
+      var urlParams  = new URLSearchParams(window.location.search);
+      var sessionId  = urlParams.get('session_id');
+      if (!sessionId) return;
+
+      try {
+        var res  = await fetch(WORKER_STRIPE + '/verify?session_id=' + encodeURIComponent(sessionId));
+        var json = await res.json();
+        if (json.pago) {
+          localStorage.setItem('pago_' + (json.codigo_ine || codigoIne), 'true');
+          var urlLimpa = new URL(window.location.href);
+          urlLimpa.searchParams.delete('session_id');
+          window.history.replaceState({}, '', urlLimpa.toString());
+          desbloquear();
+        }
+      } catch (_) { /* falha silenciosa — paywall mantém-se */ }
     }
 
     /* ── Alerta de freguesia ── */
@@ -1318,32 +1382,47 @@ document.getElementById('form-alerta').style.display = 'none';
         });
     });
 
-    /* ── Paywall: botão → form lista de espera ── */
-    document.getElementById('btn-desbloquear').addEventListener('click', function () {
-      track('Paywall Click', { freguesia: DADOS.freguesia || '' });
-document.getElementById('paywall-cta').style.display = 'none';
-      document.getElementById('paywall-form').style.display = 'block';
-      document.getElementById('email-paywall').focus();
-    });
+    /* ── Paywall: botão → Stripe Checkout ── */
+    document.getElementById('btn-desbloquear').addEventListener('click', async function () {
+      track('Paywall Click', { freguesia: dadosReais ? dadosReais.nome : '' });
 
-    document.getElementById('form-paywall').addEventListener('submit', function (e) {
-      e.preventDefault();
-      var email    = document.getElementById('email-paywall').value.trim();
-      var freguesia = DADOS.freguesia || '';
+      if (!dadosReais) {
+        window.location.href = '/index.html';
+        return;
+      }
 
-      fetch(WORKER_ALERTA, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email,
-          fonte: 'paywall-relatorio',
-          notas: 'Freguesia: ' + freguesia,
-        }),
-      }).catch(function () {});
+      var btn  = this;
+      var erro = document.getElementById('paywall-erro');
+      btn.disabled    = true;
+      btn.textContent = 'A processar...';
+      if (erro) erro.style.display = 'none';
 
-      track('Paywall Signup', { freguesia: freguesia });
-document.getElementById('paywall-form').style.display = 'none';
-      document.getElementById('paywall-sucesso').style.display = 'block';
+      try {
+        var params = lerParametrosUrl();
+        var res    = await fetch(WORKER_STRIPE + '/checkout', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            codigo_ine:      dadosReais.codigo_ine,
+            nome_freguesia:  dadosReais.nome,
+            municipio:       dadosReais.municipio,
+            freguesia_param: params.freguesia || dadosReais.nome,
+            municipio_param: params.municipio || null,
+          }),
+        });
+        var json = await res.json();
+        if (json.url) {
+          window.location.href = json.url;
+        } else {
+          btn.disabled    = false;
+          btn.textContent = 'Desbloquear por €4,99 →';
+          if (erro) erro.style.display = 'block';
+        }
+      } catch (_) {
+        btn.disabled    = false;
+        btn.textContent = 'Desbloquear por €4,99 →';
+        if (erro) erro.style.display = 'block';
+      }
     });
 
     init();
