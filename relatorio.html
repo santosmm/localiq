@@ -1416,6 +1416,13 @@
 
     /* Remove overlays e revela dados nos cards bloqueados */
     function desbloquear() {
+      /* Actualiza cabeçalho da secção de indicadores bloqueados */
+      var gridRef = document.getElementById('cards-bloqueados');
+      if (gridRef) {
+        var cabecalhoSub = gridRef.closest('.container').querySelector('.secao-cabecalho p');
+        if (cabecalhoSub) cabecalhoSub.textContent = 'Todos os indicadores desta freguesia.';
+      }
+
       /* Re-renderiza cards bloqueados como cards livres (com badge e animação correctos) */
       var gridBloqueados = document.getElementById('cards-bloqueados');
       if (gridBloqueados && dadosRenderizados && dadosRenderizados.indicadores_bloqueados) {
