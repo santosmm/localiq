@@ -378,7 +378,7 @@ para imobiliárias.
 - **Open Graph**: validado em produção — tags correctas no index.html ✓
 - **Schema.org**: validado em produção — Article + FAQPage com 3 perguntas na guia de Arroios ✓
 - **Acessibilidade**: `<main>` semântico + contraste WCAG AA corrigido ✓
-- **PageSpeed**: API quota diária esgotada — confirmar manualmente em pagespeed.web.dev (esperado 95+)
+- **PageSpeed** (mobile, 2026-06-08): Performance 91 · Accessibility 95 · Best Practices 96 · SEO 100 ✓
 
 ### Pendente para próxima sessão
 - [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
