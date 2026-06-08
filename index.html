@@ -852,7 +852,8 @@
     function pesquisarFreguesia(nome) {
       var valor = nome.trim();
       if (!valor) return;
-window.location.href = 'relatorio.html?freguesia=' + encodeURIComponent(valor);
+      if (typeof window.plausible === 'function') window.plausible('Pesquisa', { props: { freguesia: valor } });
+      window.location.href = 'relatorio.html?freguesia=' + encodeURIComponent(valor);
     }
 
     // Tabs do hero
@@ -917,6 +918,6 @@ window.location.href = 'relatorio.html?freguesia=' + encodeURIComponent(valor);
     });
   </script>
 
-  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91b50522498a41ebb3491b19def1f9ce"}'></script><!-- End Cloudflare Web Analytics -->
+  <script defer data-domain="melhorzona.pt" src="https://plausible.io/js/script.outbound-links.js"></script>
 </body>
 </html>

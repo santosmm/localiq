@@ -1256,6 +1256,10 @@
     /* ── Alerta de freguesia ── */
     var WORKER_ALERTA = 'https://melhorzona-lista-espera.matheusmottas.workers.dev';
 
+    function track(evento, props) {
+      if (typeof window.plausible === 'function') window.plausible(evento, { props: props || {} });
+    }
+
 document.getElementById('form-alerta').addEventListener('submit', function (e) {
       e.preventDefault();
       var email = document.getElementById('email-alerta').value.trim();
@@ -1280,6 +1284,7 @@ document.getElementById('form-alerta').addEventListener('submit', function (e) {
         .then(function (res) { return res.json(); })
         .then(function (dados) {
           if (dados.success) {
+            track('Alerta Activado', { freguesia: nomeFreg });
 document.getElementById('form-alerta').style.display = 'none';
             msgEl.textContent = 'Alerta activado! Vais ser o primeiro a saber quando ' + nomeFreg + ' actualiza.';
             msgEl.style.display = 'block';
@@ -1306,6 +1311,7 @@ document.getElementById('form-alerta').style.display = 'none';
 
     /* ── Paywall: botão → form lista de espera ── */
     document.getElementById('btn-desbloquear').addEventListener('click', function () {
+      track('Paywall Click', { freguesia: DADOS.freguesia || '' });
 document.getElementById('paywall-cta').style.display = 'none';
       document.getElementById('paywall-form').style.display = 'block';
       document.getElementById('email-paywall').focus();
@@ -1326,6 +1332,7 @@ document.getElementById('paywall-cta').style.display = 'none';
         }),
       }).catch(function () {});
 
+      track('Paywall Signup', { freguesia: freguesia });
 document.getElementById('paywall-form').style.display = 'none';
       document.getElementById('paywall-sucesso').style.display = 'block';
     });
@@ -1333,6 +1340,6 @@ document.getElementById('paywall-form').style.display = 'none';
     init();
   </script>
 
-  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91b50522498a41ebb3491b19def1f9ce"}'></script><!-- End Cloudflare Web Analytics -->
+  <script defer data-domain="melhorzona.pt" src="https://plausible.io/js/script.outbound-links.js"></script>
 </body>
 </html>
