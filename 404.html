@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Página não encontrada · Melhor Zona</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --azul: #1B4F72; --azul-medio: #2E86C1; --azul-claro: #D6E8F5;
+      --azul-escuro: #0d2137; --branco: #ffffff; --cinza-fundo: #f2f6fa;
+      --cinza-borda: #dde3eb; --cinza-texto: #6b7a8d;
+      --titulo: 'Playfair Display', Georgia, serif;
+      --corpo: 'Inter', system-ui, sans-serif;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--corpo);
+      color: var(--azul-escuro);
+      background: var(--cinza-fundo);
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+    }
+    nav {
+      background: var(--azul-escuro);
+      padding: 16px 20px;
+    }
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo-icone {
+      width: 32px; height: 32px;
+      background: var(--azul-medio);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-logo-icone svg { width: 18px; height: 18px; fill: #fff; }
+    .nav-logo-nome { font-size: 1.1rem; font-weight: 700; color: #fff; }
+    .nav-logo-nome span { color: rgba(255,255,255,0.45); font-weight: 400; }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .card-404 {
+      background: var(--branco);
+      border: 1px solid var(--cinza-borda);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(13,33,55,0.09);
+      padding: 48px 40px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+    }
+    .numero-404 {
+      font-family: var(--titulo);
+      font-size: 5rem;
+      font-weight: 800;
+      color: var(--azul-claro);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .titulo-404 {
+      font-family: var(--titulo);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--azul);
+      margin-bottom: 12px;
+    }
+    .texto-404 {
+      font-size: 0.95rem;
+      color: var(--cinza-texto);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .divisor {
+      border: none;
+      border-top: 1px solid var(--cinza-borda);
+      margin: 0 0 28px;
+    }
+    .label-pesquisa {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--cinza-texto);
+      margin-bottom: 10px;
+    }
+    .form-pesquisa {
+      display: flex;
+      gap: 8px;
+    }
+    .form-pesquisa input {
+      flex: 1;
+      padding: 11px 14px;
+      font-size: 1rem;
+      font-family: var(--corpo);
+      border: 1px solid var(--cinza-borda);
+      border-radius: 8px;
+      outline: none;
+      color: var(--azul-escuro);
+      background: var(--cinza-fundo);
+      transition: border-color 0.2s;
+    }
+    .form-pesquisa input:focus { border-color: var(--azul-medio); background: #fff; }
+    .btn-pesquisa {
+      padding: 11px 18px;
+      background: var(--azul);
+      color: #fff;
+      font-family: var(--corpo);
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-pesquisa:hover { background: var(--azul-medio); }
+    .link-inicio {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 0.875rem;
+      color: var(--azul-medio);
+      text-decoration: none;
+    }
+    .link-inicio:hover { text-decoration: underline; }
+
+    footer {
+      background: var(--azul-escuro);
+      color: rgba(255,255,255,0.5);
+      font-size: 0.8rem;
+      padding: 16px 20px;
+      text-align: center;
+    }
+    footer a { color: inherit; }
+
+    @media (max-width: 480px) {
+      .card-404 { padding: 36px 24px; }
+      .numero-404 { font-size: 3.5rem; }
+      .form-pesquisa { flex-direction: column; }
+    }
+  </style>
+  <script defer data-domain="melhorzona.pt" src="https://plausible.io/js/script.outbound-links.js"></script>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">
+        <div class="nav-logo-icone">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        </div>
+        <span class="nav-logo-nome">Melhor<span>Zona</span></span>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="card-404">
+      <div class="numero-404">404</div>
+      <h1 class="titulo-404">Esta página não existe</h1>
+      <p class="texto-404">
+        O endereço que procuras não foi encontrado.<br>
+        Mas podemos ajudar-te a encontrar a melhor zona para viver.
+      </p>
+      <hr class="divisor">
+      <p class="label-pesquisa">Pesquisa uma freguesia</p>
+      <form class="form-pesquisa" id="form-pesquisa">
+        <input
+          type="text"
+          id="input-freguesia"
+          placeholder="ex: Arroios, Cascais e Estoril"
+          autocomplete="off"
+        >
+        <button type="submit" class="btn-pesquisa">Ver relatório →</button>
+      </form>
+      <a href="/" class="link-inicio">← Voltar à página inicial</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 <strong style="color:rgba(255,255,255,0.75)">Melhor Zona</strong> · Feito em Portugal 🇵🇹</p>
+  </footer>
+
+  <script>
+    document.getElementById('form-pesquisa').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var valor = document.getElementById('input-freguesia').value.trim();
+      if (!valor) return;
+      if (typeof window.plausible === 'function') window.plausible('Pesquisa 404', { props: { freguesia: valor } });
+      window.location.href = '/relatorio.html?freguesia=' + encodeURIComponent(valor);
+    });
+  </script>
+
+</body>
+</html>
