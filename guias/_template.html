@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<!--
+  TEMPLATE — Guia estático de freguesia
+  =======================================
+  Substitui todos os {{PLACEHOLDER}} antes de publicar.
+  Dados devem estar hardcoded no HTML — sem JavaScript para conteúdo.
+
+  PLACEHOLDERS:
+    {{FREGUESIA}}          → "Arroios"
+    {{MUNICIPIO}}          → "Lisboa"
+    {{SLUG}}               → "arroios"          (minúsculas, sem espaços)
+    {{SCORE_GERAL}}        → "74"               (0-100)
+    {{BADGE_TEXTO}}        → "Boa zona"
+    {{BADGE_CLASSE}}       → "bom" | "medio" | "fraco"
+    {{POPULACAO}}          → "48 621"           (formatado)
+    {{RENDA_MEDIANA}}      → "12,40"            (€/m², INE 2024)
+    {{ARRENDAMENTO_SCORE}} → "38"               (0-100)
+    {{ARRENDAMENTO_BADGE}} → "fraco"
+    {{SEGURANCA_SCORE}}    → "45"               (0-100)
+    {{SEGURANCA_VALOR}}    → "41,9"             (crimes/1000 hab)
+    {{SEGURANCA_BADGE}}    → "medio"
+    {{DEMOGRAFIA_SCORE}}   → "60"               (0-100)
+    {{DEMOGRAFIA_VALOR}}   → "+2,1%"
+    {{DEMOGRAFIA_BADGE}}   → "bom"
+    {{DESCRICAO_META}}     → frase ~155 chars para <meta description>
+    {{ANO_DADOS}}          → "2024"
+    {{IDEALISTA_URL}}      → URL completo para Idealista com afiliação
+-->
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Viver em {{FREGUESIA}}, {{MUNICIPIO}}: Rendas, Segurança e Qualidade de Vida · Melhor Zona</title>
+  <meta name="description" content="{{DESCRICAO_META}}">
+  <link rel="canonical" href="https://melhorzona.pt/guias/{{SLUG}}.html">
+
+  <!-- Open Graph -->
+  <meta property="og:title"       content="Viver em {{FREGUESIA}}: Rendas, Segurança e Qualidade de Vida">
+  <meta property="og:description" content="{{DESCRICAO_META}}">
+  <meta property="og:url"         content="https://melhorzona.pt/guias/{{SLUG}}.html">
+  <meta property="og:type"        content="article">
+  <meta property="og:site_name"   content="Melhor Zona">
+  <meta property="og:locale"      content="pt_PT">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary">
+  <meta name="twitter:title"       content="Viver em {{FREGUESIA}}: Rendas e Qualidade de Vida">
+  <meta name="twitter:description" content="{{DESCRICAO_META}}">
+
+  <meta name="theme-color" content="#1B4F72">
+
+  <!-- Schema.org — Artigo de lugar -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Viver em {{FREGUESIA}}, {{MUNICIPIO}}: Rendas, Segurança e Qualidade de Vida",
+    "description": "{{DESCRICAO_META}}",
+    "url": "https://melhorzona.pt/guias/{{SLUG}}.html",
+    "datePublished": "2026-06-07",
+    "dateModified": "2026-06-07",
+    "author": {
+      "@type": "Organization",
+      "name": "Melhor Zona",
+      "url": "https://melhorzona.pt"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Melhor Zona",
+      "url": "https://melhorzona.pt",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://melhorzona.pt/assets/images/icon-192.png"
+      }
+    },
+    "about": {
+      "@type": "Place",
+      "name": "{{FREGUESIA}}",
+      "containedInPlace": {
+        "@type": "AdministrativeArea",
+        "name": "{{MUNICIPIO}}"
+      }
+    }
+  }
+  </script>
+
+  <!-- FAQ Schema — perguntas que as pessoas pesquisam -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Quanto custa arrendar em {{FREGUESIA}}?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A renda mediana em {{FREGUESIA}} é de {{RENDA_MEDIANA}} €/m² (INE {{ANO_DADOS}}). Para um T2 típico de 70 m², isso corresponde a aproximadamente {{RENDA_T2}} €/mês."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "É seguro viver em {{FREGUESIA}}?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "{{FREGUESIA}} tem uma pontuação de segurança de {{SEGURANCA_SCORE}}/100, com base em {{SEGURANCA_VALOR}} crimes registados por 1 000 habitantes no município de {{MUNICIPIO}} (fonte: INE 2023)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Vale a pena viver em {{FREGUESIA}}?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "{{FREGUESIA}} tem uma pontuação de qualidade de vida de {{SCORE_GERAL}}/100 na plataforma Melhor Zona. {{RESPOSTA_VALE_PENA}}"
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Reset e variáveis ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --azul:          #1B4F72;
+      --azul-medio:    #2E86C1;
+      --azul-claro:    #D6E8F5;
+      --azul-escuro:   #0d2137;
+      --branco:        #ffffff;
+      --cinza-fundo:   #f2f6fa;
+      --cinza-borda:   #dde3eb;
+      --cinza-texto:   #6b7a8d;
+      --verde:         #1e8449;
+      --verde-claro:   #d5f5e3;
+      --amarelo:       #9a7d0a;
+      --amarelo-claro: #fef9e7;
+      --vermelho:      #c0392b;
+      --vermelho-claro:#fadbd8;
+      --titulo:        'Playfair Display', Georgia, serif;
+      --corpo:         'Inter', system-ui, sans-serif;
+      --raio:          12px;
+      --sombra:        0 4px 20px rgba(13,33,55,0.09);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--corpo);
+      color: var(--azul-escuro);
+      background: var(--cinza-fundo);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+    }
+
+    .container { max-width: 780px; margin: 0 auto; padding: 0 20px; }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--azul-escuro);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo-icone {
+      width: 32px; height: 32px;
+      background: var(--azul-medio);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-logo-icone svg { width: 18px; height: 18px; fill: var(--branco); }
+    .nav-logo-nome {
+      font-family: var(--corpo);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--branco);
+    }
+    .nav-logo-nome span { color: rgba(255,255,255,0.45); font-weight: 400; }
+    .btn-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 7px 14px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-nav:hover { background: rgba(255,255,255,0.1); color: var(--branco); }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb {
+      padding: 12px 0;
+      font-size: 0.8rem;
+      color: var(--cinza-texto);
+    }
+    .breadcrumb a { color: var(--azul-medio); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 6px; }
+
+    /* ── Hero ── */
+    .hero {
+      background-color: var(--azul);
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0px, transparent 18px,
+        rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 19px
+      );
+      padding: 48px 20px 40px;
+      text-align: center;
+    }
+    .hero-titulo {
+      font-family: var(--titulo);
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      color: var(--branco);
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .hero-subtitulo {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 20px;
+    }
+    .hero-score-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 14px;
+      padding: 14px 24px;
+      margin-bottom: 20px;
+    }
+    .hero-score-numero {
+      font-family: var(--titulo);
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--branco);
+      line-height: 1;
+    }
+    .hero-score-label {
+      text-align: left;
+    }
+    .hero-score-label-top {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.55);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .hero-score-label-badge {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--branco);
+    }
+    .hero-meta {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--branco);
+      color: var(--azul);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 12px 28px;
+      border-radius: 10px;
+      margin-top: 20px;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    }
+    .hero-cta:hover { background: var(--azul-claro); transform: translateY(-1px); }
+
+    /* ── Secção de conteúdo ── */
+    .secao {
+      padding: 40px 0 20px;
+    }
+    .secao h2 {
+      font-family: var(--titulo);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--azul-escuro);
+      margin-bottom: 6px;
+    }
+    .secao-intro {
+      font-size: 0.875rem;
+      color: var(--cinza-texto);
+      margin-bottom: 20px;
+    }
+
+    /* ── Cards de indicadores ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    @media (min-width: 580px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 760px) { .cards-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .card {
+      background: var(--branco);
+      border: 1px solid var(--cinza-borda);
+      border-radius: var(--raio);
+      padding: 22px;
+      box-shadow: var(--sombra);
+    }
+    .card-icone {
+      width: 44px; height: 44px;
+      background: var(--azul-claro);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.35rem;
+      margin-bottom: 14px;
+    }
+    .card-nome {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--cinza-texto);
+      margin-bottom: 6px;
+    }
+    .card-score {
+      font-family: var(--titulo);
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--azul);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .card-score span {
+      font-family: var(--corpo);
+      font-size: 0.9rem;
+      color: var(--cinza-texto);
+      font-weight: 400;
+    }
+    .barra-fundo {
+      height: 6px;
+      background: var(--cinza-borda);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .barra-progresso {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--azul-medio);
+    }
+    .barra-progresso.bom    { background: var(--verde); }
+    .barra-progresso.medio  { background: var(--amarelo); }
+    .barra-progresso.fraco  { background: var(--vermelho); }
+    .card-valor {
+      font-size: 0.82rem;
+      color: var(--cinza-texto);
+      margin-bottom: 12px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.77rem;
+      font-weight: 700;
+    }
+    .badge-bom    { background: var(--verde-claro);  color: var(--verde);   }
+    .badge-medio  { background: var(--amarelo-claro);color: var(--amarelo); }
+    .badge-fraco  { background: var(--vermelho-claro);color: var(--vermelho);}
+
+    /* ── Prosa editorial ── */
+    .prosa {
+      background: var(--branco);
+      border: 1px solid var(--cinza-borda);
+      border-radius: var(--raio);
+      padding: 28px 32px;
+      box-shadow: var(--sombra);
+      margin-top: 20px;
+    }
+    .prosa h3 {
+      font-family: var(--titulo);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--azul-escuro);
+      margin-bottom: 10px;
+    }
+    .prosa p {
+      font-size: 0.95rem;
+      color: #2c3e50;
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+    .prosa p:last-child { margin-bottom: 0; }
+
+    /* ── Tabela de dados ── */
+    .tabela-dados {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 0.9rem;
+    }
+    .tabela-dados th {
+      background: var(--azul-claro);
+      color: var(--azul);
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tabela-dados td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--cinza-borda);
+      color: var(--azul-escuro);
+    }
+    .tabela-dados tr:last-child td { border-bottom: none; }
+    .tabela-dados tr:nth-child(even) td { background: #f8fafc; }
+
+    /* ── CTA Relatório ── */
+    .cta-relatorio {
+      background-color: var(--azul);
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0px, transparent 18px,
+        rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 19px
+      );
+      border-radius: var(--raio);
+      padding: 36px 32px;
+      text-align: center;
+      margin: 32px 0;
+      box-shadow: var(--sombra);
+    }
+    .cta-relatorio h2 {
+      font-family: var(--titulo);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--branco);
+      margin-bottom: 10px;
+    }
+    .cta-relatorio p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 20px;
+    }
+    .btn-cta-principal {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--branco);
+      color: var(--azul);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 13px 28px;
+      border-radius: 10px;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+      margin: 4px;
+    }
+    .btn-cta-principal:hover { background: var(--azul-claro); transform: translateY(-1px); }
+    .btn-cta-secundario {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 12px 24px;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      transition: background 0.2s;
+      margin: 4px;
+    }
+    .btn-cta-secundario:hover { background: rgba(255,255,255,0.1); }
+
+    /* ── Links de outras freguesias ── */
+    .outras-freguesias {
+      background: var(--branco);
+      border: 1px solid var(--cinza-borda);
+      border-radius: var(--raio);
+      padding: 24px 28px;
+      box-shadow: var(--sombra);
+      margin-bottom: 40px;
+    }
+    .outras-freguesias h3 {
+      font-family: var(--titulo);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--azul-escuro);
+      margin-bottom: 14px;
+    }
+    .links-freguesias {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .link-freguesia {
+      display: inline-block;
+      padding: 6px 14px;
+      background: var(--azul-claro);
+      color: var(--azul);
+      text-decoration: none;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: background 0.2s, color 0.2s;
+    }
+    .link-freguesia:hover { background: var(--azul); color: var(--branco); }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--azul-escuro);
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 32px 20px;
+      font-size: 0.82rem;
+      line-height: 1.8;
+    }
+    footer a { color: rgba(255,255,255,0.6); }
+    footer a:hover { color: var(--branco); }
+    .footer-fonte {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 8px;
+    }
+
+    /* ── Responsivo ── */
+    @media (max-width: 520px) {
+      .prosa { padding: 20px 18px; }
+      .cta-relatorio { padding: 28px 20px; }
+      .hero { padding: 36px 16px 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navegação -->
+  <nav>
+    <div class="nav-inner">
+      <a href="https://melhorzona.pt" class="nav-logo" aria-label="Melhor Zona — página inicial">
+        <div class="nav-logo-icone">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        </div>
+        <span class="nav-logo-nome">Melhor Zona<span>.pt</span></span>
+      </a>
+      <a href="https://melhorzona.pt" class="btn-nav">← Pesquisar</a>
+    </div>
+  </nav>
+
+  <!-- Breadcrumb (SEO: ajuda o Google a entender a hierarquia) -->
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Caminho de navegação">
+      <a href="https://melhorzona.pt">Melhor Zona</a>
+      <span>›</span>
+      <a href="https://melhorzona.pt/guias/">Guias de Freguesia</a>
+      <span>›</span>
+      <span>{{FREGUESIA}}</span>
+    </nav>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero" aria-labelledby="titulo-principal">
+    <h1 class="hero-titulo" id="titulo-principal">Viver em {{FREGUESIA}}</h1>
+    <p class="hero-subtitulo">{{MUNICIPIO}} · Dados reais INE {{ANO_DADOS}}</p>
+
+    <div class="hero-score-wrap" aria-label="Pontuação de qualidade de vida: {{SCORE_GERAL}} em 100">
+      <div class="hero-score-numero" aria-hidden="true">{{SCORE_GERAL}}</div>
+      <div class="hero-score-label">
+        <div class="hero-score-label-top">Qualidade de vida</div>
+        <div class="hero-score-label-badge">{{BADGE_TEXTO}}</div>
+      </div>
+    </div>
+
+    <p class="hero-meta">Análise com dados públicos · INE Censos 2021 · INE {{ANO_DADOS}}</p>
+
+    <a href="https://melhorzona.pt/relatorio.html?freguesia={{SLUG}}" class="hero-cta">
+      Ver relatório interactivo completo →
+    </a>
+  </section>
+
+  <main class="container">
+
+    <!-- Secção 1: Indicadores principais -->
+    <section class="secao" aria-labelledby="titulo-indicadores">
+      <h2 id="titulo-indicadores">Indicadores de qualidade de vida</h2>
+      <p class="secao-intro">Dados reais de fontes públicas oficiais. Pontuação de 0 a 100.</p>
+
+      <div class="cards-grid">
+
+        <!-- Arrendamento -->
+        <div class="card">
+          <div class="card-icone" aria-hidden="true">🏠</div>
+          <div class="card-nome">Arrendamento</div>
+          <div class="card-score">{{ARRENDAMENTO_SCORE}}<span>/100</span></div>
+          <div class="barra-fundo" role="progressbar" aria-valuenow="{{ARRENDAMENTO_SCORE}}" aria-valuemin="0" aria-valuemax="100">
+            <div class="barra-progresso {{ARRENDAMENTO_BADGE}}" style="width: {{ARRENDAMENTO_SCORE}}%"></div>
+          </div>
+          <div class="card-valor">{{RENDA_MEDIANA}} €/m² · INE {{ANO_DADOS}}</div>
+          <span class="badge badge-{{ARRENDAMENTO_BADGE}}">{{ARRENDAMENTO_BADGE_TEXTO}}</span>
+        </div>
+
+        <!-- Segurança -->
+        <div class="card">
+          <div class="card-icone" aria-hidden="true">🛡️</div>
+          <div class="card-nome">Segurança</div>
+          <div class="card-score">{{SEGURANCA_SCORE}}<span>/100</span></div>
+          <div class="barra-fundo" role="progressbar" aria-valuenow="{{SEGURANCA_SCORE}}" aria-valuemin="0" aria-valuemax="100">
+            <div class="barra-progresso {{SEGURANCA_BADGE}}" style="width: {{SEGURANCA_SCORE}}%"></div>
+          </div>
+          <div class="card-valor">{{SEGURANCA_VALOR}} crimes/1 000 hab · INE 2023</div>
+          <span class="badge badge-{{SEGURANCA_BADGE}}">{{SEGURANCA_BADGE_TEXTO}}</span>
+        </div>
+
+        <!-- Evolução demográfica -->
+        <div class="card">
+          <div class="card-icone" aria-hidden="true">📈</div>
+          <div class="card-nome">Evolução Demográfica</div>
+          <div class="card-score">{{DEMOGRAFIA_SCORE}}<span>/100</span></div>
+          <div class="barra-fundo" role="progressbar" aria-valuenow="{{DEMOGRAFIA_SCORE}}" aria-valuemin="0" aria-valuemax="100">
+            <div class="barra-progresso {{DEMOGRAFIA_BADGE}}" style="width: {{DEMOGRAFIA_SCORE}}%"></div>
+          </div>
+          <div class="card-valor">{{DEMOGRAFIA_VALOR}} variação 2011–2021 · INE Censos</div>
+          <span class="badge badge-{{DEMOGRAFIA_BADGE}}">{{DEMOGRAFIA_BADGE_TEXTO}}</span>
+        </div>
+
+      </div><!-- /cards-grid -->
+    </section>
+
+    <!-- Secção 2: Texto editorial (conteúdo para SEO) -->
+    <section class="secao" aria-labelledby="titulo-editorial">
+      <h2 id="titulo-editorial">{{FREGUESIA}}: o que dizem os dados</h2>
+
+      <div class="prosa">
+        <h3>Quanto custa arrendar em {{FREGUESIA}}?</h3>
+        <p>
+          Em {{FREGUESIA}}, a renda mediana era de <strong>{{RENDA_MEDIANA}} €/m²</strong> em {{ANO_DADOS}},
+          segundo os dados do Instituto Nacional de Estatística. Para um apartamento T2 típico
+          com 70 m², isso representa uma renda mensal de aproximadamente <strong>{{RENDA_T2}} €</strong>.
+        </p>
+        <p>
+          {{TEXTO_ARRENDAMENTO_CONTEXTO}}
+        </p>
+
+        <h3>Segurança em {{FREGUESIA}}</h3>
+        <p>
+          O município de {{MUNICIPIO}} registou <strong>{{SEGURANCA_VALOR}} crimes por 1 000 habitantes</strong>
+          em 2023 (fonte: INE). Numa escala de 0 a 100 onde 100 é o mais seguro,
+          {{FREGUESIA}} obteve <strong>{{SEGURANCA_SCORE}} pontos</strong>.
+          {{TEXTO_SEGURANCA_CONTEXTO}}
+        </p>
+
+        <h3>Evolução da população</h3>
+        <p>
+          Entre os Censos de 2011 e 2021, {{FREGUESIA}} registou uma variação populacional de
+          <strong>{{DEMOGRAFIA_VALOR}}</strong>, com uma população de <strong>{{POPULACAO}} residentes</strong>
+          (INE Censos 2021). {{TEXTO_DEMOGRAFIA_CONTEXTO}}
+        </p>
+      </div>
+    </section>
+
+    <!-- Secção 3: Tabela de dados resumo -->
+    <section class="secao" aria-labelledby="titulo-tabela">
+      <h2 id="titulo-tabela">Resumo dos dados de {{FREGUESIA}}</h2>
+      <p class="secao-intro">Todos os valores são de fontes públicas oficiais.</p>
+
+      <div class="prosa" style="padding: 0; overflow: hidden;">
+        <table class="tabela-dados" aria-label="Dados de qualidade de vida em {{FREGUESIA}}">
+          <thead>
+            <tr>
+              <th>Indicador</th>
+              <th>Valor</th>
+              <th>Pontuação</th>
+              <th>Fonte</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Renda mediana</td>
+              <td>{{RENDA_MEDIANA}} €/m²</td>
+              <td>{{ARRENDAMENTO_SCORE}}/100</td>
+              <td>INE {{ANO_DADOS}}</td>
+            </tr>
+            <tr>
+              <td>Segurança (criminalidade)</td>
+              <td>{{SEGURANCA_VALOR}} crimes/1 000 hab</td>
+              <td>{{SEGURANCA_SCORE}}/100</td>
+              <td>INE 2023</td>
+            </tr>
+            <tr>
+              <td>Variação populacional</td>
+              <td>{{DEMOGRAFIA_VALOR}} (2011–2021)</td>
+              <td>{{DEMOGRAFIA_SCORE}}/100</td>
+              <td>INE Censos 2021</td>
+            </tr>
+            <tr>
+              <td>População residente</td>
+              <td>{{POPULACAO}} hab</td>
+              <td>—</td>
+              <td>INE Censos 2021</td>
+            </tr>
+            <tr>
+              <td>Qualidade de vida global</td>
+              <td>—</td>
+              <td>{{SCORE_GERAL}}/100</td>
+              <td>Melhor Zona (composto)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CTA principal -->
+    <div class="cta-relatorio" role="complementary" aria-label="Relatório interactivo">
+      <h2>Ver o relatório completo de {{FREGUESIA}}</h2>
+      <p>Transportes públicos, qualidade do ar, escolas e saúde — tudo actualizado.</p>
+      <a href="https://melhorzona.pt/relatorio.html?freguesia={{SLUG}}" class="btn-cta-principal">
+        Abrir relatório interactivo
+      </a>
+      <a href="https://melhorzona.pt/comparar.html?a={{SLUG}}" class="btn-cta-secundario">
+        Comparar com outra zona
+      </a>
+    </div>
+
+    <!-- Links para outras freguesias populares (link juice interno) -->
+    <aside class="outras-freguesias" aria-label="Outras guias de freguesias">
+      <h3>Outras freguesias populares</h3>
+      <div class="links-freguesias">
+        <a href="https://melhorzona.pt/guias/arroios.html" class="link-freguesia">Arroios</a>
+        <a href="https://melhorzona.pt/guias/cascais-e-estoril.html" class="link-freguesia">Cascais e Estoril</a>
+        <a href="https://melhorzona.pt/guias/lumiar.html" class="link-freguesia">Lumiar</a>
+        <a href="https://melhorzona.pt/guias/belem.html" class="link-freguesia">Belém</a>
+        <a href="https://melhorzona.pt/guias/sintra.html" class="link-freguesia">Sintra</a>
+        <a href="https://melhorzona.pt/guias/paranhos.html" class="link-freguesia">Paranhos</a>
+        <a href="https://melhorzona.pt/guias/braga-sao-vitor.html" class="link-freguesia">Braga (São Vítor)</a>
+        <a href="https://melhorzona.pt/guias/oeiras.html" class="link-freguesia">Oeiras</a>
+        <a href="https://melhorzona.pt/guias/almada.html" class="link-freguesia">Almada</a>
+        <a href="https://melhorzona.pt/guias/setubal.html" class="link-freguesia">Setúbal</a>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      <a href="https://melhorzona.pt">Melhor Zona</a> · Qualidade de vida por freguesia em Portugal
+    </p>
+    <p class="footer-fonte">
+      Dados: INE Censos 2021, INE {{ANO_DADOS}}, ACSS, QualAr/APA ·
+      Actualizado em junho de 2026 ·
+      <a href="https://melhorzona.pt/privacidade.html">Privacidade</a>
+    </p>
+  </footer>
+
+</body>
+</html>
