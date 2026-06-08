@@ -4,7 +4,7 @@ Gerador de guias estáticos de freguesia — PT · BR · EN
 Executar da raiz do projecto: python3 data/generate-guias.py
 Gera /guias/pt/*.html, /guias/br/*.html, /guias/en/*.html (30 ficheiros)
 """
-import os, urllib.parse
+import os, urllib.parse, urllib.request, json, re, argparse, unicodedata
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -67,6 +67,175 @@ def esc(s):
 
 def uq(s):
     return urllib.parse.quote(s, safe='')
+
+def slugify(s):
+    """Converte nome de freguesia para slug URL"""
+    s = unicodedata.normalize('NFD', s).encode('ascii', 'ignore').decode()
+    s = s.lower()
+    s = re.sub(r'[^a-z0-9\s-]', '', s)
+    return re.sub(r'[\s_-]+', '-', s).strip('-')
+
+def calcular_score(row):
+    """Equivalente ao calcularScoreReal() do Worker dados-freguesia.js"""
+    scores = []
+    if row.get('seguranca_score')   is not None: scores.append(float(row['seguranca_score']))
+    if row.get('transportes_score') is not None: scores.append(float(row['transportes_score']))
+    if row.get('saude_score')       is not None: scores.append(float(row['saude_score']))
+    if row.get('ensino_score')      is not None: scores.append(float(row['ensino_score']))
+    if row.get('rendas_mediana') is not None:
+        ar = max(0.0, min(10.0, 10.0 - float(row['rendas_mediana']) * 0.3))
+        scores.append(ar)
+    elif row.get('arrendamento_score') is not None:
+        scores.append(float(row['arrendamento_score']))
+    if not scores:
+        return 50
+    return min(100, round(sum(scores) / len(scores) * 10))
+
+def auto_content(p):
+    """Gera conteúdo editorial automático para freguesias sem texto curado"""
+    nome      = p['nome']
+    municipio = p['municipio']
+    pop_v     = p['pop']
+    renda     = p['renda']
+    seg       = p['seg']
+    seg_val   = p['seg_val']
+    score     = p['score']
+    estimada  = p.get('renda_estimada', False)
+
+    pop_pt = pop(pop_v, 'pt')
+    pop_en = pop(pop_v, 'en')
+    rv_pt  = f'{renda:.2f}'.replace('.', ',')
+    rv_en  = f'{renda:.2f}'
+    sv_pt  = f'{seg_val:.1f}'.replace('.', ',')
+    sv_en  = f'{seg_val:.1f}'
+
+    if pop_v > 50000:   badge='Zona urbana';        p_pt='zona urbana';        p_br='bairro urbano';      p_en='urban area'
+    elif pop_v > 15000: badge='Zona consolidada';   p_pt='zona consolidada';   p_br='bairro consolidado'; p_en='established neighbourhood'
+    elif pop_v > 5000:  badge='Zona suburbana';     p_pt='zona suburbana';     p_br='bairro suburbano';   p_en='suburban area'
+    elif pop_v > 1000:  badge='Zona semi-urbana';   p_pt='zona semi-urbana';   p_br='área semi-urbana';   p_en='semi-urban area'
+    else:               badge='Zona rural';         p_pt='zona rural';         p_br='área rural';         p_en='rural area'
+
+    if estimada:
+        rent_pt = f'Dados de arrendamento em {nome} em actualização. Referência nacional: €10,50/m² (INE 2024).'
+        rent_br = f'Dados de aluguel em {nome} em atualização. Média nacional portuguesa: €10,50/m² (INE 2024).'
+        rent_en = f'Rental data for {nome} is being compiled. National reference: €10.50/m² (INE 2024).'
+    else:
+        diff = renda - 10.50
+        if diff > 3:
+            rent_pt = f'Com rendas de {rv_pt} €/m², {nome} está acima da média nacional (€10,50/m²), reflexo da procura elevada.'
+            rent_br = f'Com {rv_pt} €/m², o aluguel em {nome} está acima da média nacional portuguesa de €10,50/m².'
+            rent_en = f'At €{rv_en}/m², rents in {nome} are above the Portuguese national average of €10.50/m².'
+        elif diff > 0:
+            rent_pt = f'As rendas em {nome} ({rv_pt} €/m²) estão ligeiramente acima da média nacional de €10,50/m².'
+            rent_br = f'O aluguel em {nome} ({rv_pt} €/m²) está levemente acima da média nacional portuguesa.'
+            rent_en = f'Rents in {nome} (€{rv_en}/m²) are slightly above the Portuguese national average of €10.50/m².'
+        elif diff > -2:
+            rent_pt = f'As rendas em {nome} ({rv_pt} €/m²) estão próximas da média nacional de €10,50/m².'
+            rent_br = f'O aluguel em {nome} ({rv_pt} €/m²) está próximo da média nacional portuguesa de €10,50/m².'
+            rent_en = f'Rents in {nome} (€{rv_en}/m²) are close to the Portuguese national average of €10.50/m².'
+        else:
+            rent_pt = f'Com {rv_pt} €/m², {nome} oferece rendas abaixo da média nacional (€10,50/m²) — uma opção mais acessível em {municipio}.'
+            rent_br = f'Com {rv_pt} €/m², {nome} está abaixo da média nacional (€10,50/m²) — uma das opções mais acessíveis desta região.'
+            rent_en = f'At €{rv_en}/m², {nome} is below the national average (€10.50/m²) — a more affordable option in {municipio}.'
+
+    if seg_val < 25:
+        safe_pt = f'O município de {municipio} regista criminalidade baixa: {sv_pt} crimes/1 000 hab (INE 2023), bem abaixo da média nacional (~35).'
+        safe_br = f'{municipio} tem taxa de criminalidade baixa: {sv_pt} crimes/1.000 hab (INE 2023), abaixo da média nacional portuguesa.'
+        safe_en = f'{municipio} has a low crime rate: {sv_en} crimes per 1,000 residents (INE 2023), well below the national average of ~35.'
+    elif seg_val < 40:
+        safe_pt = f'O município de {municipio} tem {sv_pt} crimes/1 000 hab (INE 2023), abaixo da média nacional de ~35.'
+        safe_br = f'{municipio} registou {sv_pt} crimes/1.000 hab (INE 2023), abaixo da média nacional portuguesa.'
+        safe_en = f'{municipio} recorded {sv_en} crimes per 1,000 inhabitants (INE 2023), below the national average of ~35.'
+    elif seg_val < 55:
+        safe_pt = f'O município de {municipio} tem {sv_pt} crimes/1 000 hab (INE 2023), próximo da média nacional de ~35.'
+        safe_br = f'{municipio} tem {sv_pt} crimes/1.000 hab (INE 2023), próximo da média nacional portuguesa.'
+        safe_en = f'{municipio} has {sv_en} crimes per 1,000 residents (INE 2023), close to the national average of ~35.'
+    else:
+        safe_pt = f'O município de {municipio} tem criminalidade acima da média nacional: {sv_pt} crimes/1 000 hab (INE 2023, média ~35).'
+        safe_br = f'{municipio} tem {sv_pt} crimes/1.000 hab (INE 2023), acima da média nacional portuguesa de ~35.'
+        safe_en = f'{municipio} has a higher crime rate of {sv_en} crimes per 1,000 residents (INE 2023), above the national average of ~35.'
+
+    life_pt = f'Com {pop_pt} residentes, {nome} é uma {p_pt} de {municipio}. O Índice de Qualidade de Vida Melhor Zona é de {score}/100, calculado com dados INE.'
+    life_br = f'Com {pop_pt} residentes, {nome} é um {p_br} de {municipio}. O Índice de Qualidade de Vida Melhor Zona é de {score}/100, baseado em dados públicos INE.'
+    life_en = f'With {pop_en} residents, {nome} is a {p_en} in {municipio}. The Melhor Zona quality of life score is {score}/100, based on real INE data.'
+
+    if score >= 65:
+        adv_pt = 'Uma excelente opção para famílias e profissionais que procuram qualidade de vida acima da média.'
+        adv_br = 'Excelente opção para quem busca qualidade de vida acima da média em Portugal.'
+        adv_en = 'An excellent choice for families and professionals seeking above-average quality of life.'
+    elif score >= 45:
+        adv_pt = 'Uma escolha sólida com boa relação qualidade/custo dentro do município.'
+        adv_br = 'Uma boa opção com equilíbrio entre custo e qualidade de vida.'
+        adv_en = 'A solid option with a good quality-to-cost ratio within the municipality.'
+    else:
+        adv_pt = f'Recomendamos comparar com outras zonas de {municipio} antes de decidir.'
+        adv_br = f'Recomendamos comparar com outras áreas de {municipio} antes de decidir.'
+        adv_en = f'We recommend comparing with other areas of {municipio} before deciding.'
+
+    return dict(
+        pt=dict(
+            meta=f'{nome}, {municipio}: renda mediana {rv_pt} €/m², segurança {seg}/100, qualidade de vida {score}/100. Dados INE 2024.',
+            badge=badge,
+            ctx_rent=rent_pt, ctx_safe=safe_pt, ctx_life=life_pt,
+            faq3_q=f'Vale a pena viver em {nome}, {municipio}?',
+            faq3_a=f'{nome} tem score de {score}/100, rendas de {rv_pt} €/m² e segurança de {seg}/100. {adv_pt}',
+        ),
+        br=dict(
+            meta=f'Morar em {nome}, {municipio}: aluguel {rv_pt} €/m², segurança {seg}/100, qualidade {score}/100. Dados INE para brasileiros.',
+            badge=badge,
+            intro=f'Se está a pensar em morar em {municipio}, {nome} é uma opção com qualidade de vida de {score}/100.',
+            ctx_rent=rent_br, ctx_safe=safe_br, ctx_life=life_br,
+            faq3_q=f'{nome} em {municipio} é boa opção para morar?',
+            faq3_a=f'{nome} tem score de {score}/100, aluguel {rv_pt} €/m² e segurança {seg}/100. {adv_br}',
+        ),
+        en=dict(
+            meta=f'Living in {nome}, {municipio}: rent €{rv_en}/m², safety {seg}/100, quality of life {score}/100. Real INE 2024 data.',
+            badge=badge,
+            ctx_rent=rent_en, ctx_safe=safe_en, ctx_life=life_en,
+            faq3_q=f'Is {nome} a good place to live in {municipio}?',
+            faq3_a=f'{nome} scores {score}/100 overall, median rent €{rv_en}/m², safety {seg}/100. {adv_en}',
+        ),
+    )
+
+def fetch_supabase(supabase_url, supabase_key, limit=100):
+    """Busca top N freguesias por população no Supabase"""
+    cols = 'nome,municipio,populacao,codigo_ine,seguranca_score,seguranca_valor,rendas_mediana,arrendamento_score'
+    url  = (f'{supabase_url}/rest/v1/freguesias'
+            f'?select={cols}&order=populacao.desc.nullslast&limit={limit}')
+    req = urllib.request.Request(url, headers={
+        'apikey':        supabase_key,
+        'Authorization': f'Bearer {supabase_key}',
+    })
+    with urllib.request.urlopen(req, timeout=30) as res:
+        return json.loads(res.read().decode())
+
+def build_parish_from_row(row, manual=None):
+    """Constrói dict de paróquia a partir de linha do Supabase"""
+    nome      = row.get('nome')      or ''
+    municipio = row.get('municipio') or ''
+    pop_v     = int(row.get('populacao') or 0)
+    seg_raw   = row.get('seguranca_score')
+    segv_raw  = row.get('seguranca_valor')
+    renda_raw = row.get('rendas_mediana')
+
+    seg             = round(float(seg_raw)  * 10) if seg_raw  is not None else 50
+    seg_val         = float(segv_raw)              if segv_raw is not None else 35.0
+    renda           = float(renda_raw)             if renda_raw is not None else 10.50
+    renda_estimada  = renda_raw is None
+
+    score = calcular_score(row)
+
+    p = dict(
+        slug=slugify(nome), nome=nome, municipio=municipio,
+        pop=pop_v, score=score, seg=seg, seg_val=seg_val,
+        renda=renda, renda_estimada=renda_estimada,
+        qf=nome, qm=municipio,
+    )
+    content = manual or auto_content(p)
+    p['pt'] = content['pt']
+    p['br'] = content['br']
+    p['en'] = content['en']
+    return p
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DADOS DAS 10 FREGUESIAS
@@ -405,6 +574,9 @@ PARISHES = [
   ),
 ]
 
+# Dict para lookup rápido de conteúdo curado por slug (usado quando --supabase)
+PARISHES_MANUAIS = {p['slug']: p for p in PARISHES}
+
 # ─────────────────────────────────────────────────────────────────────────────
 # CSS (partilhado entre todas as páginas)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -660,29 +832,22 @@ UI = {
 # GERADOR HTML
 # ─────────────────────────────────────────────────────────────────────────────
 
-def other_links_html(current_slug, lang):
-    names = {
-        'pt': {'arroios':'Arroios','cascais-e-estoril':'Cascais e Estoril','lumiar':'Lumiar',
-               'belem':'Belém','sintra':'Sintra','paranhos':'Paranhos',
-               'braga-sao-vitor':'Braga (São Vítor)','oeiras':'Oeiras',
-               'almada':'Almada','setubal':'Setúbal'},
-        'br': {'arroios':'Arroios','cascais-e-estoril':'Cascais e Estoril','lumiar':'Lumiar',
-               'belem':'Belém','sintra':'Sintra','paranhos':'Paranhos (Porto)',
-               'braga-sao-vitor':'Braga (São Vítor)','oeiras':'Oeiras',
-               'almada':'Almada','setubal':'Setúbal'},
-        'en': {'arroios':'Arroios','cascais-e-estoril':'Cascais &amp; Estoril','lumiar':'Lumiar',
-               'belem':'Belém','sintra':'Sintra','paranhos':'Paranhos (Porto)',
-               'braga-sao-vitor':'Braga (São Vítor)','oeiras':'Oeiras',
-               'almada':'Almada','setubal':'Setúbal'},
-    }[lang]
+def other_links_html(current_slug, lang, all_parishes=None):
+    """Mostra as 9 primeiras freguesias da lista excluindo a actual"""
+    if all_parishes is None:
+        all_parishes = PARISHES
     links = ''
-    for slug, label in names.items():
-        if slug == current_slug:
+    count = 0
+    for p in all_parishes:
+        if p['slug'] == current_slug:
             continue
-        links += f'<a href="https://melhorzona.pt/guias/{lang}/{slug}.html" class="link-item">{label}</a>\n        '
+        if count >= 9:
+            break
+        links += f'<a href="https://melhorzona.pt/guias/{lang}/{p["slug"]}.html" class="link-item">{p["nome"]}</a>\n        '
+        count += 1
     return links.strip()
 
-def generate(p, lang):
+def generate(p, lang, all_parishes=None):
     c  = p[lang]          # conteúdo editorial desta língua
     ui = UI[lang]         # textos de interface
     arr = calc_arr(p['renda'])
@@ -913,7 +1078,7 @@ def generate(p, lang):
     <aside class="outras-freguesias" aria-label="{ui['other_title']}">
       <h3>{ui['other_title']}</h3>
       <div class="links-lista">
-        {other_links_html(p['slug'], lang)}
+        {other_links_html(p['slug'], lang, all_parishes)}
       </div>
     </aside>
 
@@ -932,21 +1097,108 @@ def generate(p, lang):
     return html
 
 # ─────────────────────────────────────────────────────────────────────────────
+# SITEMAP
+# ─────────────────────────────────────────────────────────────────────────────
+
+def actualizar_sitemap(parishes):
+    """Regenera sitemap.xml com todas as guias geradas"""
+    sitemap_path = os.path.join(BASE, 'sitemap.xml')
+    hoje = '2026-06-08'
+
+    principais = f"""  <!-- Páginas principais -->
+  <url>
+    <loc>https://melhorzona.pt/</loc>
+    <lastmod>{hoje}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/imobiliarias.html</loc>
+    <lastmod>{hoje}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://melhorzona.pt/privacidade.html</loc>
+    <lastmod>{hoje}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>"""
+
+    guias_xml = '\n  <!-- Guias de freguesia -->'
+    for p in parishes:
+        sl = p['slug']
+        for lang, prio in [('pt','0.9'),('br','0.8'),('en','0.8')]:
+            guias_xml += f"""
+  <url>
+    <loc>https://melhorzona.pt/guias/{lang}/{sl}.html</loc>
+    <lastmod>{hoje}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>{prio}</priority>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://melhorzona.pt/guias/pt/{sl}.html"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://melhorzona.pt/guias/br/{sl}.html"/>
+    <xhtml:link rel="alternate" hreflang="en"    href="https://melhorzona.pt/guias/en/{sl}.html"/>
+  </url>"""
+
+    conteudo = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+{principais}
+{guias_xml}
+
+</urlset>
+"""
+    with open(sitemap_path, 'w', encoding='utf-8') as f:
+        f.write(conteudo)
+    print(f'  sitemap.xml actualizado — {3 + len(parishes) * 3} URLs')
+
+# ─────────────────────────────────────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────────────────────────────────────
 
 def main():
+    parser = argparse.ArgumentParser(
+        description='Gera guias estáticos de freguesia (PT · BR · EN)')
+    parser.add_argument('--supabase', action='store_true',
+        help='Busca top --limite freguesias por população (requer SUPABASE_URL + SUPABASE_KEY)')
+    parser.add_argument('--limite', type=int, default=100,
+        help='Número de freguesias a gerar com --supabase (padrão: 100)')
+    args = parser.parse_args()
+
+    if args.supabase:
+        supabase_url = os.environ.get('SUPABASE_URL', '').rstrip('/')
+        supabase_key = os.environ.get('SUPABASE_KEY', '')
+        if not supabase_url or not supabase_key:
+            print('Erro: SUPABASE_URL e SUPABASE_KEY são obrigatórios com --supabase')
+            print('  export SUPABASE_URL=https://hkxdmregnsmsbxvpykul.supabase.co')
+            print('  export SUPABASE_KEY=seu_service_role_key')
+            print('  python3 data/generate-guias.py --supabase')
+            return
+        print(f'A buscar top {args.limite} freguesias no Supabase...')
+        rows = fetch_supabase(supabase_url, supabase_key, limit=args.limite)
+        print(f'  {len(rows)} freguesias encontradas')
+        parishes = []
+        for row in rows:
+            slug   = slugify(row.get('nome') or '')
+            manual = PARISHES_MANUAIS.get(slug)
+            parishes.append(build_parish_from_row(row, manual))
+    else:
+        parishes = PARISHES
+
     total = 0
     for lang in ['pt', 'br', 'en']:
         d = os.path.join(BASE, 'guias', lang)
         os.makedirs(d, exist_ok=True)
-        for p in PARISHES:
-            html = generate(p, lang)
+        for p in parishes:
+            html = generate(p, lang, parishes)
             path = os.path.join(d, f"{p['slug']}.html")
             with open(path, 'w', encoding='utf-8') as f:
                 f.write(html)
             print(f'  ✓  guias/{lang}/{p["slug"]}.html')
             total += 1
+
+    actualizar_sitemap(parishes)
     print(f'\n{total} ficheiros gerados.')
 
 if __name__ == '__main__':

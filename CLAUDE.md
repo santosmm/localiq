@@ -12,6 +12,7 @@ para imobiliárias.
 - GitHub: https://github.com/santosmm/localiq
 - Worker lista-espera: https://melhorzona-lista-espera.matheusmottas.workers.dev
 - Worker dados-freguesia: https://melhorzona-dados-freguesia.matheusmottas.workers.dev
+- Worker stripe-checkout: https://melhorzona-stripe-checkout.matheusmottas.workers.dev
 
 ## Stack
 - Frontend: HTML + CSS + JavaScript vanilla
@@ -19,10 +20,10 @@ para imobiliárias.
 - Base de dados emails: Airtable (Base ID: appzKGnGUD6pafKKn) — Lista de Espera mantém-se no Airtable
 - Backend: Cloudflare Workers (conta: matheusmottas@gmail.com)
 - Hosting: Netlify (deploy automático via git push)
-- Pagamentos: Stripe (ainda não integrado)
+- Pagamentos: Stripe Checkout (integrado — €4,99/relatório, Worker stripe-checkout)
 - Email transaccional: Brevo (funcional — DKIM/DMARC verificado em melhorzona.pt)
 - Email recepção: ImprovMX (em configuração para ola@melhorzona.pt)
-- IA resumos: Claude API modelo Haiku (ainda não integrado)
+- IA resumos: Claude API modelo Haiku (integrado — endpoint /analise no Worker dados-freguesia)
 - Controlo versões: GitHub
 
 ## Identidade visual
@@ -63,7 +64,9 @@ para imobiliárias.
 - workers/dados-freguesia.toml — config wrangler dados-freguesia
 - workers/ine-api.js — Cloudflare Worker de integração com a API INE
 - workers/ine-api.toml — config wrangler ine-api
-- imobiliarias.html — página B2B para imobiliárias (hero, como funciona, funcionalidades, preços 49€/99€, form lista de espera)
+- workers/stripe-checkout.js — Cloudflare Worker para pagamento Stripe Checkout (€4,99/relatório)
+- workers/stripe-checkout.toml — config wrangler stripe-checkout
+- imobiliarias.html — página B2B para imobiliárias (proposta de valor, antes/depois, demo embed, ROI, preços, form demo)
 - data/schema-supabase.sql — schema PostgreSQL da tabela freguesias
 - data/migrar-supabase.py — script de migração Airtable → Supabase (upsert por codigo_ine); calcula score_geral a partir de populacao se Airtable não tiver o campo
 - data/recalcular-scores.py — script standalone para recalcular score_geral no Supabase (só precisa SUPABASE_URL + SUPABASE_KEY); faz batch por valor de score para evitar SSL throttle
@@ -71,6 +74,7 @@ para imobiliárias.
 - data/importar-ine.py — lê CSV do INE e importa para Airtable (usa AIRTABLE_TOKEN)
 - data/teste_censos2021.csv — 9 freguesias de teste (Lisboa, Porto, Cascais) com geocods DICOFRE reais
 - data/enricher-seguranca.py — enriquece Supabase com `seguranca_score`/`seguranca_valor` via INE indicador 0008254 (crimes/1000 hab, 2023, nível município); flags `--dry-run`, `--limite N`
+- data/enricher-clima.py — enriquece Supabase com `clima_temp_media`, `clima_sol_horas`, `clima_precipitacao`, `clima_score` via Nominatim + Open-Meteo ERA5 (2015–2024); nível município
 - data/email-validacao.html — template de email para validação manual de produto; envia link para relatório de Arroios e pede feedback em 1 frase
 
 ## Supabase (base de dados de freguesias)
@@ -461,24 +465,97 @@ para imobiliárias.
 ### Pendente para próxima sessão
 - [ ] Finalizar ImprovMX — adicionar MX records no DNS para ola@melhorzona.pt receber emails
 - [ ] Enviar email-validacao.html a potenciais utilizadores e recolher feedback
-- [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
 - [ ] Acompanhar leads B2B recebidos e validar interesse real antes de construir mais
 - [ ] Enriquecer scores reais (transportes: GTFS, saúde: SNS Transparência, ar: QualAr)
 - [ ] Expandir guias SEO para mais freguesias (script `data/generate-guias.py` já pronto)
 
+## Sessão 2026-06-08 — Sprint 9 (concluído)
+
+### Commits desta sessão
+- (commit final do dia — imobiliarias.html B2B + stripe integrado + claude haiku integrado)
+
+### O que foi feito
+
+**Stripe Checkout — paywall relatorio.html (€4,99/relatório)**
+- Worker `melhorzona-stripe-checkout` criado e em produção
+  - `POST /checkout`: cria sessão Stripe Checkout; `success_url` inclui `{CHECKOUT_SESSION_ID}` (template Stripe)
+  - `GET /verify?session_id=`: verifica pagamento, devolve `{ pago, codigo_ine, nome_freguesia }`
+  - Produto: "Relatório Completo" — `price_1Tg7ZQI5eO03eCdnFULIEZUf` (€4,99, modo `payment`)
+  - Secrets: `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID` (em var)
+- relatorio.html: paywall → botão "Desbloquear por €4,99 →" → POST ao Worker → redirect para Stripe
+- Verificação de regresso: `?session_id=` na URL → `/verify` → `localStorage.setItem('pago_CODIGO_INE', 'true')`
+- Persistência local: não paga outra vez se voltar ao relatório (mesma máquina)
+- URL limpa após verificação: `history.replaceState`
+- `verificarPagamentoExistente()` corre no `init()` antes de mostrar paywall
+
+**Claude Haiku — análise expandida pós-pagamento**
+- Novo endpoint `GET /analise?codigo_ine=XXX` no Worker dados-freguesia
+- Prompt com dados reais: segurança, rendas, população, clima (quando disponíveis)
+- 4–5 frases em texto corrido, português europeu, tom editorial
+- relatorio.html: após desbloqueio, chama `/analise` e actualiza `#analise-texto` com transição
+- Cache: `no-store` no Worker (não cacheia respostas IA); resultado guardado em `localStorage.analise_CODIGO_INE`
+- Fallback: se API falha, análise automática (scoreParts) continua visível
+- Secret: `ANTHROPIC_API_KEY` (wrangler secret no Worker dados-freguesia)
+
+**Card de clima — relatorio.html (pós-pagamento)**
+- Card "Clima" adicionado aos `bloqueados` quando `clima_score !== null`
+- Dados: temperatura média + sol anual + precipitação · ERA5 2015–2024
+- Score 0–10 × 10 → 0–100 para display; ícone ☀️/⛅/🌧️ por limiar
+- `data/enricher-clima.py` gere `clima_temp_media`, `clima_sol_horas`, `clima_precipitacao`, `clima_score`
+  - Fonte: Nominatim geocoding + Open-Meteo ERA5 histórico
+  - Granularidade: município → todas as freguesias do município
+  - Score: sol 50% + temp 30% (óptimo 17°C) + precipitação 20%
+  - **Para activar**: `ALTER TABLE` + `python3 data/enricher-clima.py` (executar pelo utilizador)
+
+**imobiliarias.html — reformulação B2B para reunião de sexta**
+- Estrutura completamente reescrita para proposta de valor clara:
+  - Hero: dor concreta ("O seu cliente pergunta 'É segura esta zona?'"), stats, CTAs
+  - Antes/Depois: comparação visual sem testemunhos fictícios
+  - Demo embed: mockup do relatório real com dados de Arroios + link "Ver ao vivo"
+  - Como funciona: 4 passos (consultor pesquisa → relatório → partilha → visita produtiva)
+  - ROI: 3 cards + cálculo concreto (€49/mês vs comissão típica)
+  - Preços: 2 planos (€49 individual / €99 equipa) com badge "Em breve" no PDF
+  - Form: "Agendar demonstração de 15 min" → Airtable worker → success state
+- Removidos: testemunhos fictícios, secção "funcionalidades" genérica
+- Demo ao vivo: link directo para `relatorio.html?freguesia=Arroios&municipio=Lisboa`
+
+**generate-guias.py — top 100 em background**
+- Executado: `nohup python3 data/generate-guias.py --limite 100 > logs/guias.log 2>&1 &` (PID 31969)
+- Gera guias SEO estáticas para as 100 freguesias mais populosas × 3 línguas (PT/BR/EN)
+
+### Estado final do Sprint 9
+- **Stripe Checkout**: funcional em produção — €4,99/relatório ✓
+- **Claude Haiku**: análise expandida pós-pagamento funcional em produção ✓
+- **Card clima**: código no relatorio.html pronto; precisa enricher-clima.py executado pelo utilizador
+- **imobiliarias.html**: reformulada com proposta de valor B2B clara para reunião ✓
+- **generate-guias.py**: a correr em background (PID 31969)
+
+### Notas técnicas — Stripe
+- Fluxo: relatorio.html → POST /checkout → Stripe hosted page → success_url com `{CHECKOUT_SESSION_ID}` → `/verify` → localStorage
+- `?pago=true` não é usado (forjável) — só `?session_id=` verificado no Worker
+- Chave Stripe: `sk_test_*` (modo teste) — trocar para `sk_live_*` quando pronto para produção
+- Price ID: `price_1Tg7ZQI5eO03eCdnFULIEZUf` (produto "Relatório Completo")
+
+### Pendente para próxima sessão
+- [ ] Finalizar ImprovMX — adicionar MX records no DNS para ola@melhorzona.pt receber emails
+- [ ] Enviar email-validacao.html a potenciais utilizadores e recolher feedback
+- [ ] Acompanhar leads B2B (reunião de sexta) e validar interesse real
+- [ ] Executar enricher-clima.py (requer ALTER TABLE no Supabase primeiro)
+- [ ] Stripe: trocar sk_test_ → sk_live_ quando validado
+- [ ] Enriquecer scores reais (transportes: GTFS, saúde: SNS Transparência, ar: QualAr)
+- [ ] Expandir guias SEO (verificar resultado do generate-guias.py --limite 100)
+
 ## Modelo de negócio
-- B2C: 1 relatório gratuito/mês, relatório completo 4,99€
-  (preço a validar com utilizadores reais)
-- B2B: subscrição mensal para imobiliárias (49-99€/mês)
-  com PDF exportável com branding da agência
-- Preços ainda não validados — não implementar Stripe
-  antes de ter feedback de utilizadores reais
+- B2C: 1 relatório gratuito/mês, relatório completo €4,99 (Stripe Checkout integrado)
+- B2B: subscrição mensal para imobiliárias (€49/mês individual, €99/mês equipa até 5)
+  com PDF exportável com branding da agência (em breve)
+- Stripe em modo teste — trocar para live quando validado com utilizadores reais
 
 ## Regras importantes
 - Nunca usar frameworks (React, Vue) — HTML/JS vanilla apenas
 - Sempre comentar o código em português
 - Nunca commitar chaves de API — usar variáveis de ambiente
-- Secrets do Cloudflare: SUPABASE_URL e SUPABASE_KEY (dados-freguesia), AIRTABLE_TOKEN (lista-espera)
+- Secrets do Cloudflare: SUPABASE_URL e SUPABASE_KEY (dados-freguesia), AIRTABLE_TOKEN (lista-espera), STRIPE_SECRET_KEY (stripe-checkout), ANTHROPIC_API_KEY (dados-freguesia)
 - Deploy automático: git push origin main → Netlify publica
 - Testar sempre no browser antes de fazer commit
 - Não apagar registos do Airtable sem confirmação explícita
