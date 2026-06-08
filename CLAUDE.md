@@ -20,7 +20,8 @@ para imobiliárias.
 - Backend: Cloudflare Workers (conta: matheusmottas@gmail.com)
 - Hosting: Netlify (deploy automático via git push)
 - Pagamentos: Stripe (ainda não integrado)
-- Email: Brevo (ainda não configurado)
+- Email transaccional: Brevo (funcional — DKIM/DMARC verificado em melhorzona.pt)
+- Email recepção: ImprovMX (em configuração para ola@melhorzona.pt)
 - IA resumos: Claude API modelo Haiku (ainda não integrado)
 - Controlo versões: GitHub
 
@@ -70,6 +71,7 @@ para imobiliárias.
 - data/importar-ine.py — lê CSV do INE e importa para Airtable (usa AIRTABLE_TOKEN)
 - data/teste_censos2021.csv — 9 freguesias de teste (Lisboa, Porto, Cascais) com geocods DICOFRE reais
 - data/enricher-seguranca.py — enriquece Supabase com `seguranca_score`/`seguranca_valor` via INE indicador 0008254 (crimes/1000 hab, 2023, nível município); flags `--dry-run`, `--limite N`
+- data/email-validacao.html — template de email para validação manual de produto; envia link para relatório de Arroios e pede feedback em 1 frase
 
 ## Supabase (base de dados de freguesias)
 - Projecto: melhorzona (hkxdmregnsmsbxvpykul)
@@ -380,12 +382,39 @@ para imobiliárias.
 - **Acessibilidade**: `<main>` semântico + contraste WCAG AA corrigido ✓
 - **PageSpeed** (mobile, 2026-06-08): Performance 91 · Accessibility 95 · Best Practices 96 · SEO 100 ✓
 
+## Sessão 2026-06-08 — Sprint 7 (concluído)
+
+### Commits desta sessão
+- `5c5b7a1` feat: email de contacto no footer de todas as páginas (DL 7/2004)
+
+### O que foi feito
+
+**Footer legal — contacto obrigatório (DL 7/2004)**
+- Email `ola@melhorzona.pt` adicionado ao footer de todas as páginas (index, relatorio, comparar, imobiliarias)
+- Cumpre art. 10.º do DL 7/2004 (Lei do Comércio Electrónico) — endereço electrónico obrigatório
+
+**ImprovMX — recepção de emails**
+- Configuração em curso para ola@melhorzona.pt via ImprovMX (reencaminhamento para Gmail)
+- Necessário: adicionar MX records no DNS da Cloudflare apontando para ImprovMX
+
+**data/email-validacao.html — template de validação de produto**
+- Email simples para enviar manualmente a potenciais utilizadores
+- Pede 2 minutos de feedback sobre o relatório de Arroios
+- Sem tracking, sem automação — validação manual de produto
+
+### Estado final do Sprint 7
+- **Footer**: ola@melhorzona.pt em todas as páginas, cumpre DL 7/2004 ✓
+- **ImprovMX**: em configuração — recepção de email em ola@melhorzona.pt pendente de MX records
+- **PageSpeed final** (mobile + desktop, 2026-06-08): Performance 100 · Accessibility 95 · SEO 100 ✓
+- **email-validacao.html**: template de outreach manual para validação de produto ✓
+
 ### Pendente para próxima sessão
+- [ ] Finalizar ImprovMX — adicionar MX records no DNS para ola@melhorzona.pt receber emails
+- [ ] Enviar email-validacao.html a potenciais utilizadores e recolher feedback
 - [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
 - [ ] Acompanhar leads B2B recebidos e validar interesse real antes de construir mais
 - [ ] Enriquecer scores reais (transportes: GTFS, saúde: SNS Transparência, ar: QualAr)
 - [ ] Expandir guias SEO para mais freguesias (script `data/generate-guias.py` já pronto)
-- [ ] Confirmar PageSpeed Accessibility score após deploy (esperado 95+)
 
 ## Modelo de negócio
 - B2C: 1 relatório gratuito/mês, relatório completo 4,99€
