@@ -269,6 +269,66 @@ para imobiliárias.
 - [ ] Enriquecer scores reais (transportes: GTFS, saúde: SNS Transparência, ar: QualAr)
 - [ ] Mostrar `seguranca_score` na UI de relatorio.html e comparar.html
 
+## Sessão 2026-06-08 — Sprint 5 (concluído)
+
+### Commits desta sessão
+- `e229273` feat: seguranca_score e links Idealista na UI
+- `693dd9b` feat: mostrar resumo_ia gerado por Claude no relatório de freguesia
+- `0d7dbcb` perf: cache condicional no worker — 5min se resumo_ia existe, 1h se null
+- `a814453` feat: meta tags dinâmicas por freguesia no relatório
+- `a300642` feat: analytics Plausible em todas as páginas com eventos custom
+- `63785ba` revert: remover Plausible — fica só com Cloudflare Analytics (gratuito)
+- `3bfeca1` feat: páginas estáticas SEO — 10 freguesias × 3 línguas (PT/BR/EN)
+- `d48e519` feat: sitemap.xml, robots.txt e links internos para guias SEO
+
+### O que foi feito
+
+**seguranca_score na UI (relatorio.html + comparar.html)**
+- `relatorio.html`: card "Segurança" nos indicadores livres — valor em crimes/1000 hab · INE 2023
+- `comparar.html`: barra "Segurança" nos indicadores livres com scores reais de ambas as freguesias
+- Conversão: `seguranca_score` (0–10) × 10 → 0–100 para display; fallback hardcoded se null
+
+**resumo_ia no relatório**
+- Quando `resumo_ia` existe no Supabase, substitui a análise automática (scoreParts)
+- Badge "Resumo IA" vs "Análise automática" conforme a fonte
+- `analiseFonte` indica "Gerado por Claude AI · Dados INE Censos 2021 · INE Rendas 2024"
+
+**Cache condicional no Worker dados-freguesia**
+- `Cache-Control: max-age=300` (5 min) quando `resumo_ia` está preenchido
+- `Cache-Control: max-age=3600` (1 hora) quando `resumo_ia` é null
+- Evita servir resumos IA desactualizados sem penalizar o cache de dados estáticos
+
+**Meta tags dinâmicas por freguesia**
+- `<title>`, `<meta description>`, og:title, og:description actualizados via JS com dados reais
+- Score, renda mediana e nome da freguesia na description para melhor CTR
+
+**Analytics — Plausible tentado e revertido**
+- Plausible adicionado (`a300642`) mas revertido (`63785ba`) — fica só Cloudflare Analytics (gratuito)
+- Motivo: Cloudflare Analytics já cobre as necessidades actuais sem custo extra
+
+**SEO — páginas estáticas por freguesia**
+- 30 páginas HTML estáticas em `guias/pt/`, `guias/br/`, `guias/en/`
+- 10 freguesias × 3 línguas (PT/BR/EN) com dados reais hardcoded (Supabase 2024)
+- Cada página: hreflang cruzado, Schema.org Article + FAQPage, breadcrumb, 3 cards, tabela, CTA
+- Script gerador: `data/generate-guias.py` — adicionar freguesia requer só um bloco de dados + `python3 data/generate-guias.py`
+- `sitemap.xml`: 33 URLs (3 páginas principais + 30 guias) com hreflang inline; priority 1.0/0.9/0.8
+- `robots.txt`: `Allow: *` + aponta para sitemap
+- `index.html`: secção "Guias por Freguesia" antes do footer — ligações internas para o Googlebot
+- Google Search Console: domínio verificado, sitemap submetido com sucesso (33 URLs)
+
+### Estado final do Sprint 5
+- **seguranca_score**: visível na UI de relatorio.html e comparar.html com dados reais INE 2023 ✓
+- **SEO orgânico**: 30 páginas estáticas indexáveis + sitemap submetido ao GSC ✓
+- **Google Search Console**: verificado em melhorzona.pt; sitemap aceite com 33 URLs ✓
+- **Cloudflare Analytics**: único sistema de analytics activo (gratuito, sem JS extra)
+- **Indexação**: Google demora 1–2 semanas; acompanhar em GSC → Cobertura e Desempenho
+
+### Pendente para próxima sessão
+- [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
+- [ ] Acompanhar leads B2B recebidos e validar interesse real antes de construir mais
+- [ ] Enriquecer scores reais (transportes: GTFS, saúde: SNS Transparência, ar: QualAr)
+- [ ] Expandir guias SEO para mais freguesias (script `data/generate-guias.py` já pronto)
+
 ## Modelo de negócio
 - B2C: 1 relatório gratuito/mês, relatório completo 4,99€
   (preço a validar com utilizadores reais)
