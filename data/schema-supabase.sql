@@ -45,6 +45,12 @@ CREATE TABLE IF NOT EXISTS freguesias (
   rendas_mediana       NUMERIC(10,2),
   preco_avaliacao_m2   NUMERIC(10,2),
 
+  -- Clima (ERA5, média 2015-2024)
+  clima_temp_media     NUMERIC(5,2),
+  clima_sol_horas      NUMERIC(8,1),
+  clima_precipitacao   NUMERIC(8,1),
+  clima_score          NUMERIC(4,1),
+
   -- IA
   resumo_ia            TEXT,
 
