@@ -7,7 +7,7 @@ compatibility_date = "2025-05-31"
 # Após criar o produto "Relatório Completo" em stripe.com/dashboard,
 # copiar o price_ID para cá e fazer deploy.
 [vars]
-STRIPE_PRICE_ID = "price_SUBSTITUIR"
+STRIPE_PRICE_ID = "price_1Tg7ZQI5eO03eCdnFULIEZUf"
 
 # STRIPE_SECRET_KEY: adicionar como secret (nunca em texto claro)
 # cd workers && printf 'sk_test_...' | wrangler secret put STRIPE_SECRET_KEY --config stripe-checkout.toml
