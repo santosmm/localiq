@@ -634,6 +634,108 @@
     @media (max-width: 480px) {
       .stat-numero { font-size: 1.6rem; }
     }
+
+    /* ── Preços ── */
+    .section-precos {
+      background: var(--cinza-claro);
+      padding: 80px 20px;
+      border-top: 1px solid var(--borda);
+    }
+    .section-precos .section-titulo {
+      text-align: center;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .section-precos .section-subtitulo {
+      text-align: center;
+      color: var(--cinza-texto);
+      font-size: 1rem;
+    }
+    .precos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 880px;
+      margin: 40px auto 0;
+    }
+    .preco-card {
+      background: var(--branco);
+      border: 1px solid var(--borda);
+      border-radius: 14px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .preco-card-destaque {
+      background: var(--azul-escuro);
+      border-color: var(--azul-escuro);
+      color: #fff;
+    }
+    .preco-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--azul-claro);
+    }
+    .preco-card-destaque .preco-label { color: rgba(255,255,255,0.55); }
+    .preco-nome {
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+    .preco-valor {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--azul-escuro);
+      line-height: 1.1;
+    }
+    .preco-card-destaque .preco-valor { color: #fff; }
+    .preco-valor span {
+      font-size: 0.85rem;
+      font-weight: 400;
+      opacity: 0.6;
+    }
+    .preco-divisor {
+      border: none;
+      border-top: 1px solid var(--borda);
+      margin: 0;
+    }
+    .preco-card-destaque .preco-divisor { border-color: rgba(255,255,255,0.12); }
+    .preco-lista {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-size: 0.875rem;
+      flex: 1;
+      color: var(--cinza-texto);
+    }
+    .preco-card-destaque .preco-lista { color: rgba(255,255,255,0.8); }
+    .preco-lista li::before { content: '✓ '; color: var(--azul-claro); font-weight: 700; }
+    .preco-card-destaque .preco-lista li::before { color: rgba(255,255,255,0.55); }
+    .btn-preco {
+      display: block;
+      text-align: center;
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: opacity 0.2s;
+      margin-top: 4px;
+    }
+    .btn-preco:hover { opacity: 0.85; }
+    .btn-preco-primario  { background: var(--azul-claro); color: #fff; }
+    .btn-preco-branco    { background: #fff; color: var(--azul-escuro); }
+    .btn-preco-secundario { background: var(--cinza-claro); color: var(--azul-escuro); border: 1px solid var(--borda); }
+    @media (max-width: 720px) {
+      .precos-grid { grid-template-columns: 1fr; max-width: 420px; }
+    }
   </style>
 </head>
 <body>
@@ -842,6 +944,61 @@
         <a href="/guias/pt/oeiras.html"            style="background:#fff; border:1px solid #dde3eb; border-radius:8px; padding:8px 16px; font-size:0.85rem; color:#1B4F72; font-weight:600; text-decoration:none;">Oeiras</a>
         <a href="/guias/pt/almada.html"            style="background:#fff; border:1px solid #dde3eb; border-radius:8px; padding:8px 16px; font-size:0.85rem; color:#1B4F72; font-weight:600; text-decoration:none;">Almada</a>
         <a href="/guias/pt/setubal.html"           style="background:#fff; border:1px solid #dde3eb; border-radius:8px; padding:8px 16px; font-size:0.85rem; color:#1B4F72; font-weight:600; text-decoration:none;">Setúbal</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Preços ── -->
+  <section class="section-precos" id="precos">
+    <div class="container">
+      <h2 class="section-titulo">Simples e transparente</h2>
+      <p class="section-subtitulo">Começa de graça. Aprofunda quando precisares.</p>
+      <div class="precos-grid">
+
+        <!-- Plano Free -->
+        <div class="preco-card">
+          <div class="preco-label">Gratuito para sempre</div>
+          <div class="preco-nome">Básico</div>
+          <div class="preco-valor">€0</div>
+          <hr class="preco-divisor">
+          <ul class="preco-lista">
+            <li>Segurança e arrendamento</li>
+            <li>Pesquisa ilimitada</li>
+            <li>Comparação entre 2 zonas</li>
+          </ul>
+          <a href="#pesquisa" class="btn-preco btn-preco-secundario">Começar grátis →</a>
+        </div>
+
+        <!-- Plano Pago -->
+        <div class="preco-card preco-card-destaque">
+          <div class="preco-label">Mais popular</div>
+          <div class="preco-nome">Completo</div>
+          <div class="preco-valor">€4,99 <span>/ relatório</span></div>
+          <hr class="preco-divisor">
+          <ul class="preco-lista">
+            <li>Todos os indicadores</li>
+            <li>Transportes, Saúde e Ensino</li>
+            <li>Relatório em PDF</li>
+            <li>Resumo por IA</li>
+          </ul>
+          <a href="#pesquisa" class="btn-preco btn-preco-branco">Escolher freguesia →</a>
+        </div>
+
+        <!-- Plano B2B -->
+        <div class="preco-card">
+          <div class="preco-label">Para profissionais</div>
+          <div class="preco-nome">Imobiliárias</div>
+          <div class="preco-valor">€49 <span>/ mês</span></div>
+          <hr class="preco-divisor">
+          <ul class="preco-lista">
+            <li>Relatórios ilimitados</li>
+            <li>PDF com marca da agência</li>
+            <li>Acesso API</li>
+            <li>Suporte dedicado</li>
+          </ul>
+          <a href="/imobiliarias.html" class="btn-preco btn-preco-primario">Saber mais →</a>
+        </div>
+
       </div>
     </div>
   </section>

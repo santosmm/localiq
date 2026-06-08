@@ -28,13 +28,33 @@ function respostaJson(dados, status, cors, temResumoIa = false) {
   });
 }
 
+/* Calcula score geral a partir dos dados reais — nunca usa população como proxy */
+function calcularScoreReal(r) {
+  var scores = [];
+  if (r.seguranca_score   != null) scores.push(r.seguranca_score);
+  if (r.transportes_score != null) scores.push(r.transportes_score);
+  if (r.saude_score       != null) scores.push(r.saude_score);
+  if (r.ensino_score      != null) scores.push(r.ensino_score);
+  if (r.rendas_mediana    != null) {
+    /* Invertido: rendas baixas = mais acessível = melhor score */
+    /* Calibração: 3€/m² → 9.1, 10€/m² → 7.0, 20€/m² → 4.0, 33€/m² → 0.1 */
+    var arScore = Math.max(0, Math.min(10, parseFloat((10 - r.rendas_mediana * 0.3).toFixed(1))));
+    scores.push(arScore);
+  } else if (r.arrendamento_score != null) {
+    scores.push(r.arrendamento_score);
+  }
+  if (scores.length === 0) return null;
+  var media = scores.reduce(function(a, b) { return a + b; }, 0) / scores.length;
+  return parseFloat(media.toFixed(1));
+}
+
 function mapearRegisto(r) {
   return {
     nome:                r.nome                ?? '',
     municipio:           r.municipio           ?? '',
     codigo_ine:          r.codigo_ine          ?? '',
     populacao:           r.populacao           ?? null,
-    score_geral:         r.score_geral         ?? null,
+    score_geral:         calcularScoreReal(r),
     transportes_score:   r.transportes_score   ?? null,
     transportes_valor:   r.transportes_valor   ?? null,
     ar_score:            r.ar_score            ?? null,
@@ -57,7 +77,7 @@ function mapearRegisto(r) {
 
 async function consultarMunicipio(nome, supabaseUrl, supabaseKey) {
   const url = `${supabaseUrl}/rest/v1/freguesias`
-            + `?select=nome,municipio,score_geral,populacao`
+            + `?select=nome,municipio,score_geral,seguranca_score,rendas_mediana`
             + `&municipio=ilike.${encodeURIComponent(nome)}*`
             + `&order=score_geral.desc.nullslast`
             + `&limit=10`;
@@ -72,7 +92,11 @@ async function consultarMunicipio(nome, supabaseUrl, supabaseKey) {
   if (!resposta.ok) throw new Error(`Supabase ${resposta.status}`);
 
   const registos = await resposta.json();
-  return registos;
+  return registos.map(r => ({
+    nome:        r.nome      ?? '',
+    municipio:   r.municipio ?? '',
+    score_geral: calcularScoreReal(r),
+  }));
 }
 
 async function consultarFreguesia(nome, municipio, supabaseUrl, supabaseKey) {
