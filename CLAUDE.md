@@ -375,9 +375,10 @@ para imobiliárias.
 ### Estado final do Sprint 6
 - **Plausible**: script correcto em 5 páginas; 4 eventos custom activos
 - **404.html**: página de erro com identidade visual e barra de pesquisa ✓
-- **Open Graph**: completo em todas as páginas — partilha no WhatsApp/LinkedIn mostra imagem e texto correctos ✓
-- **Schema.org**: Article + FAQPage em 30 guias com headline sem truncagem ✓
+- **Open Graph**: validado em produção — tags correctas no index.html ✓
+- **Schema.org**: validado em produção — Article + FAQPage com 3 perguntas na guia de Arroios ✓
 - **Acessibilidade**: `<main>` semântico + contraste WCAG AA corrigido ✓
+- **PageSpeed**: API quota diária esgotada — confirmar manualmente em pagespeed.web.dev (esperado 95+)
 
 ### Pendente para próxima sessão
 - [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
