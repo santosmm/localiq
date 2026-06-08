@@ -1047,10 +1047,15 @@
         if (e  != null) scoreParts.push('Educação: ' + r.educacao_score + '/10');
         if (sg != null) scoreParts.push('Segurança: ' + r.seguranca_score + '/10');
 
-        if (scoreParts.length > 0) {
-          analise      = r.nome + ' tem um score geral de ' + r.score_geral + '/10 no índice Melhor Zona. '
-                       + scoreParts.join(' · ') + '.'
-                       + (pop ? ' População residente: ' + pop + '.' : '');
+        var rendasPart = r.rendas_mediana != null
+          ? ' Renda mediana: €' + r.rendas_mediana.toFixed(2).replace('.', ',') + '/m² (INE 2024).'
+          : '';
+
+        if (scoreParts.length > 0 || r.rendas_mediana != null) {
+          analise      = r.nome + ' tem um score geral de ' + r.score_geral + '/10 no índice Melhor Zona.'
+                       + (scoreParts.length > 0 ? ' ' + scoreParts.join(' · ') + '.' : '')
+                       + rendasPart
+                       + (pop ? ' População residente: ' + pop : '');
           analiseFonte = 'INE Censos 2021 · INE Rendas 2024 · Base Melhor Zona';
         } else {
           analise      = r.nome + (pop ? ' tem ' + pop + ' de população residente (INE Censos 2021).' : '.')
