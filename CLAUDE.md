@@ -416,6 +416,56 @@ para imobiliárias.
 - [ ] Enriquecer scores reais (transportes: GTFS, saúde: SNS Transparência, ar: QualAr)
 - [ ] Expandir guias SEO para mais freguesias (script `data/generate-guias.py` já pronto)
 
+## Sessão 2026-06-08 — Sprint 8 (concluído)
+
+### Commits desta sessão
+- `9e06e17` feat: score_geral calculado a partir de dados reais (segurança + arrendamento)
+
+### O que foi feito
+
+**score_geral — substituição do proxy de população**
+- Problema: `score_geral` no Supabase = `LEAST(ROUND((populacao/50000)*10,1),10)` → desonesto
+  - Lumiar (46k hab): 9.3/10 = 93/100 → parecia zona excelente apenas por ser grande
+- Solução: função `calcularScoreReal(r)` no Worker `dados-freguesia.js`
+  - Combina scores reais disponíveis: `seguranca_score`, `transportes_score`, `saude_score`, `ensino_score`
+  - Se tem `rendas_mediana`: calcula arrendamento score = `max(0, min(10, 10 - rendas * 0.3))`
+    - Calibração: 3€/m² → 9.1, 10€/m² → 7.0, 20€/m² → 4.0, 33€/m² → 0.1
+  - Média simples de todos os scores disponíveis
+  - Sem dados: retorna null → badge "A calcular" no relatorio.html
+- Resultados concretos: Lumiar 93→48/100 · Arroios 67→48/100 · Almeida (interior seguro) 8.8/10 = 88/100
+- `consultarMunicipio()` actualizado: fetch inclui `seguranca_score,rendas_mediana`,
+  scores calculados antes de devolver a lista de desambiguação
+- relatorio.html: badge quando null = "A calcular" (era "Dados em actualização")
+- relatorio.html: texto automático de análise corrigido — remove "nos Censos 2021" (o score agora é calculado)
+
+**index.html — secção de preços**
+- Secção "Simples e transparente" adicionada antes do footer (`<section id="precos">`)
+- 3 planos: Básico (€0), Completo (€4,99/relatório), Imobiliárias (€49/mês)
+- Design inline coerente com o resto da landing (system fonts, mesmas variáveis CSS)
+- Plano destacado (Completo) com fundo `azul-escuro` e botão branco
+- Responsive: grid 3 colunas desktop → 1 coluna mobile (max-width 720px)
+
+### Estado final do Sprint 8
+- **score_geral**: honesto para todas as 3259 freguesias — média de scores reais disponíveis ✓
+- **Worker dados-freguesia**: versão `c9b736fe` em produção ✓
+- **index.html**: secção de preços visível na landing ✓
+- **relatorio.html**: badge "A calcular" e texto de análise actualizado ✓
+
+### Notas técnicas — score_geral
+- `score_geral` no Supabase mantém-se com o valor proxy antigo — nunca mais é lido pelo Worker
+  - Não é necessário re-migrar nem recalcular no Supabase
+- Quando `transportes_score` e `saude_score` forem preenchidos (futuramente), o score melhora automaticamente
+- 651 freguesias sem `rendas_mediana` (interior, Açores, Madeira) → score baseado só em segurança
+- Distribuição actual: interior seguro ~88/100, Lisboa/Porto ~48/100, outras ~55–70/100
+
+### Pendente para próxima sessão
+- [ ] Finalizar ImprovMX — adicionar MX records no DNS para ola@melhorzona.pt receber emails
+- [ ] Enviar email-validacao.html a potenciais utilizadores e recolher feedback
+- [ ] Integrar Stripe para pagamento 4,99€ — só após validação com utilizadores reais
+- [ ] Acompanhar leads B2B recebidos e validar interesse real antes de construir mais
+- [ ] Enriquecer scores reais (transportes: GTFS, saúde: SNS Transparência, ar: QualAr)
+- [ ] Expandir guias SEO para mais freguesias (script `data/generate-guias.py` já pronto)
+
 ## Modelo de negócio
 - B2C: 1 relatório gratuito/mês, relatório completo 4,99€
   (preço a validar com utilizadores reais)
