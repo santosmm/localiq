@@ -1708,7 +1708,8 @@ document.getElementById('form-alerta').style.display = 'none';
     init();
 
     /* ════════════════════════════════════════════════════════════
-       GERAÇÃO DE PDF — html2pdf.js (cdnjs 0.10.1)
+       GERAÇÃO DE PDF — página HTML isolada + window.print()
+       (Mais fiável que html2pdf.js: fontes correctas, sem CDN externo)
        ════════════════════════════════════════════════════════════ */
 
     function slugificar(texto) {
@@ -1724,7 +1725,7 @@ document.getElementById('form-alerta').style.display = 'none';
 
       var btn  = document.getElementById('btn-exportar-pdf');
       var orig = btn ? btn.textContent : '⬇ Exportar PDF';
-      if (btn) { btn.disabled = true; btn.textContent = '⏳ A gerar PDF…'; }
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ A preparar…'; }
 
       try {
         /* 1. Análise estruturada (Claude Haiku) para página 3 */
@@ -1745,25 +1746,65 @@ document.getElementById('form-alerta').style.display = 'none';
           }
         } catch (_) {}
 
-        /* 3. Montar HTML e gerar PDF */
-        var cont = document.getElementById('pdf-render');
-        cont.innerHTML = construirHtmlPdf(dadosReais, analise, alternativas);
-        cont.style.display = 'block';
+        /* 3. Montar HTML completo e abrir em nova tab para "Guardar como PDF" */
+        var conteudo = construirHtmlPdf(dadosReais, analise, alternativas);
+        var nomePag  = dadosReais.nome || 'Relatório';
 
-        await html2pdf().set({
-          margin:      0,
-          filename:    'melhorzona-' + slugificar(dadosReais.nome) + '.pdf',
-          image:       { type: 'jpeg', quality: 0.96 },
-          html2canvas: { scale: 2, useCORS: true, logging: false, allowTaint: true },
-          jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak:   { mode: 'css', before: '.pdf-nova-pagina' },
-        }).from(cont).save();
+        var htmlCompleto = '<!DOCTYPE html>\n'
+          + '<html lang="pt">\n<head>\n'
+          + '<meta charset="UTF-8">\n'
+          + '<title>Melhor Zona \xB7 ' + nomePag + '<\/title>\n'
+          + '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+          + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+          + '<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">\n'
+          + '<style>\n'
+          + '@page { size: A4 portrait; margin: 0; }\n'
+          + '*, *::before, *::after {\n'
+          + '  box-sizing: border-box;\n'
+          + '  -webkit-print-color-adjust: exact !important;\n'
+          + '  print-color-adjust: exact !important;\n'
+          + '}\n'
+          + 'body { margin: 0; padding: 0; background: #fff; }\n'
+          + '.pdf-nova-pagina { page-break-before: always; break-before: page; }\n'
+          + '.dica {\n'
+          + '  position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;\n'
+          + '  background: #1B4F72; color: #fff;\n'
+          + '  display: flex; align-items: center; justify-content: center; gap: 16px;\n'
+          + '  padding: 14px 24px; font-family: Inter, sans-serif; font-size: 14px; flex-wrap: wrap;\n'
+          + '}\n'
+          + '.dica-btn {\n'
+          + '  background: #fff; color: #1B4F72; border: none; border-radius: 8px;\n'
+          + '  padding: 9px 22px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;\n'
+          + '}\n'
+          + '.dica-btn:hover { background: #D6E8F5; }\n'
+          + '.dica-fechar { background: transparent; color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.3); }\n'
+          + '@media print { .dica { display: none; } }\n'
+          + '<\/style>\n'
+          + '<\/head>\n<body>\n'
+          + '<div class="dica">\n'
+          + '  <span>Na caixa de impressão selecciona <strong style="margin:0 5px;">Guardar como PDF<\/strong> &middot; Tamanho A4 &middot; Margens Nenhuma<\/span>\n'
+          + '  <button class="dica-btn" onclick="window.print()">Guardar PDF<\/button>\n'
+          + '  <button class="dica-btn dica-fechar" onclick="window.close()">Fechar<\/button>\n'
+          + '<\/div>\n'
+          + conteudo + '\n'
+          + '<script>\n'
+          + 'document.fonts.ready.then(function(){'
+          + 'setTimeout(function(){window.print();},700);'
+          + '});\n'
+          + '<' + '\/script>\n'
+          + '<\/body>\n<\/html>';
 
-        cont.style.display = 'none';
-        cont.innerHTML     = '';
+        var blob       = new Blob([htmlCompleto], { type: 'text/html; charset=utf-8' });
+        var url        = URL.createObjectURL(blob);
+        var novaJanela = window.open(url, '_blank');
+        if (!novaJanela) {
+          alert('O teu browser bloqueou a nova janela. Permite pop-ups para melhorzona.pt e tenta novamente.');
+        }
+        setTimeout(function () { URL.revokeObjectURL(url); }, 90000);
 
       } catch (err) {
         console.error('Erro PDF:', err);
+        alert('Erro ao preparar o relatório. Tenta novamente.');
       } finally {
         if (btn) { btn.disabled = false; btn.textContent = orig; }
       }
@@ -1984,12 +2025,6 @@ document.getElementById('form-alerta').style.display = 'none';
       return `<div style="width:794px;background:#fff;">${p1}${p2}${p3}${p4}</div>`;
     }
   </script>
-
-  <!-- Contentor off-screen para renderização do PDF -->
-  <div id="pdf-render" style="display:none;position:fixed;left:-9999px;top:0;z-index:-1;"></div>
-
-  <!-- html2pdf.js — geração de PDF client-side -->
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-x4Vo4C1Oc7C-11iBfAlmJ.js"></script>
