@@ -1980,11 +1980,7 @@ document.getElementById('form-alerta').style.display = 'none';
         </div>` : '';
 
       var p3 = `<div class="pdf-nova-pagina" style="width:794px;height:1123px;background:#fff;overflow:hidden;position:relative;font-family:${FC};page-break-before:always;">
-  <div style="background:${AZ};padding:26px 60px;">
-    <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px;">${mun} · ${nome}</div>
-    <div style="font-family:${FT};font-size:22px;font-weight:800;color:#fff;">Análise Editorial</div>
-  </div>
-  <div style="padding:28px 60px;">
+  <div style="padding:44px 60px 28px;">
     <div style="font-family:${FT};font-size:26px;font-weight:800;color:#1a2e3e;line-height:1.3;margin-bottom:14px;">${tit3}</div>
     <div style="font-size:13px;color:#2c3e50;line-height:1.8;margin-bottom:24px;padding-bottom:22px;border-bottom:2px solid #D6E8F5;">${car3}</div>
     ${(htmlFts3 || htmlAts3) ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">${htmlFts3}${htmlAts3}</div>` : ''}
@@ -2003,8 +1999,9 @@ document.getElementById('form-alerta').style.display = 'none';
       var alt3 = (alternativas || []).slice(0, 3);
       var htmlAlt4 = alt3.length > 0
         ? alt3.map(function (a) {
-            var aS = a.score_geral    != null ? Math.round(a.score_geral * 10) : null;
-            var aR = a.rendas_mediana != null ? parseFloat(a.rendas_mediana)   : null;
+            var aS   = a.score_geral != null ? Math.round(a.score_geral * 10) : null;
+            var aPop = a.populacao   != null ? parseInt(a.populacao)          : null;
+            var aPopStr = aPop != null ? aPop.toLocaleString('pt-PT') + ' hab · Censos 2021' : 'Dados não disponíveis';
             return `<div style="background:#f8fafd;border:1px solid #dde8f0;border-radius:12px;padding:20px 24px;display:flex;align-items:center;gap:20px;margin-bottom:14px;">
               <div style="flex-shrink:0;width:60px;height:60px;border-radius:50%;background:${cor(aS)};display:flex;align-items:center;justify-content:center;flex-direction:column;">
                 <div style="font-family:${FT};font-size:16px;font-weight:800;color:#fff;line-height:1;">${aS != null ? aS : '—'}</div>
@@ -2012,7 +2009,7 @@ document.getElementById('form-alerta').style.display = 'none';
               </div>
               <div style="flex:1;">
                 <div style="font-family:${FT};font-size:17px;font-weight:800;color:#1a2e3e;margin-bottom:4px;">${a.nome}</div>
-                ${aR != null ? `<div style="font-size:11px;color:#566779;">Renda mediana: ${fN(aR, 2)}€/m² · INE 2024</div>` : '<div style="font-size:11px;color:#999;">Rendas sem dados INE</div>'}
+                <div style="font-size:11px;color:${aPop != null ? '#566779' : '#999'};">${aPopStr}</div>
               </div>
               <div style="flex-shrink:0;font-size:10px;font-weight:700;color:${AZ};letter-spacing:0.05em;">MELHORZONA.PT</div>
             </div>`;

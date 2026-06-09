@@ -205,7 +205,7 @@ Responde APENAS com JSON válido (sem texto extra, sem blocos markdown), com est
 
 async function consultarMunicipio(nome, supabaseUrl, supabaseKey) {
   const url = `${supabaseUrl}/rest/v1/freguesias`
-            + `?select=nome,municipio,score_geral,seguranca_score,rendas_mediana`
+            + `?select=nome,municipio,score_geral,seguranca_score,rendas_mediana,populacao`
             + `&municipio=ilike.${encodeURIComponent(nome)}*`
             + `&order=score_geral.desc.nullslast`
             + `&limit=10`;
