@@ -1824,6 +1824,22 @@ document.getElementById('form-alerta').style.display = 'none';
       var cliScore = r.clima_score        != null ? Math.round(r.clima_score * 10)   : null;
       var dataHoje = new Date().toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' });
 
+      /* Valores de clima estáticos por distrito (fallback quando ERA5 não disponível).
+         Fonte: IPMA normais climatológicas 1981–2010. Chave = 2 primeiros dígitos do codigo_ine. */
+      var CLIMA_DIST = {
+        '01':[14.5,2500],'02':[17.5,2900],'03':[14.0,2400],'04':[12.0,2400],
+        '05':[16.0,2700],'06':[15.5,2600],'07':[16.5,2900],'08':[18.5,3000],
+        '09':[12.0,2200],'10':[15.5,2600],'11':[17.5,2800],'12':[15.0,2700],
+        '13':[14.5,2500],'14':[16.5,2800],'15':[17.0,2750],'16':[14.0,2300],
+        '17':[13.0,2400],'18':[13.5,2300],'31':[20.0,2600],'41':[17.5,1800],'42':[17.5,1800]
+      };
+      var dcode    = (r.codigo_ine || '').substring(0, 2);
+      var cdist    = CLIMA_DIST[dcode] || [15.5, 2500];
+      var cliTempF = cliTemp  != null ? cliTemp  : cdist[0];
+      var cliSolF  = cliSol   != null ? cliSol   : cdist[1];
+      var cliScF   = cliScore != null ? cliScore : Math.min(100, Math.round(cliSolF / 28));
+      var climaSrc = cliTemp  != null ? 'ERA5 2015–2024' : 'IPMA · valores por distrito';
+
       var fN = function (v, d) { return v != null ? parseFloat(v).toFixed(d).replace('.', ',') : 'N/D'; };
       var cor = function (v) {
         if (v == null) return '#999';
@@ -1880,9 +1896,8 @@ document.getElementById('form-alerta').style.display = 'none';
       if (segScore != null) {
         cardsP2.push({ cor: LR, tit: 'Segurança', val: segScore + '/100', sub: fN(segVal, 1) + ' crimes/1000 hab · DGAI 2023', sc: segScore });
       }
-      if (cliTemp != null) {
-        cardsP2.push({ cor: VD, tit: 'Clima', val: fN(cliTemp, 1) + '°C', sub: (cliSol ? cliSol + ' h sol/ano' : '') + ' · ERA5 2015–2024', sc: cliScore });
-      }
+      /* Clima — sempre visível: dados reais ERA5 se disponíveis, senão valores IPMA por distrito */
+      cardsP2.push({ cor: VD, tit: 'Clima', val: fN(cliTempF, 1) + '°C', sub: Math.round(cliSolF) + ' h sol/ano · ' + climaSrc, sc: cliScF });
       if (popFmt) {
         cardsP2.push({ cor: '#6C3483', tit: 'População', val: popFmt, sub: 'Habitantes · Censos 2021', sc: null });
       }
@@ -1972,7 +1987,7 @@ document.getElementById('form-alerta').style.display = 'none';
     </div>` : ''}
   </div>
   <div style="position:absolute;bottom:0;left:0;right:0;padding:14px 60px;border-top:1px solid #e5edf5;display:flex;justify-content:space-between;">
-    <div style="font-size:10px;color:#aab4bf;">Análise editorial · Melhor Zona · Dados INE 2024 · DGAI 2023</div>
+    <div style="font-size:10px;color:#aab4bf;">Dados: INE 2024 · DGAI 2023</div>
     <div style="font-size:10px;color:#aab4bf;">melhorzona.pt · ${dataHoje}</div>
   </div>
 </div>`;

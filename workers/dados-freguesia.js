@@ -223,8 +223,11 @@ async function consultarMunicipio(nome, supabaseUrl, supabaseKey) {
   return registos.map(r => ({
     nome:           r.nome           ?? '',
     municipio:      r.municipio      ?? '',
-    score_geral:    calcularScoreReal(r),
+    /* score_geral do Supabase (proxy de população) — difere por freguesia,
+       ao contrário de calcularScoreReal que é igual para todas do mesmo município */
+    score_geral:    r.score_geral    ?? null,
     rendas_mediana: r.rendas_mediana ?? null,
+    populacao:      r.populacao      ?? null,
   }));
 }
 
