@@ -151,6 +151,58 @@ Responde apenas com as 4 a 5 frases em texto corrido, sem bullets nem títulos. 
   };
 }
 
+/* Gera análise estruturada para PDF (página 3) — retorna JSON com título, pontos fortes/atenção, etc. */
+async function gerarAnalisePdf(codigoIne, env) {
+  const sbUrl = `${env.SUPABASE_URL}/rest/v1/freguesias`
+    + `?select=nome,municipio,populacao,rendas_mediana,seguranca_valor,seguranca_score,clima_temp_media,clima_sol_horas`
+    + `&codigo_ine=eq.${encodeURIComponent(codigoIne)}&limit=1`;
+
+  const sbRes = await fetch(sbUrl, {
+    headers: { 'apikey': env.SUPABASE_KEY, 'Authorization': `Bearer ${env.SUPABASE_KEY}` },
+  });
+  if (!sbRes.ok) throw new Error(`Supabase ${sbRes.status}`);
+  const registos = await sbRes.json();
+  if (!registos.length) return { erro: 'Freguesia não encontrada' };
+
+  const r   = registos[0];
+  const pop = r.populacao ?? 0;
+  const dados = [
+    r.rendas_mediana  != null ? `rendas medianas ${parseFloat(r.rendas_mediana).toFixed(2)}€/m² (nacional ~€10/m²)` : null,
+    r.seguranca_valor != null ? `${parseFloat(r.seguranca_valor).toFixed(1)} crimes/1000 hab (nacional ~35)` : null,
+    pop > 0 ? `${pop.toLocaleString('pt-PT')} habitantes` : null,
+    r.clima_temp_media != null ? `temperatura média ${parseFloat(r.clima_temp_media).toFixed(1)}°C` : null,
+    r.clima_sol_horas  != null ? `${Math.round(r.clima_sol_horas)} horas de sol por ano` : null,
+  ].filter(Boolean).join(', ');
+
+  const prompt = `Para a freguesia ${r.nome} em ${r.municipio}, Portugal, com os seguintes dados: ${dados}.
+
+Responde APENAS com JSON válido (sem texto extra, sem blocos markdown), com estas chaves exactas:
+{"titulo":"(título editorial curto, máx 10 palavras, português de Portugal)","caracterizacao":"(2 frases a caracterizar a zona, tom sóbrio, português europeu)","pontos_fortes":["(máx 7 palavras)","(máx 7 palavras)","(máx 7 palavras)"],"pontos_atencao":["(máx 7 palavras)","(máx 7 palavras)","(máx 7 palavras)"],"para_quem":"(uma frase, máx 15 palavras, sobre para quem é esta zona)"}`;
+
+  const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+    method:  'POST',
+    headers: {
+      'Content-Type':      'application/json',
+      'x-api-key':         env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model:      'claude-haiku-4-5-20251001',
+      max_tokens: 600,
+      messages:   [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  const claudeJson = await claudeRes.json();
+  const texto      = claudeJson.content?.[0]?.text?.trim() ?? '';
+  if (!texto) throw new Error('Claude devolveu resposta vazia');
+
+  const match = texto.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('Claude não devolveu JSON válido');
+
+  return { nome: r.nome, municipio: r.municipio, ...JSON.parse(match[0]) };
+}
+
 async function consultarMunicipio(nome, supabaseUrl, supabaseKey) {
   const url = `${supabaseUrl}/rest/v1/freguesias`
             + `?select=nome,municipio,score_geral,seguranca_score,rendas_mediana`
@@ -169,9 +221,10 @@ async function consultarMunicipio(nome, supabaseUrl, supabaseKey) {
 
   const registos = await resposta.json();
   return registos.map(r => ({
-    nome:        r.nome      ?? '',
-    municipio:   r.municipio ?? '',
-    score_geral: calcularScoreReal(r),
+    nome:           r.nome           ?? '',
+    municipio:      r.municipio      ?? '',
+    score_geral:    calcularScoreReal(r),
+    rendas_mediana: r.rendas_mediana ?? null,
   }));
 }
 
@@ -236,6 +289,21 @@ export default {
         });
       } catch (_) {
         return respostaJson({ erro: 'Erro ao gerar análise' }, 500, cors);
+      }
+    }
+
+    /* Endpoint /analise-pdf?codigo_ine=XXX — análise estruturada para geração de PDF (página 3) */
+    if (pathname === '/analise-pdf') {
+      const codigoIne = url.searchParams.get('codigo_ine');
+      if (!codigoIne) return respostaJson({ erro: 'codigo_ine obrigatório' }, 400, cors);
+      try {
+        const resultado = await gerarAnalisePdf(codigoIne, env);
+        return new Response(JSON.stringify(resultado), {
+          status:  resultado.erro ? 404 : 200,
+          headers: { ...cors, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+        });
+      } catch (_) {
+        return respostaJson({ erro: 'Erro ao gerar análise PDF' }, 500, cors);
       }
     }
 

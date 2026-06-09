@@ -1546,7 +1546,7 @@
           '<p class="paywall-sub">Estás a ver todos os indicadores desta freguesia.</p>' +
           '<div class="paywall-botoes">' +
           '<a href="/comparar.html?a=' + nomeFreg + '" class="btn-comparar" style="color:rgba(255,255,255,0.9);border-color:rgba(255,255,255,0.4)">Comparar com outra freguesia →</a>' +
-          '<button class="btn-pdf" onclick="window.print()">⬇ Exportar PDF</button>' +
+          '<button class="btn-pdf" id="btn-exportar-pdf" onclick="gerarPDF()">⬇ Exportar PDF</button>' +
           '</div></div>';
       }
 
@@ -1706,7 +1706,290 @@ document.getElementById('form-alerta').style.display = 'none';
     });
 
     init();
+
+    /* ════════════════════════════════════════════════════════════
+       GERAÇÃO DE PDF — html2pdf.js (cdnjs 0.10.1)
+       ════════════════════════════════════════════════════════════ */
+
+    function slugificar(texto) {
+      return (texto || '').toLowerCase()
+        .replace(/[àáâãä]/g, 'a').replace(/[èéêë]/g, 'e')
+        .replace(/[ìíîï]/g, 'i').replace(/[òóôõö]/g, 'o')
+        .replace(/[ùúûü]/g, 'u').replace(/ç/g, 'c')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    }
+
+    async function gerarPDF() {
+      if (!dadosReais) return;
+
+      var btn  = document.getElementById('btn-exportar-pdf');
+      var orig = btn ? btn.textContent : '⬇ Exportar PDF';
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ A gerar PDF…'; }
+
+      try {
+        /* 1. Análise estruturada (Claude Haiku) para página 3 */
+        var analise = null;
+        try {
+          var ranal = await fetch(WORKER_URL + '/analise-pdf?codigo_ine=' + encodeURIComponent(dadosReais.codigo_ine));
+          var janal = await ranal.json();
+          if (!janal.erro) analise = janal;
+        } catch (_) {}
+
+        /* 2. Alternativas do mesmo município para página 4 */
+        var alternativas = [];
+        try {
+          var ralt = await fetch(WORKER_URL + '/municipio?nome=' + encodeURIComponent(dadosReais.municipio));
+          var jalt = await ralt.json();
+          if (jalt.encontrado && jalt.freguesias) {
+            alternativas = jalt.freguesias.filter(function (f) { return f.nome !== dadosReais.nome; }).slice(0, 3);
+          }
+        } catch (_) {}
+
+        /* 3. Montar HTML e gerar PDF */
+        var cont = document.getElementById('pdf-render');
+        cont.innerHTML = construirHtmlPdf(dadosReais, analise, alternativas);
+        cont.style.display = 'block';
+
+        await html2pdf().set({
+          margin:      0,
+          filename:    'melhorzona-' + slugificar(dadosReais.nome) + '.pdf',
+          image:       { type: 'jpeg', quality: 0.96 },
+          html2canvas: { scale: 2, useCORS: true, logging: false, allowTaint: true },
+          jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak:   { mode: 'css', before: '.pdf-nova-pagina' },
+        }).from(cont).save();
+
+        cont.style.display = 'none';
+        cont.innerHTML     = '';
+
+      } catch (err) {
+        console.error('Erro PDF:', err);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = orig; }
+      }
+    }
+
+    function construirHtmlPdf(r, analise, alternativas) {
+      var nome     = r.nome      || 'Freguesia';
+      var mun      = r.municipio || '';
+      var pop      = r.populacao || 0;
+      var popFmt   = pop > 0 ? pop.toLocaleString('pt-PT') : null;
+      var score    = r.score_geral     != null ? Math.round(r.score_geral * 10)     : null;
+      var rendas   = r.rendas_mediana  != null ? parseFloat(r.rendas_mediana)        : null;
+      var segScore = r.seguranca_score != null ? Math.round(r.seguranca_score * 10)  : null;
+      var segVal   = r.seguranca_valor != null ? parseFloat(r.seguranca_valor)       : null;
+      var cliTemp  = r.clima_temp_media   != null ? parseFloat(r.clima_temp_media)   : null;
+      var cliSol   = r.clima_sol_horas    != null ? Math.round(r.clima_sol_horas)    : null;
+      var cliScore = r.clima_score        != null ? Math.round(r.clima_score * 10)   : null;
+      var dataHoje = new Date().toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' });
+
+      var fN = function (v, d) { return v != null ? parseFloat(v).toFixed(d).replace('.', ',') : 'N/D'; };
+      var cor = function (v) {
+        if (v == null) return '#999';
+        return v >= 70 ? '#1E8449' : v >= 45 ? '#D35400' : '#C0392B';
+      };
+
+      var FT = "'Playfair Display', Georgia, serif";
+      var FC = "'Inter', system-ui, -apple-system, sans-serif";
+      var AZ = '#1B4F72', VD = '#1E8449', LR = '#D35400', VM = '#C0392B';
+
+      /* ── PÁGINA 1: CAPA ── */
+      var p1 = `<div style="width:794px;height:1123px;background:${AZ};overflow:hidden;position:relative;font-family:${FC};">
+  <div style="position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 40px,rgba(255,255,255,0.02) 40px,rgba(255,255,255,0.02) 41px);pointer-events:none;"></div>
+  <div style="position:absolute;right:-50px;bottom:-50px;width:340px;height:340px;border-radius:50%;border:55px solid rgba(255,255,255,0.05);pointer-events:none;"></div>
+  <div style="position:relative;padding:44px 60px 0;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.16em;text-transform:uppercase;">MELHORZONA.PT</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;text-transform:uppercase;">Relatório de Qualidade de Vida</div>
+  </div>
+  <div style="position:relative;padding:0 60px;margin-top:80px;">
+    <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.45);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:10px;">${mun}</div>
+    <div style="font-family:${FT};font-size:${nome.length > 22 ? 52 : nome.length > 16 ? 62 : nome.length > 10 ? 72 : 82}px;font-weight:800;color:#fff;line-height:1.05;letter-spacing:-1px;margin-bottom:20px;">${nome}</div>
+    <div style="width:56px;height:4px;background:rgba(255,255,255,0.35);border-radius:2px;margin-bottom:56px;"></div>
+    ${score != null ? `<div style="margin-bottom:52px;">
+      <span style="font-family:${FT};font-size:104px;font-weight:800;color:#fff;line-height:1;">${score}</span>
+      <span style="font-family:${FT};font-size:44px;font-weight:800;color:rgba(255,255,255,0.45);">/100</span>
+      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.45);letter-spacing:0.12em;text-transform:uppercase;margin-top:6px;">Índice de Qualidade · Melhor Zona</div>
+    </div>` : ''}
+    <div style="display:flex;gap:14px;">
+      ${rendas != null ? `<div style="flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:${FT};font-size:28px;font-weight:800;color:#fff;line-height:1.1;">${fN(rendas, 2)}€</div>
+        <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.45);margin-top:6px;letter-spacing:0.08em;text-transform:uppercase;">Renda mediana /m²<br>INE 2024</div>
+      </div>` : ''}
+      ${segVal != null ? `<div style="flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:${FT};font-size:28px;font-weight:800;color:#fff;line-height:1.1;">${fN(segVal, 1)}</div>
+        <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.45);margin-top:6px;letter-spacing:0.08em;text-transform:uppercase;">Crimes/1000 hab.<br>DGAI 2023</div>
+      </div>` : ''}
+      ${popFmt ? `<div style="flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:18px 22px;">
+        <div style="font-family:${FT};font-size:28px;font-weight:800;color:#fff;line-height:1.1;">${popFmt}</div>
+        <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.45);margin-top:6px;letter-spacing:0.08em;text-transform:uppercase;">Habitantes<br>Censos 2021</div>
+      </div>` : ''}
+    </div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:22px 60px;border-top:1px solid rgba(255,255,255,0.1);display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:10px;color:rgba(255,255,255,0.35);">Fontes: INE Censos 2021 · INE Rendas 2024 · DGAI 2023</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.35);">${dataHoje}</div>
+  </div>
+</div>`;
+
+      /* ── PÁGINA 2: DADOS E INDICADORES ── */
+      var cardsP2 = [];
+      if (rendas != null) {
+        cardsP2.push({ cor: AZ, tit: 'Arrendamento', val: fN(rendas, 2) + '€/m²', sub: 'Renda mediana · INE 2024', sc: Math.max(0, Math.round(100 - rendas * 3)) });
+      }
+      if (segScore != null) {
+        cardsP2.push({ cor: LR, tit: 'Segurança', val: segScore + '/100', sub: fN(segVal, 1) + ' crimes/1000 hab · DGAI 2023', sc: segScore });
+      }
+      if (cliTemp != null) {
+        cardsP2.push({ cor: VD, tit: 'Clima', val: fN(cliTemp, 1) + '°C', sub: (cliSol ? cliSol + ' h sol/ano' : '') + ' · ERA5 2015–2024', sc: cliScore });
+      }
+      if (popFmt) {
+        cardsP2.push({ cor: '#6C3483', tit: 'População', val: popFmt, sub: 'Habitantes · Censos 2021', sc: null });
+      }
+      while (cardsP2.length < 2) cardsP2.push({ cor: '#ccc', tit: 'Sem dados', val: '—', sub: 'Dados não disponíveis', sc: null });
+      cardsP2 = cardsP2.slice(0, 4);
+
+      var htmlCards2 = cardsP2.map(function (c) {
+        return `<div style="background:#f8fafd;border:1px solid #dde8f0;border-top:4px solid ${c.cor};border-radius:10px;padding:18px 20px;">
+          <div style="font-size:10px;font-weight:700;color:${c.cor};letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">${c.tit}</div>
+          <div style="font-family:${FT};font-size:26px;font-weight:800;color:#1a2e3e;line-height:1.15;">${c.val}</div>
+          <div style="font-size:10px;color:#566779;margin-top:5px;">${c.sub}</div>
+          ${c.sc != null ? `<div style="margin-top:10px;height:5px;background:#dde8f0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:${c.sc}%;background:${c.cor};border-radius:3px;"></div></div>` : ''}
+        </div>`;
+      }).join('');
+
+      var mkBarra = function (lbl, v, vLbl, vRef, refLbl, corV) {
+        var mx  = vRef * 1.8;
+        var pct = Math.min(100, Math.round(v / mx * 100));
+        var rPc = Math.min(100, Math.round(vRef / mx * 100));
+        return `<div style="margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="font-size:12px;font-weight:600;color:#1a2e3e;">${lbl}</span>
+            <span style="font-size:11px;color:#566779;">${vLbl} · ref. ${refLbl}</span>
+          </div>
+          <div style="position:relative;height:22px;background:#dde8f0;border-radius:5px;overflow:hidden;">
+            <div style="position:absolute;top:0;left:0;height:22px;width:${rPc}%;background:rgba(0,0,0,0.12);border-radius:5px;"></div>
+            <div style="position:absolute;top:0;left:0;height:22px;width:${pct}%;background:${corV};border-radius:5px;"></div>
+          </div>
+        </div>`;
+      };
+
+      var htmlBarras2 = '';
+      if (rendas != null) {
+        var corRend = rendas > 13.5 ? VM : rendas > 10.5 ? LR : VD;
+        htmlBarras2 += mkBarra('Renda mediana vs nacional', rendas, fN(rendas, 2) + '€/m²', 10.5, '10,5€ nacional', corRend);
+      }
+      if (segScore != null) htmlBarras2 += mkBarra('Segurança vs referência nacional', segScore, segScore + '/100', 50, '50/100 ref.', cor(segScore));
+      if (score    != null) htmlBarras2 += mkBarra('Qualidade geral vs referência',    score,    score + '/100',    58, '58/100 ref.', cor(score));
+
+      var p2 = `<div class="pdf-nova-pagina" style="width:794px;height:1123px;background:#fff;overflow:hidden;position:relative;font-family:${FC};page-break-before:always;">
+  <div style="background:${AZ};padding:26px 60px;">
+    <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px;">${mun} · ${nome}</div>
+    <div style="font-family:${FT};font-size:22px;font-weight:800;color:#fff;">Dados e Indicadores</div>
+  </div>
+  <div style="padding:28px 60px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;">${htmlCards2}</div>
+    <div style="font-size:11px;font-weight:700;color:${AZ};letter-spacing:0.08em;text-transform:uppercase;border-bottom:2px solid #D6E8F5;padding-bottom:8px;margin-bottom:16px;">Comparação com valores de referência</div>
+    ${htmlBarras2 || '<p style="font-size:13px;color:#999;margin:0;">Dados insuficientes para comparação.</p>'}
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:14px 60px;border-top:1px solid #e5edf5;display:flex;justify-content:space-between;">
+    <div style="font-size:10px;color:#aab4bf;">INE Censos 2021 · INE Rendas 2024 · DGAI 2023 · ERA5 Open-Meteo</div>
+    <div style="font-size:10px;color:#aab4bf;">melhorzona.pt · ${dataHoje}</div>
+  </div>
+</div>`;
+
+      /* ── PÁGINA 3: ANÁLISE EDITORIAL ── */
+      var tit3 = analise && analise.titulo         ? analise.titulo         : nome + ' — Perfil editorial';
+      var car3 = analise && analise.caracterizacao ? analise.caracterizacao : (r.resumo_ia || 'Análise editorial não disponível para esta freguesia.');
+      var fts3 = analise && Array.isArray(analise.pontos_fortes)  ? analise.pontos_fortes.slice(0, 3)  : [];
+      var ats3 = analise && Array.isArray(analise.pontos_atencao) ? analise.pontos_atencao.slice(0, 3) : [];
+      var pq3  = analise && analise.para_quem      ? analise.para_quem      : '';
+
+      var htmlFts3 = fts3.length
+        ? `<div style="background:#f0faf4;border:1px solid #a9dfbf;border-left:4px solid ${VD};border-radius:8px;padding:16px 18px;">
+          <div style="font-size:10px;font-weight:700;color:${VD};letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Pontos Fortes</div>
+          ${fts3.map(function (p) { return `<div style="display:flex;gap:8px;margin-bottom:7px;align-items:flex-start;"><span style="color:${VD};font-weight:800;flex-shrink:0;line-height:1.6;">✓</span><span style="font-size:12px;color:#1a3a2a;line-height:1.6;">${p}</span></div>`; }).join('')}
+        </div>` : '';
+
+      var htmlAts3 = ats3.length
+        ? `<div style="background:#fef9f0;border:1px solid #f5cba7;border-left:4px solid ${LR};border-radius:8px;padding:16px 18px;">
+          <div style="font-size:10px;font-weight:700;color:${LR};letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Pontos de Atenção</div>
+          ${ats3.map(function (p) { return `<div style="display:flex;gap:8px;margin-bottom:7px;align-items:flex-start;"><span style="color:${LR};font-weight:800;flex-shrink:0;line-height:1.6;">→</span><span style="font-size:12px;color:#3a2a1a;line-height:1.6;">${p}</span></div>`; }).join('')}
+        </div>` : '';
+
+      var p3 = `<div class="pdf-nova-pagina" style="width:794px;height:1123px;background:#fff;overflow:hidden;position:relative;font-family:${FC};page-break-before:always;">
+  <div style="background:${AZ};padding:26px 60px;">
+    <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px;">${mun} · ${nome}</div>
+    <div style="font-family:${FT};font-size:22px;font-weight:800;color:#fff;">Análise Editorial</div>
+  </div>
+  <div style="padding:28px 60px;">
+    <div style="font-family:${FT};font-size:26px;font-weight:800;color:#1a2e3e;line-height:1.3;margin-bottom:14px;">${tit3}</div>
+    <div style="font-size:13px;color:#2c3e50;line-height:1.8;margin-bottom:24px;padding-bottom:22px;border-bottom:2px solid #D6E8F5;">${car3}</div>
+    ${(htmlFts3 || htmlAts3) ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">${htmlFts3}${htmlAts3}</div>` : ''}
+    ${pq3 ? `<div style="background:${AZ};border-radius:10px;padding:18px 22px;color:#fff;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:8px;">Para quem é esta zona</div>
+      <div style="font-size:13px;line-height:1.65;">${pq3}</div>
+    </div>` : ''}
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:14px 60px;border-top:1px solid #e5edf5;display:flex;justify-content:space-between;">
+    <div style="font-size:10px;color:#aab4bf;">Análise editorial · Melhor Zona · Dados INE 2024 · DGAI 2023</div>
+    <div style="font-size:10px;color:#aab4bf;">melhorzona.pt · ${dataHoje}</div>
+  </div>
+</div>`;
+
+      /* ── PÁGINA 4: ALTERNATIVAS ── */
+      var alt3 = (alternativas || []).slice(0, 3);
+      var htmlAlt4 = alt3.length > 0
+        ? alt3.map(function (a) {
+            var aS = a.score_geral    != null ? Math.round(a.score_geral * 10) : null;
+            var aR = a.rendas_mediana != null ? parseFloat(a.rendas_mediana)   : null;
+            return `<div style="background:#f8fafd;border:1px solid #dde8f0;border-radius:12px;padding:20px 24px;display:flex;align-items:center;gap:20px;margin-bottom:14px;">
+              <div style="flex-shrink:0;width:60px;height:60px;border-radius:50%;background:${cor(aS)};display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                <div style="font-family:${FT};font-size:16px;font-weight:800;color:#fff;line-height:1;">${aS != null ? aS : '—'}</div>
+                <div style="font-size:8px;color:rgba(255,255,255,0.7);line-height:1.4;">/100</div>
+              </div>
+              <div style="flex:1;">
+                <div style="font-family:${FT};font-size:17px;font-weight:800;color:#1a2e3e;margin-bottom:4px;">${a.nome}</div>
+                ${aR != null ? `<div style="font-size:11px;color:#566779;">Renda mediana: ${fN(aR, 2)}€/m² · INE 2024</div>` : '<div style="font-size:11px;color:#999;">Rendas sem dados INE</div>'}
+              </div>
+              <div style="flex-shrink:0;font-size:10px;font-weight:700;color:${AZ};letter-spacing:0.05em;">MELHORZONA.PT</div>
+            </div>`;
+          }).join('')
+        : `<div style="padding:32px;text-align:center;color:#999;font-size:13px;">Sem alternativas disponíveis para ${mun}.</div>`;
+
+      var p4 = `<div class="pdf-nova-pagina" style="width:794px;height:1123px;background:#fff;overflow:hidden;position:relative;font-family:${FC};page-break-before:always;">
+  <div style="background:${AZ};padding:26px 60px;">
+    <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px;">OUTRAS OPÇÕES</div>
+    <div style="font-family:${FT};font-size:22px;font-weight:800;color:#fff;">Freguesias em ${mun}</div>
+  </div>
+  <div style="padding:28px 60px;">
+    <div style="font-size:12px;color:#566779;margin-bottom:22px;">Com base nos índices de qualidade de vida disponíveis para ${mun}:</div>
+    ${htmlAlt4}
+    <div style="margin-top:24px;padding:18px 22px;background:#D6E8F5;border-radius:10px;">
+      <div style="font-size:12px;font-weight:600;color:${AZ};margin-bottom:6px;">Comparar estas freguesias</div>
+      <div style="font-size:11px;color:#2c4a6a;">Em melhorzona.pt podes comparar lado a lado qualquer par de freguesias, com todos os indicadores disponíveis.</div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;background:${AZ};padding:26px 60px;display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <div style="font-family:${FT};font-size:18px;font-weight:800;color:#fff;">Melhor Zona</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:3px;">Qualidade de vida nas 3 259 freguesias de Portugal</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px;color:rgba(255,255,255,0.65);">melhorzona.pt</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;">${dataHoje}</div>
+    </div>
+  </div>
+</div>`;
+
+      return `<div style="width:794px;background:#fff;">${p1}${p2}${p3}${p4}</div>`;
+    }
   </script>
+
+  <!-- Contentor off-screen para renderização do PDF -->
+  <div id="pdf-render" style="display:none;position:fixed;left:-9999px;top:0;z-index:-1;"></div>
+
+  <!-- html2pdf.js — geração de PDF client-side -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-x4Vo4C1Oc7C-11iBfAlmJ.js"></script>
