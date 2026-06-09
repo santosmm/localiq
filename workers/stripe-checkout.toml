@@ -5,8 +5,8 @@ compatibility_date = "2025-05-31"
 # Substituir pelos price_ID reais criados no Stripe Dashboard
 # Ver instruções em CLAUDE.md → secção Stripe
 [vars]
-STRIPE_PRICE_ID_UNITARIO = "STRIPE_PRICE_ID_UNITARIO"
-STRIPE_PRICE_ID_MENSAL   = "STRIPE_PRICE_ID_MENSAL"
+STRIPE_PRICE_ID_UNITARIO = "price_1TgMPkI9ddouPL8QKk3ShwzO"
+STRIPE_PRICE_ID_MENSAL   = "price_1TgMP1I9ddouPL8QLCpgANNn"
 
 # Secrets (nunca em texto claro — usar wrangler secret put):
 # cd workers && printf 'sk_live_...' | wrangler secret put STRIPE_SECRET_KEY --config stripe-checkout.toml
